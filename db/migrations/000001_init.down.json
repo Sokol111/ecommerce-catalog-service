@@ -1,0 +1,31 @@
+[
+    {
+        "dropIndexes": "product",
+        "index": [
+            "product_createdAt_v1",
+            "product_categoryId_v1",
+            "product_enabled_v1"
+        ],
+        "writeConcern": {
+            "w": "majority"
+        }
+    },
+    {
+        "dropIndexes": "category",
+        "index": "category_createdAt_v1",
+        "writeConcern": {
+            "w": "majority"
+        }
+    },
+    {
+        "dropIndexes": "attribute",
+        "index": [
+            "attribute_slug_unique_v1",
+            "attribute_enabled_v1",
+            "attribute_type_v1"
+        ],
+        "writeConcern": {
+            "w": "majority"
+        }
+    }
+]

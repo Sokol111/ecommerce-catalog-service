@@ -1,0 +1,21 @@
+logger:
+  level: "debug"
+
+server:
+  port: 8080
+
+mongo:
+  host: ""
+  port: 27017
+  replica-set: rs0
+  database: "catalog"
+  migrations:
+    enabled: true
+    auto-migrate: true
+
+kafka:
+  brokers: ""
+
+observability:
+  tracing-enabled: true
+  otel-collector-endpoint: ""

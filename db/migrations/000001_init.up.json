@@ -1,0 +1,72 @@
+[
+    {
+        "createIndexes": "product",
+        "indexes": [
+            {
+                "name": "product_createdAt_v1",
+                "key": {
+                    "createdAt": 1
+                }
+            },
+            {
+                "name": "product_categoryId_v1",
+                "key": {
+                    "categoryId": 1
+                }
+            },
+            {
+                "name": "product_enabled_v1",
+                "key": {
+                    "enabled": 1
+                }
+            }
+        ],
+        "commitQuorum": "majority",
+        "writeConcern": {
+            "w": "majority"
+        }
+    },
+    {
+        "createIndexes": "category",
+        "indexes": [
+            {
+                "name": "category_createdAt_v1",
+                "key": {
+                    "createdAt": 1
+                }
+            }
+        ],
+        "commitQuorum": "majority",
+        "writeConcern": {
+            "w": "majority"
+        }
+    },
+    {
+        "createIndexes": "attribute",
+        "indexes": [
+            {
+                "name": "attribute_slug_unique_v1",
+                "key": {
+                    "slug": 1
+                },
+                "unique": true
+            },
+            {
+                "name": "attribute_enabled_v1",
+                "key": {
+                    "enabled": 1
+                }
+            },
+            {
+                "name": "attribute_type_v1",
+                "key": {
+                    "type": 1
+                }
+            }
+        ],
+        "commitQuorum": "majority",
+        "writeConcern": {
+            "w": "majority"
+        }
+    }
+]
