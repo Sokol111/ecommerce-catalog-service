@@ -22,7 +22,7 @@
             "request": "attach",
             "mode": "remote",
             "remotePath": "/src/svc",
-            "port": 2352,
+            "port": 2345,
             "host": "localhost",
             "showLog": true,
             "trace": "verbose",
