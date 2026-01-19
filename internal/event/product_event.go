@@ -58,7 +58,7 @@ func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *pro
 		Metadata: commonsevents.EventMetadata{
 			EventID:   uuid.New().String(),
 			EventType: events.EventTypeProductCreated,
-			Source:    "ecommerce-product-service",
+			Source:    "ecommerce-catalog-service",
 			Timestamp: time.Now().UTC(),
 			TraceID:   &traceId,
 		},
@@ -86,7 +86,7 @@ func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *pro
 		Metadata: commonsevents.EventMetadata{
 			EventID:   uuid.New().String(),
 			EventType: events.EventTypeProductUpdated,
-			Source:    "ecommerce-product-service",
+			Source:    "ecommerce-catalog-service",
 			Timestamp: time.Now().UTC(),
 			TraceID:   &traceId,
 		},

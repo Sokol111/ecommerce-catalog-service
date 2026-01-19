@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 
+	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-commons/pkg/security/token"
-	"github.com/Sokol111/ecommerce-product-service-api/gen/httpapi"
 )
 
 type securityHandler struct {

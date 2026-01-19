@@ -51,7 +51,7 @@ func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *c
 		Metadata: commonsevents.EventMetadata{
 			EventID:   uuid.New().String(),
 			EventType: events.EventTypeCategoryCreated,
-			Source:    "ecommerce-category-service",
+			Source:    "ecommerce-catalog-service",
 			Timestamp: time.Now().UTC(),
 			TraceID:   &traceId,
 		},
@@ -74,7 +74,7 @@ func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *c
 		Metadata: commonsevents.EventMetadata{
 			EventID:   uuid.New().String(),
 			EventType: events.EventTypeCategoryUpdated,
-			Source:    "ecommerce-category-service",
+			Source:    "ecommerce-catalog-service",
 			Timestamp: time.Now().UTC(),
 			TraceID:   &traceId,
 		},
