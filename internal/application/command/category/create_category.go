@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/samber/lo"
+
+	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
@@ -38,6 +41,7 @@ type CreateCategoryCommandHandler interface {
 
 type createCategoryHandler struct {
 	repo         category.Repository
+	attrRepo     attribute.Repository
 	outbox       outbox.Outbox
 	txManager    persistence.TxManager
 	eventFactory event.CategoryEventFactory
@@ -45,12 +49,14 @@ type createCategoryHandler struct {
 
 func NewCreateCategoryHandler(
 	repo category.Repository,
+	attrRepo attribute.Repository,
 	outbox outbox.Outbox,
 	txManager persistence.TxManager,
 	eventFactory event.CategoryEventFactory,
 ) CreateCategoryCommandHandler {
 	return &createCategoryHandler{
 		repo:         repo,
+		attrRepo:     attrRepo,
 		outbox:       outbox,
 		txManager:    txManager,
 		eventFactory: eventFactory,
@@ -58,32 +64,77 @@ func NewCreateCategoryHandler(
 }
 
 func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCommand) (*category.Category, error) {
-	var c *category.Category
-	var err error
+	// Collect attribute IDs for validation and enrichment
+	attrIDs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) string {
+		return attr.AttributeID
+	})
+
+	// Fetch and validate attributes
+	attrs, err := h.fetchAndValidateAttributes(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert attributes from command to domain
-	attributes := make([]category.CategoryAttribute, 0, len(cmd.Attributes))
-	for _, attr := range cmd.Attributes {
-		attributes = append(attributes, category.CategoryAttribute{
+	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
+		return category.CategoryAttribute{
 			AttributeID: attr.AttributeID,
 			Role:        category.AttributeRole(attr.Role),
 			Required:    attr.Required,
 			SortOrder:   attr.SortOrder,
 			Filterable:  attr.Filterable,
 			Searchable:  attr.Searchable,
-		})
-	}
+		}
+	})
 
-	if cmd.ID != nil {
-		c, err = category.NewCategoryWithID(cmd.ID.String(), cmd.Name, cmd.Enabled, attributes)
-	} else {
-		c, err = category.NewCategory(cmd.Name, cmd.Enabled, attributes)
-	}
-
+	// Create category
+	c, err := h.createCategory(cmd, categoryAttrs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
 
+	// Persist and publish
+	return h.persistAndPublish(ctx, c, attrs)
+}
+
+func (h *createCategoryHandler) fetchAndValidateAttributes(ctx context.Context, attrIDs []string) ([]*attribute.Attribute, error) {
+	if len(attrIDs) == 0 {
+		return []*attribute.Attribute{}, nil
+	}
+
+	attrs, err := h.attrRepo.FindByIDs(ctx, attrIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch attributes: %w", err)
+	}
+
+	// Validate all requested attributes exist
+	foundIDs := lo.SliceToMap(attrs, func(attr *attribute.Attribute) (string, struct{}) {
+		return attr.ID, struct{}{}
+	})
+
+	missingID, found := lo.Find(attrIDs, func(id string) bool {
+		_, exists := foundIDs[id]
+		return !exists
+	})
+	if found {
+		return nil, fmt.Errorf("attribute not found: %s", missingID)
+	}
+
+	return attrs, nil
+}
+
+func (h *createCategoryHandler) createCategory(cmd CreateCategoryCommand, attrs []category.CategoryAttribute) (*category.Category, error) {
+	if cmd.ID != nil {
+		return category.NewCategoryWithID(cmd.ID.String(), cmd.Name, cmd.Enabled, attrs)
+	}
+	return category.NewCategory(cmd.Name, cmd.Enabled, attrs)
+}
+
+func (h *createCategoryHandler) persistAndPublish(
+	ctx context.Context,
+	c *category.Category,
+	attrs []*attribute.Attribute,
+) (*category.Category, error) {
 	type createResult struct {
 		Category *category.Category
 		Send     outbox.SendFunc
@@ -94,7 +145,7 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 			return nil, fmt.Errorf("failed to insert category: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(txCtx, c)
+		msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(txCtx, c, attrs)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create event message: %w", err)
 		}

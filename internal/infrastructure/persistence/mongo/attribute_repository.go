@@ -59,6 +59,15 @@ func (r *attributeRepository) FindList(ctx context.Context, query attribute.List
 	return r.FindWithOptions(ctx, opts)
 }
 
+func (r *attributeRepository) FindByIDs(ctx context.Context, ids []string) ([]*attribute.Attribute, error) {
+	if len(ids) == 0 {
+		return []*attribute.Attribute{}, nil
+	}
+
+	filter := bson.D{{Key: "_id", Value: bson.D{{Key: "$in", Value: ids}}}}
+	return r.FindAllWithFilter(ctx, filter, nil)
+}
+
 // Override Insert to handle duplicate slug error
 func (r *attributeRepository) Insert(ctx context.Context, a *attribute.Attribute) error {
 	err := r.GenericRepository.Insert(ctx, a)

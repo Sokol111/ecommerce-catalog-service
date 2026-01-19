@@ -20,6 +20,8 @@ type Repository interface {
 
 	FindByID(ctx context.Context, id string) (*Attribute, error)
 
+	FindByIDs(ctx context.Context, ids []string) ([]*Attribute, error)
+
 	FindList(ctx context.Context, query ListQuery) (*commonsmongo.PageResult[Attribute], error)
 
 	Update(ctx context.Context, attribute *Attribute) (*Attribute, error)
