@@ -2,6 +2,9 @@ package mongo
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
@@ -66,6 +69,26 @@ func (r *attributeRepository) FindByIDs(ctx context.Context, ids []string) ([]*a
 
 	filter := bson.D{{Key: "_id", Value: bson.D{{Key: "$in", Value: ids}}}}
 	return r.FindAllWithFilter(ctx, filter, nil)
+}
+
+func (r *attributeRepository) FindByIDsOrFail(ctx context.Context, ids []string) ([]*attribute.Attribute, error) {
+	attrs, err := r.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch attributes: %w", err)
+	}
+
+	if len(attrs) != len(ids) {
+		foundIDs := lo.SliceToMap(attrs, func(a *attribute.Attribute) (string, struct{}) {
+			return a.ID, struct{}{}
+		})
+		missingID, _ := lo.Find(ids, func(id string) bool {
+			_, exists := foundIDs[id]
+			return !exists
+		})
+		return nil, fmt.Errorf("attribute not found: %s", missingID)
+	}
+
+	return attrs, nil
 }
 
 // Override Insert to handle duplicate slug error

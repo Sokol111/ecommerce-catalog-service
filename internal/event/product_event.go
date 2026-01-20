@@ -4,7 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	commonsevents "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
@@ -14,8 +17,8 @@ import (
 
 // ProductEventFactory creates product events
 type ProductEventFactory interface {
-	NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product) (outbox.Message, error)
-	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product) (outbox.Message, error)
+	NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error)
+	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error)
 }
 
 type productEventFactory struct{}
@@ -25,15 +28,25 @@ func newProductEventFactory() ProductEventFactory {
 	return &productEventFactory{}
 }
 
-func toProductEventAttributes(attrs []product.ProductAttribute) *[]events.ProductAttribute {
-	if len(attrs) == 0 {
+func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*attribute.Attribute) *[]events.ProductAttribute {
+	if len(productAttrs) == 0 {
 		return nil
 	}
 
-	result := make([]events.ProductAttribute, len(attrs))
-	for i, attr := range attrs {
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
+	result := make([]events.ProductAttribute, len(productAttrs))
+	for i, attr := range productAttrs {
+		slug := ""
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			slug = a.Slug
+		}
+
 		result[i] = events.ProductAttribute{
 			AttributeID:      attr.AttributeID,
+			AttributeSlug:    slug,
 			OptionSlugValue:  attr.OptionSlugValue,
 			OptionSlugValues: toStringSlicePtr(attr.OptionSlugValues),
 			NumericValue:     attr.NumericValue,
@@ -51,7 +64,7 @@ func toStringSlicePtr(s []string) *[]string {
 	return &s
 }
 
-func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *product.Product) *events.ProductCreatedEvent {
+func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) *events.ProductCreatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.ProductCreatedEvent{
@@ -74,12 +87,12 @@ func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *pro
 			CategoryID:  p.CategoryID,
 			CreatedAt:   p.CreatedAt,
 			ModifiedAt:  p.ModifiedAt,
-			Attributes:  toProductEventAttributes(p.Attributes),
+			Attributes:  toProductEventAttributes(p.Attributes, attrs),
 		},
 	}
 }
 
-func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *product.Product) *events.ProductUpdatedEvent {
+func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) *events.ProductUpdatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.ProductUpdatedEvent{
@@ -102,13 +115,13 @@ func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *pro
 			CategoryID:  p.CategoryID,
 			CreatedAt:   p.CreatedAt,
 			ModifiedAt:  p.ModifiedAt,
-			Attributes:  toProductEventAttributes(p.Attributes),
+			Attributes:  toProductEventAttributes(p.Attributes, attrs),
 		},
 	}
 }
 
-func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product) (outbox.Message, error) {
-	e := f.newProductCreatedEvent(ctx, p)
+func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error) {
+	e := f.newProductCreatedEvent(ctx, p, attrs)
 
 	return outbox.Message{
 		Payload: e,
@@ -117,8 +130,8 @@ func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context
 	}, nil
 }
 
-func (f *productEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product) (outbox.Message, error) {
-	e := f.newProductUpdatedEvent(ctx, p)
+func (f *productEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error) {
+	e := f.newProductUpdatedEvent(ctx, p, attrs)
 
 	return outbox.Message{
 		Payload: e,

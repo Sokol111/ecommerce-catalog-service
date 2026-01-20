@@ -22,6 +22,9 @@ type Repository interface {
 
 	FindByIDs(ctx context.Context, ids []string) ([]*Attribute, error)
 
+	// FindByIDsOrFail returns attributes by IDs or error if any ID is not found
+	FindByIDsOrFail(ctx context.Context, ids []string) ([]*Attribute, error)
+
 	FindList(ctx context.Context, query ListQuery) (*commonsmongo.PageResult[Attribute], error)
 
 	Update(ctx context.Context, attribute *Attribute) (*Attribute, error)

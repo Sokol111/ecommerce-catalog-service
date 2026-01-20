@@ -64,18 +64,15 @@ func NewCreateCategoryHandler(
 }
 
 func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCommand) (*category.Category, error) {
-	// Collect attribute IDs for validation and enrichment
 	attrIDs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) string {
 		return attr.AttributeID
 	})
 
-	// Fetch and validate attributes
-	attrs, err := h.fetchAndValidateAttributes(ctx, attrIDs)
+	attrs, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert attributes from command to domain
 	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
 		return category.CategoryAttribute{
 			AttributeID: attr.AttributeID,
@@ -87,40 +84,12 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		}
 	})
 
-	// Create category
 	c, err := h.createCategory(cmd, categoryAttrs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
 
-	// Persist and publish
 	return h.persistAndPublish(ctx, c, attrs)
-}
-
-func (h *createCategoryHandler) fetchAndValidateAttributes(ctx context.Context, attrIDs []string) ([]*attribute.Attribute, error) {
-	if len(attrIDs) == 0 {
-		return []*attribute.Attribute{}, nil
-	}
-
-	attrs, err := h.attrRepo.FindByIDs(ctx, attrIDs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch attributes: %w", err)
-	}
-
-	// Validate all requested attributes exist
-	foundIDs := lo.SliceToMap(attrs, func(attr *attribute.Attribute) (string, struct{}) {
-		return attr.ID, struct{}{}
-	})
-
-	missingID, found := lo.Find(attrIDs, func(id string) bool {
-		_, exists := foundIDs[id]
-		return !exists
-	})
-	if found {
-		return nil, fmt.Errorf("attribute not found: %s", missingID)
-	}
-
-	return attrs, nil
 }
 
 func (h *createCategoryHandler) createCategory(cmd CreateCategoryCommand, attrs []category.CategoryAttribute) (*category.Category, error) {
