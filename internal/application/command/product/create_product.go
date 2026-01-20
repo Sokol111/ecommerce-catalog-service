@@ -74,6 +74,19 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		return nil, fmt.Errorf("failed to create product: %w", err)
 	}
 
+	msg, err := h.eventFactory.NewProductCreatedOutboxMessage(ctx, p, attrs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create event message: %w", err)
+	}
+
+	return h.persistAndPublish(ctx, p, msg)
+}
+
+func (h *createProductHandler) persistAndPublish(
+	ctx context.Context,
+	p *product.Product,
+	msg outbox.Message,
+) (*product.Product, error) {
 	type createResult struct {
 		Product *product.Product
 		Send    outbox.SendFunc
@@ -82,11 +95,6 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, p); err != nil {
 			return nil, fmt.Errorf("failed to insert product: %w", err)
-		}
-
-		msg, err := h.eventFactory.NewProductCreatedOutboxMessage(txCtx, p, attrs)
-		if err != nil {
-			return nil, err
 		}
 
 		send, err := h.outbox.Create(txCtx, msg)

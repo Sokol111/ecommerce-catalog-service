@@ -89,7 +89,12 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
 
-	return h.persistAndPublish(ctx, c, attrs)
+	msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(ctx, c, attrs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create event message: %w", err)
+	}
+
+	return h.persistAndPublish(ctx, c, msg)
 }
 
 func (h *createCategoryHandler) createCategory(cmd CreateCategoryCommand, attrs []category.CategoryAttribute) (*category.Category, error) {
@@ -102,7 +107,7 @@ func (h *createCategoryHandler) createCategory(cmd CreateCategoryCommand, attrs 
 func (h *createCategoryHandler) persistAndPublish(
 	ctx context.Context,
 	c *category.Category,
-	attrs []*attribute.Attribute,
+	msg outbox.Message,
 ) (*category.Category, error) {
 	type createResult struct {
 		Category *category.Category
@@ -112,11 +117,6 @@ func (h *createCategoryHandler) persistAndPublish(
 	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, c); err != nil {
 			return nil, fmt.Errorf("failed to insert category: %w", err)
-		}
-
-		msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(txCtx, c, attrs)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create event message: %w", err)
 		}
 
 		send, err := h.outbox.Create(txCtx, msg)
