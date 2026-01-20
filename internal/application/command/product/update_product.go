@@ -87,7 +87,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		Send    outbox.SendFunc
 	}
 
-	result, err := h.txManager.WithTransaction(ctx, func(txCtx context.Context) (any, error) {
+	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
 		updated, err := h.repo.Update(txCtx, p)
 		if err != nil {
 			if errors.Is(err, persistence.ErrOptimisticLocking) {
@@ -111,14 +111,8 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 			Send:    send,
 		}, nil
 	})
-
 	if err != nil {
 		return nil, err
-	}
-
-	res, ok := result.(*updateResult)
-	if !ok {
-		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
 
 	h.log(ctx).Debug("product updated", zap.String("id", res.Product.ID))

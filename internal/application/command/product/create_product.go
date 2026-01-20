@@ -79,7 +79,7 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		Send    outbox.SendFunc
 	}
 
-	result, err := h.txManager.WithTransaction(ctx, func(txCtx context.Context) (any, error) {
+	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, p); err != nil {
 			return nil, fmt.Errorf("failed to insert product: %w", err)
 		}
@@ -99,14 +99,8 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 			Send:    send,
 		}, nil
 	})
-
 	if err != nil {
 		return nil, err
-	}
-
-	res, ok := result.(*createResult)
-	if !ok {
-		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
 
 	h.log(ctx).Debug("product created", zap.String("id", res.Product.ID))
