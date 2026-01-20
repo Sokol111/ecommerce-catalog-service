@@ -34,12 +34,10 @@ func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*
 		return nil
 	}
 
-	// Build attribute map for quick lookup
 	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
 		return a.ID
 	})
 
-	// Build category attribute map for role and sortOrder
 	var catAttrMap map[string]category.CategoryAttribute
 	if cat != nil {
 		catAttrMap = lo.KeyBy(cat.Attributes, func(ca category.CategoryAttribute) string {
