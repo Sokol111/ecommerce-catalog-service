@@ -15,7 +15,6 @@ type OptionInput struct {
 	Slug      string
 	ColorCode *string
 	SortOrder int
-	Enabled   bool
 }
 
 type CreateAttributeCommand struct {
@@ -49,7 +48,6 @@ func (h *createAttributeHandler) Handle(ctx context.Context, cmd CreateAttribute
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
 			SortOrder: opt.SortOrder,
-			Enabled:   opt.Enabled,
 		}
 	})
 

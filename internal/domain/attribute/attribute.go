@@ -25,7 +25,6 @@ type Option struct {
 	Slug      string
 	ColorCode *string
 	SortOrder int
-	Enabled   bool
 }
 
 // Attribute - domain aggregate root

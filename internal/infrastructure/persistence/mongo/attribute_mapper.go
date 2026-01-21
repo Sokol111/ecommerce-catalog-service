@@ -19,7 +19,6 @@ func (m *attributeMapper) ToEntity(a *attribute.Attribute) *attributeEntity {
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
 			SortOrder: opt.SortOrder,
-			Enabled:   opt.Enabled,
 		}
 	})
 
@@ -44,7 +43,6 @@ func (m *attributeMapper) ToDomain(e *attributeEntity) *attribute.Attribute {
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
 			SortOrder: opt.SortOrder,
-			Enabled:   opt.Enabled,
 		}
 	})
 

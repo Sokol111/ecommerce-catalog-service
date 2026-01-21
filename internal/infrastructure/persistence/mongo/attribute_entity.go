@@ -10,7 +10,6 @@ type optionEntity struct {
 	Slug      string  `bson:"slug"`
 	ColorCode *string `bson:"colorCode,omitempty"`
 	SortOrder int     `bson:"sortOrder"`
-	Enabled   bool    `bson:"enabled"`
 }
 
 // attributeEntity represents the MongoDB document structure

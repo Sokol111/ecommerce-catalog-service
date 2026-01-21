@@ -67,7 +67,6 @@ func toEventAttributeOptions(options []attribute.Option) []events.AttributeOptio
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
 			SortOrder: opt.SortOrder,
-			Enabled:   opt.Enabled,
 		}
 	})
 }

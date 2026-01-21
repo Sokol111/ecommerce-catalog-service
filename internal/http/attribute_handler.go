@@ -40,7 +40,6 @@ func toAttributeOptionResponse(opt attribute.Option, _ int) httpapi.AttributeOpt
 		Slug:      opt.Slug,
 		ColorCode: toOptString(opt.ColorCode),
 		SortOrder: opt.SortOrder,
-		Enabled:   opt.Enabled,
 	}
 }
 
@@ -65,7 +64,6 @@ func toOptionInput(opt httpapi.AttributeOptionInput, _ int) command.OptionInput 
 		Slug:      opt.Slug,
 		ColorCode: lo.If(opt.ColorCode.IsSet(), &opt.ColorCode.Value).Else(nil),
 		SortOrder: opt.SortOrder.Or(0),
-		Enabled:   opt.Enabled,
 	}
 }
 

@@ -57,7 +57,6 @@ func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttribute
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
 			SortOrder: opt.SortOrder,
-			Enabled:   opt.Enabled,
 		}
 	})
 
