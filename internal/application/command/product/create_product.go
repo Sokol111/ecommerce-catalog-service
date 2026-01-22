@@ -74,10 +74,7 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		return nil, fmt.Errorf("failed to create product: %w", err)
 	}
 
-	msg, err := h.eventFactory.NewProductCreatedOutboxMessage(ctx, p, attrs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create event message: %w", err)
-	}
+	msg := h.eventFactory.NewProductCreatedOutboxMessage(ctx, p, attrs)
 
 	return h.persistAndPublish(ctx, p, msg)
 }

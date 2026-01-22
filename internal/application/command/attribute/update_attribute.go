@@ -101,10 +101,7 @@ func (h *updateAttributeHandler) persistAndPublish(
 			return nil, fmt.Errorf("failed to update attribute: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewAttributeUpdatedOutboxMessage(txCtx, updated)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create event message: %w", err)
-		}
+		msg := h.eventFactory.NewAttributeUpdatedOutboxMessage(txCtx, updated)
 
 		send, err := h.outbox.Create(txCtx, msg)
 		if err != nil {

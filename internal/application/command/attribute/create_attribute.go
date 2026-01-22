@@ -85,10 +85,7 @@ func (h *createAttributeHandler) Handle(ctx context.Context, cmd CreateAttribute
 		return nil, fmt.Errorf("failed to create attribute: %w", err)
 	}
 
-	msg, err := h.eventFactory.NewAttributeUpdatedOutboxMessage(ctx, a)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create event message: %w", err)
-	}
+	msg := h.eventFactory.NewAttributeUpdatedOutboxMessage(ctx, a)
 
 	return h.persistAndPublish(ctx, a, msg)
 }

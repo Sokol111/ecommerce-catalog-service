@@ -96,10 +96,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 			return nil, fmt.Errorf("failed to update product: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewProductUpdatedOutboxMessage(txCtx, updated, attrs)
-		if err != nil {
-			return nil, err
-		}
+		msg := h.eventFactory.NewProductUpdatedOutboxMessage(txCtx, updated, attrs)
 
 		send, err := h.outbox.Create(txCtx, msg)
 		if err != nil {

@@ -122,10 +122,7 @@ func (h *updateCategoryHandler) persistAndPublish(
 			return nil, fmt.Errorf("failed to update category: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewCategoryUpdatedOutboxMessage(txCtx, updated)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create event message: %w", err)
-		}
+		msg := h.eventFactory.NewCategoryUpdatedOutboxMessage(txCtx, updated)
 
 		send, err := h.outbox.Create(txCtx, msg)
 		if err != nil {

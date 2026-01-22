@@ -2,22 +2,18 @@ package event
 
 import (
 	"context"
-	"time"
 
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
-	commonsevents "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/observability/tracing"
-	"github.com/google/uuid"
 )
 
 // CategoryEventFactory creates category events
 type CategoryEventFactory interface {
-	NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error)
-	NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error)
+	NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message
+	NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message
 }
 
 type categoryEventFactory struct{}
@@ -43,17 +39,9 @@ func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute) []eve
 	})
 }
 
-func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *category.Category) *events.CategoryCreatedEvent {
-	traceId := tracing.GetTraceID(ctx)
-
+func (f *categoryEventFactory) newCategoryCreatedEvent(c *category.Category) *events.CategoryCreatedEvent {
 	return &events.CategoryCreatedEvent{
-		Metadata: commonsevents.EventMetadata{
-			EventID:   uuid.New().String(),
-			EventType: events.EventTypeCategoryCreated,
-			Source:    "ecommerce-catalog-service",
-			Timestamp: time.Now().UTC(),
-			TraceID:   &traceId,
-		},
+		// Metadata is populated automatically by outbox
 		Payload: events.CategoryCreatedPayload{
 			CategoryID: c.ID,
 			Name:       c.Name,
@@ -66,17 +54,9 @@ func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *c
 	}
 }
 
-func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *category.Category) *events.CategoryUpdatedEvent {
-	traceId := tracing.GetTraceID(ctx)
-
+func (f *categoryEventFactory) newCategoryUpdatedEvent(c *category.Category) *events.CategoryUpdatedEvent {
 	return &events.CategoryUpdatedEvent{
-		Metadata: commonsevents.EventMetadata{
-			EventID:   uuid.New().String(),
-			EventType: events.EventTypeCategoryUpdated,
-			Source:    "ecommerce-catalog-service",
-			Timestamp: time.Now().UTC(),
-			TraceID:   &traceId,
-		},
+		// Metadata is populated automatically by outbox
 		Payload: events.CategoryUpdatedPayload{
 			CategoryID: c.ID,
 			Name:       c.Name,
@@ -89,22 +69,16 @@ func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *c
 	}
 }
 
-func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error) {
-	e := f.newCategoryCreatedEvent(ctx, c)
-
+func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message {
 	return outbox.Message{
-		Payload: e,
-		EventID: e.Metadata.EventID,
-		Key:     c.ID,
-	}, nil
+		Event: f.newCategoryCreatedEvent(c),
+		Key:   c.ID,
+	}
 }
 
-func (f *categoryEventFactory) NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error) {
-	e := f.newCategoryUpdatedEvent(ctx, c)
-
+func (f *categoryEventFactory) NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message {
 	return outbox.Message{
-		Payload: e,
-		EventID: e.Metadata.EventID,
-		Key:     c.ID,
-	}, nil
+		Event: f.newCategoryUpdatedEvent(c),
+		Key:   c.ID,
+	}
 }
