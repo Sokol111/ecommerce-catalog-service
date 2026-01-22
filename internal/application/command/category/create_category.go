@@ -73,9 +73,19 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		return nil, err
 	}
 
+	// Build lookup map for attribute slugs
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
 	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
+		slug := ""
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			slug = a.Slug
+		}
 		return category.CategoryAttribute{
 			AttributeID: attr.AttributeID,
+			Slug:        slug,
 			Role:        category.AttributeRole(attr.Role),
 			Required:    attr.Required,
 			SortOrder:   attr.SortOrder,
@@ -89,7 +99,7 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
 
-	msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(ctx, c, attrs)
+	msg, err := h.eventFactory.NewCategoryCreatedOutboxMessage(ctx, c)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create event message: %w", err)
 	}

@@ -20,6 +20,7 @@ const (
 // CategoryAttribute represents an attribute assigned to a category
 type CategoryAttribute struct {
 	AttributeID string
+	Slug        string // Attribute slug (immutable, stored for events)
 	Role        AttributeRole
 	Required    bool
 	SortOrder   int

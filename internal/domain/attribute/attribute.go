@@ -109,16 +109,19 @@ func Reconstruct(
 }
 
 // Update modifies attribute data with validation
+// Note: slug and type are immutable and cannot be changed after creation
 func (a *Attribute) Update(
 	name string,
-	slug string,
-	attrType AttributeType,
 	unit *string,
 	enabled bool,
 	options []Option,
 ) error {
-	if err := validateAttributeData(name, slug, attrType); err != nil {
-		return err
+	if name == "" {
+		return errors.New("name is required")
+	}
+
+	if len(name) > 100 {
+		return errors.New("name is too long (max 100 characters)")
 	}
 
 	if err := validateOptions(options); err != nil {
@@ -126,8 +129,6 @@ func (a *Attribute) Update(
 	}
 
 	a.Name = name
-	a.Slug = slug
-	a.Type = attrType
 	a.Unit = unit
 	a.Enabled = enabled
 	a.Options = options

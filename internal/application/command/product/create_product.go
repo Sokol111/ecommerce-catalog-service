@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
@@ -35,7 +34,6 @@ type CreateProductCommandHandler interface {
 type createProductHandler struct {
 	repo         product.Repository
 	attrRepo     attribute.Repository
-	catRepo      category.Repository
 	outbox       outbox.Outbox
 	txManager    persistence.TxManager
 	eventFactory event.ProductEventFactory
@@ -44,7 +42,6 @@ type createProductHandler struct {
 func NewCreateProductHandler(
 	repo product.Repository,
 	attrRepo attribute.Repository,
-	catRepo category.Repository,
 	outbox outbox.Outbox,
 	txManager persistence.TxManager,
 	eventFactory event.ProductEventFactory,
@@ -52,7 +49,6 @@ func NewCreateProductHandler(
 	return &createProductHandler{
 		repo:         repo,
 		attrRepo:     attrRepo,
-		catRepo:      catRepo,
 		outbox:       outbox,
 		txManager:    txManager,
 		eventFactory: eventFactory,
@@ -68,14 +64,6 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		return nil, err
 	}
 
-	var cat *category.Category
-	if cmd.CategoryID != nil {
-		cat, err = h.catRepo.FindByID(ctx, *cmd.CategoryID)
-		if err != nil && err != persistence.ErrEntityNotFound {
-			return nil, fmt.Errorf("failed to fetch category: %w", err)
-		}
-	}
-
 	var p *product.Product
 	if cmd.ID != nil {
 		p, err = product.NewProductWithID(cmd.ID.String(), cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, cmd.Attributes)
@@ -86,7 +74,7 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		return nil, fmt.Errorf("failed to create product: %w", err)
 	}
 
-	msg, err := h.eventFactory.NewProductCreatedOutboxMessage(ctx, p, attrs, cat)
+	msg, err := h.eventFactory.NewProductCreatedOutboxMessage(ctx, p, attrs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create event message: %w", err)
 	}

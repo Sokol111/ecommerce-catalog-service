@@ -8,7 +8,6 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
@@ -37,7 +36,6 @@ type UpdateProductCommandHandler interface {
 type updateProductHandler struct {
 	repo         product.Repository
 	attrRepo     attribute.Repository
-	catRepo      category.Repository
 	outbox       outbox.Outbox
 	txManager    persistence.TxManager
 	eventFactory event.ProductEventFactory
@@ -46,7 +44,6 @@ type updateProductHandler struct {
 func NewUpdateProductHandler(
 	repo product.Repository,
 	attrRepo attribute.Repository,
-	catRepo category.Repository,
 	outbox outbox.Outbox,
 	txManager persistence.TxManager,
 	eventFactory event.ProductEventFactory,
@@ -54,7 +51,6 @@ func NewUpdateProductHandler(
 	return &updateProductHandler{
 		repo:         repo,
 		attrRepo:     attrRepo,
-		catRepo:      catRepo,
 		outbox:       outbox,
 		txManager:    txManager,
 		eventFactory: eventFactory,
@@ -82,14 +78,6 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		return nil, err
 	}
 
-	var cat *category.Category
-	if cmd.CategoryID != nil {
-		cat, err = h.catRepo.FindByID(ctx, *cmd.CategoryID)
-		if err != nil && !errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, fmt.Errorf("failed to fetch category: %w", err)
-		}
-	}
-
 	if err := p.Update(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, cmd.Attributes); err != nil {
 		return nil, fmt.Errorf("failed to update product: %w", err)
 	}
@@ -108,7 +96,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 			return nil, fmt.Errorf("failed to update product: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewProductUpdatedOutboxMessage(txCtx, updated, attrs, cat)
+		msg, err := h.eventFactory.NewProductUpdatedOutboxMessage(txCtx, updated, attrs)
 		if err != nil {
 			return nil, err
 		}

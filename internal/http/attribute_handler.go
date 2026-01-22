@@ -152,8 +152,6 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *httpapi.Upd
 		ID:      req.ID.String(),
 		Version: req.Version,
 		Name:    req.Name,
-		Slug:    req.Slug,
-		Type:    string(req.Type),
 		Unit:    lo.If(req.Unit.IsSet(), &req.Unit.Value).Else(nil),
 		Enabled: req.Enabled,
 		Options: lo.Map(req.Options, toOptionInput),
@@ -173,13 +171,6 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *httpapi.Upd
 				Status: 412,
 				Type:   *aboutBlankURL,
 				Title:  "Version mismatch",
-			}, nil
-		}
-		if errors.Is(err, attribute.ErrSlugAlreadyExists) {
-			return &httpapi.UpdateAttributeConflict{
-				Status: 409,
-				Type:   *aboutBlankURL,
-				Title:  "Attribute with this slug already exists",
 			}, nil
 		}
 		return nil, err

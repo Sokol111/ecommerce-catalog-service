@@ -8,7 +8,6 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	commonsevents "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
@@ -18,8 +17,8 @@ import (
 
 // ProductEventFactory creates product events
 type ProductEventFactory interface {
-	NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) (outbox.Message, error)
-	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) (outbox.Message, error)
+	NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error)
+	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error)
 }
 
 type productEventFactory struct{}
@@ -29,7 +28,9 @@ func newProductEventFactory() ProductEventFactory {
 	return &productEventFactory{}
 }
 
-func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*attribute.Attribute, cat *category.Category) *[]events.ProductAttribute {
+// toProductEventAttributes converts product attributes to event attributes
+// Only immutable references (IDs, slugs) and product-specific values are included
+func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*attribute.Attribute) *[]events.ProductAttribute {
 	if len(productAttrs) == 0 {
 		return nil
 	}
@@ -37,13 +38,6 @@ func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*
 	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
 		return a.ID
 	})
-
-	var catAttrMap map[string]category.CategoryAttribute
-	if cat != nil {
-		catAttrMap = lo.KeyBy(cat.Attributes, func(ca category.CategoryAttribute) string {
-			return ca.AttributeID
-		})
-	}
 
 	result := lo.Map(productAttrs, func(pAttr product.ProductAttribute, _ int) events.ProductAttribute {
 		eventAttr := events.ProductAttribute{
@@ -55,52 +49,18 @@ func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*
 			BooleanValue:     pAttr.BooleanValue,
 		}
 
-		// Enrich from Attribute
+		// Get attribute slug (immutable)
 		if attr, ok := attrMap[pAttr.AttributeID]; ok {
 			eventAttr.AttributeSlug = attr.Slug
-			eventAttr.AttributeName = attr.Name
-			eventAttr.AttributeType = string(attr.Type)
-			eventAttr.AttributeUnit = attr.Unit
-
-			// Find option details for single type
-			if pAttr.OptionSlugValue != nil {
-				if opt, found := lo.Find(attr.Options, func(o attribute.Option) bool {
-					return o.Slug == *pAttr.OptionSlugValue
-				}); found {
-					eventAttr.OptionName = &opt.Name
-					eventAttr.OptionColorCode = opt.ColorCode
-				}
-			}
-
-			// Find option details for multiple type
-			if len(pAttr.OptionSlugValues) > 0 {
-				optionMap := lo.KeyBy(attr.Options, func(o attribute.Option) string {
-					return o.Slug
-				})
-				names := lo.FilterMap(pAttr.OptionSlugValues, func(slug string, _ int) (string, bool) {
-					if opt, exists := optionMap[slug]; exists {
-						return opt.Name, true
-					}
-					return "", false
-				})
-				if len(names) > 0 {
-					eventAttr.OptionNames = &names
-				}
-			}
-		}
-
-		// Enrich from CategoryAttribute
-		if catAttr, ok := catAttrMap[pAttr.AttributeID]; ok {
-			eventAttr.Role = string(catAttr.Role)
-			eventAttr.SortOrder = catAttr.SortOrder
 		}
 
 		return eventAttr
 	})
+
 	return &result
 }
 
-func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) *events.ProductCreatedEvent {
+func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) *events.ProductCreatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.ProductCreatedEvent{
@@ -123,12 +83,12 @@ func (f *productEventFactory) newProductCreatedEvent(ctx context.Context, p *pro
 			CategoryID:  p.CategoryID,
 			CreatedAt:   p.CreatedAt,
 			ModifiedAt:  p.ModifiedAt,
-			Attributes:  toProductEventAttributes(p.Attributes, attrs, cat),
+			Attributes:  toProductEventAttributes(p.Attributes, attrs),
 		},
 	}
 }
 
-func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) *events.ProductUpdatedEvent {
+func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) *events.ProductUpdatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.ProductUpdatedEvent{
@@ -151,13 +111,13 @@ func (f *productEventFactory) newProductUpdatedEvent(ctx context.Context, p *pro
 			CategoryID:  p.CategoryID,
 			CreatedAt:   p.CreatedAt,
 			ModifiedAt:  p.ModifiedAt,
-			Attributes:  toProductEventAttributes(p.Attributes, attrs, cat),
+			Attributes:  toProductEventAttributes(p.Attributes, attrs),
 		},
 	}
 }
 
-func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) (outbox.Message, error) {
-	e := f.newProductCreatedEvent(ctx, p, attrs, cat)
+func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error) {
+	e := f.newProductCreatedEvent(ctx, p, attrs)
 
 	return outbox.Message{
 		Payload: e,
@@ -166,8 +126,8 @@ func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context
 	}, nil
 }
 
-func (f *productEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute, cat *category.Category) (outbox.Message, error) {
-	e := f.newProductUpdatedEvent(ctx, p, attrs, cat)
+func (f *productEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) (outbox.Message, error) {
+	e := f.newProductUpdatedEvent(ctx, p, attrs)
 
 	return outbox.Message{
 		Payload: e,

@@ -8,6 +8,7 @@ func EventModule() fx.Option {
 		fx.Provide(
 			newProductEventFactory,
 			newCategoryEventFactory,
+			newAttributeEventFactory,
 		),
 	)
 }

@@ -76,9 +76,19 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 		return nil, err
 	}
 
+	// Build lookup map for attribute slugs
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
 	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
+		slug := ""
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			slug = a.Slug
+		}
 		return category.CategoryAttribute{
 			AttributeID: attr.AttributeID,
+			Slug:        slug,
 			Role:        category.AttributeRole(attr.Role),
 			Required:    attr.Required,
 			SortOrder:   attr.SortOrder,
@@ -91,13 +101,12 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 		return nil, fmt.Errorf("failed to update category: %w", err)
 	}
 
-	return h.persistAndPublish(ctx, c, attrs)
+	return h.persistAndPublish(ctx, c)
 }
 
 func (h *updateCategoryHandler) persistAndPublish(
 	ctx context.Context,
 	c *category.Category,
-	attrs []*attribute.Attribute,
 ) (*category.Category, error) {
 	type updateResult struct {
 		Category *category.Category
@@ -113,7 +122,7 @@ func (h *updateCategoryHandler) persistAndPublish(
 			return nil, fmt.Errorf("failed to update category: %w", err)
 		}
 
-		msg, err := h.eventFactory.NewCategoryUpdatedOutboxMessage(txCtx, updated, attrs)
+		msg, err := h.eventFactory.NewCategoryUpdatedOutboxMessage(txCtx, updated)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create event message: %w", err)
 		}

@@ -7,7 +7,6 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	commonsevents "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
@@ -17,8 +16,8 @@ import (
 
 // CategoryEventFactory creates category events
 type CategoryEventFactory interface {
-	NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) (outbox.Message, error)
-	NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) (outbox.Message, error)
+	NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error)
+	NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error)
 }
 
 type categoryEventFactory struct{}
@@ -28,50 +27,23 @@ func newCategoryEventFactory() CategoryEventFactory {
 	return &categoryEventFactory{}
 }
 
-func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute, attrs []*attribute.Attribute) []events.CategoryAttribute {
-	if len(categoryAttrs) == 0 {
-		return []events.CategoryAttribute{}
-	}
-
-	attrMap := lo.KeyBy(attrs, func(attr *attribute.Attribute) string {
-		return attr.ID
-	})
-
+// toCategoryEventAttributes converts category attributes to event attributes
+// Only immutable references and category-specific settings are included
+func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute) []events.CategoryAttribute {
 	return lo.Map(categoryAttrs, func(catAttr category.CategoryAttribute, _ int) events.CategoryAttribute {
-		attr := attrMap[catAttr.AttributeID]
-
 		return events.CategoryAttribute{
-			AttributeID:      catAttr.AttributeID,
-			AttributeName:    attr.Name,
-			AttributeSlug:    attr.Slug,
-			AttributeType:    string(attr.Type),
-			AttributeUnit:    attr.Unit,
-			AttributeOptions: toEventAttributeOptions(attr.Options),
-			Role:             string(catAttr.Role),
-			Required:         catAttr.Required,
-			SortOrder:        catAttr.SortOrder,
-			Filterable:       catAttr.Filterable,
-			Searchable:       catAttr.Searchable,
+			AttributeID:   catAttr.AttributeID,
+			AttributeSlug: catAttr.Slug,
+			Role:          string(catAttr.Role),
+			Required:      catAttr.Required,
+			SortOrder:     catAttr.SortOrder,
+			Filterable:    catAttr.Filterable,
+			Searchable:    catAttr.Searchable,
 		}
 	})
 }
 
-func toEventAttributeOptions(options []attribute.Option) []events.AttributeOption {
-	if len(options) == 0 {
-		return []events.AttributeOption{}
-	}
-
-	return lo.Map(options, func(opt attribute.Option, _ int) events.AttributeOption {
-		return events.AttributeOption{
-			Name:      opt.Name,
-			Slug:      opt.Slug,
-			ColorCode: opt.ColorCode,
-			SortOrder: opt.SortOrder,
-		}
-	})
-}
-
-func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) *events.CategoryCreatedEvent {
+func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *category.Category) *events.CategoryCreatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.CategoryCreatedEvent{
@@ -86,7 +58,7 @@ func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *c
 			CategoryID: c.ID,
 			Name:       c.Name,
 			Enabled:    c.Enabled,
-			Attributes: toCategoryEventAttributes(c.Attributes, attrs),
+			Attributes: toCategoryEventAttributes(c.Attributes),
 			Version:    c.Version,
 			CreatedAt:  c.CreatedAt,
 			ModifiedAt: c.ModifiedAt,
@@ -94,7 +66,7 @@ func (f *categoryEventFactory) newCategoryCreatedEvent(ctx context.Context, c *c
 	}
 }
 
-func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) *events.CategoryUpdatedEvent {
+func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *category.Category) *events.CategoryUpdatedEvent {
 	traceId := tracing.GetTraceID(ctx)
 
 	return &events.CategoryUpdatedEvent{
@@ -109,7 +81,7 @@ func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *c
 			CategoryID: c.ID,
 			Name:       c.Name,
 			Enabled:    c.Enabled,
-			Attributes: toCategoryEventAttributes(c.Attributes, attrs),
+			Attributes: toCategoryEventAttributes(c.Attributes),
 			Version:    c.Version,
 			CreatedAt:  c.CreatedAt,
 			ModifiedAt: c.ModifiedAt,
@@ -117,8 +89,8 @@ func (f *categoryEventFactory) newCategoryUpdatedEvent(ctx context.Context, c *c
 	}
 }
 
-func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) (outbox.Message, error) {
-	e := f.newCategoryCreatedEvent(ctx, c, attrs)
+func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error) {
+	e := f.newCategoryCreatedEvent(ctx, c)
 
 	return outbox.Message{
 		Payload: e,
@@ -127,8 +99,8 @@ func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Conte
 	}, nil
 }
 
-func (f *categoryEventFactory) NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category, attrs []*attribute.Attribute) (outbox.Message, error) {
-	e := f.newCategoryUpdatedEvent(ctx, c, attrs)
+func (f *categoryEventFactory) NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) (outbox.Message, error) {
+	e := f.newCategoryUpdatedEvent(ctx, c)
 
 	return outbox.Message{
 		Payload: e,

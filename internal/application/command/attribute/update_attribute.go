@@ -8,15 +8,17 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
+	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
+	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"go.uber.org/zap"
 )
 
 type UpdateAttributeCommand struct {
 	ID      string
 	Version int
 	Name    string
-	Slug    string
-	Type    string
 	Unit    *string
 	Enabled bool
 	Options []OptionInput
@@ -27,12 +29,23 @@ type UpdateAttributeCommandHandler interface {
 }
 
 type updateAttributeHandler struct {
-	repo attribute.Repository
+	repo         attribute.Repository
+	outbox       outbox.Outbox
+	txManager    persistence.TxManager
+	eventFactory event.AttributeEventFactory
 }
 
-func NewUpdateAttributeHandler(repo attribute.Repository) UpdateAttributeCommandHandler {
+func NewUpdateAttributeHandler(
+	repo attribute.Repository,
+	outbox outbox.Outbox,
+	txManager persistence.TxManager,
+	eventFactory event.AttributeEventFactory,
+) UpdateAttributeCommandHandler {
 	return &updateAttributeHandler{
-		repo: repo,
+		repo:         repo,
+		outbox:       outbox,
+		txManager:    txManager,
+		eventFactory: eventFactory,
 	}
 }
 
@@ -49,8 +62,6 @@ func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttribute
 		return nil, persistence.ErrOptimisticLocking
 	}
 
-	attrType := attribute.AttributeType(cmd.Type)
-
 	options := lo.Map(cmd.Options, func(opt OptionInput, _ int) attribute.Option {
 		return attribute.Option{
 			Name:      opt.Name,
@@ -62,8 +73,6 @@ func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttribute
 
 	if err := a.Update(
 		cmd.Name,
-		cmd.Slug,
-		attrType,
 		cmd.Unit,
 		cmd.Enabled,
 		options,
@@ -71,13 +80,53 @@ func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttribute
 		return nil, fmt.Errorf("failed to update attribute: %w", err)
 	}
 
-	updated, err := h.repo.Update(ctx, a)
-	if err != nil {
-		if !errors.Is(err, persistence.ErrOptimisticLocking) {
+	return h.persistAndPublish(ctx, a)
+}
+
+func (h *updateAttributeHandler) persistAndPublish(
+	ctx context.Context,
+	a *attribute.Attribute,
+) (*attribute.Attribute, error) {
+	type updateResult struct {
+		Attribute *attribute.Attribute
+		Send      outbox.SendFunc
+	}
+
+	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
+		updated, err := h.repo.Update(txCtx, a)
+		if err != nil {
+			if errors.Is(err, persistence.ErrOptimisticLocking) {
+				return nil, persistence.ErrOptimisticLocking
+			}
 			return nil, fmt.Errorf("failed to update attribute: %w", err)
 		}
+
+		msg, err := h.eventFactory.NewAttributeUpdatedOutboxMessage(txCtx, updated)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create event message: %w", err)
+		}
+
+		send, err := h.outbox.Create(txCtx, msg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create outbox: %w", err)
+		}
+
+		return &updateResult{
+			Attribute: updated,
+			Send:      send,
+		}, nil
+	})
+	if err != nil {
 		return nil, err
 	}
 
-	return updated, nil
+	h.log(ctx).Debug("attribute updated", zap.String("id", res.Attribute.ID))
+
+	_ = res.Send(ctx)
+
+	return res.Attribute, nil
+}
+
+func (h *updateAttributeHandler) log(ctx context.Context) *zap.Logger {
+	return logger.Get(ctx).With(zap.String("component", "update-attribute-handler"))
 }

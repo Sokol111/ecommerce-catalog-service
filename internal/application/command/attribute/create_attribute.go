@@ -8,6 +8,11 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
+	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
+	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"go.uber.org/zap"
 )
 
 type OptionInput struct {
@@ -32,12 +37,23 @@ type CreateAttributeCommandHandler interface {
 }
 
 type createAttributeHandler struct {
-	repo attribute.Repository
+	repo         attribute.Repository
+	outbox       outbox.Outbox
+	txManager    persistence.TxManager
+	eventFactory event.AttributeEventFactory
 }
 
-func NewCreateAttributeHandler(repo attribute.Repository) CreateAttributeCommandHandler {
+func NewCreateAttributeHandler(
+	repo attribute.Repository,
+	outbox outbox.Outbox,
+	txManager persistence.TxManager,
+	eventFactory event.AttributeEventFactory,
+) CreateAttributeCommandHandler {
 	return &createAttributeHandler{
-		repo: repo,
+		repo:         repo,
+		outbox:       outbox,
+		txManager:    txManager,
+		eventFactory: eventFactory,
 	}
 }
 
@@ -69,9 +85,50 @@ func (h *createAttributeHandler) Handle(ctx context.Context, cmd CreateAttribute
 		return nil, fmt.Errorf("failed to create attribute: %w", err)
 	}
 
-	if err := h.repo.Insert(ctx, a); err != nil {
-		return nil, fmt.Errorf("failed to insert attribute: %w", err)
+	msg, err := h.eventFactory.NewAttributeUpdatedOutboxMessage(ctx, a)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create event message: %w", err)
 	}
 
-	return a, nil
+	return h.persistAndPublish(ctx, a, msg)
+}
+
+func (h *createAttributeHandler) persistAndPublish(
+	ctx context.Context,
+	a *attribute.Attribute,
+	msg outbox.Message,
+) (*attribute.Attribute, error) {
+	type createResult struct {
+		Attribute *attribute.Attribute
+		Send      outbox.SendFunc
+	}
+
+	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
+		if err := h.repo.Insert(txCtx, a); err != nil {
+			return nil, fmt.Errorf("failed to insert attribute: %w", err)
+		}
+
+		send, err := h.outbox.Create(txCtx, msg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create outbox: %w", err)
+		}
+
+		return &createResult{
+			Attribute: a,
+			Send:      send,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	h.log(ctx).Debug("attribute created", zap.String("id", res.Attribute.ID))
+
+	_ = res.Send(ctx)
+
+	return res.Attribute, nil
+}
+
+func (h *createAttributeHandler) log(ctx context.Context) *zap.Logger {
+	return logger.Get(ctx).With(zap.String("component", "create-attribute-handler"))
 }
