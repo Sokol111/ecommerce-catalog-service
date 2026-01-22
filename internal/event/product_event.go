@@ -30,7 +30,7 @@ func newProductEventFactory() ProductEventFactory {
 
 // toProductEventAttributes converts product attributes to event attributes
 // Only immutable references (IDs, slugs) and product-specific values are included
-func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*attribute.Attribute) *[]events.ProductAttribute {
+func toProductEventAttributes(productAttrs []product.AttributeValue, attrs []*attribute.Attribute) *[]events.AttributeValue {
 	if len(productAttrs) == 0 {
 		return nil
 	}
@@ -39,8 +39,8 @@ func toProductEventAttributes(productAttrs []product.ProductAttribute, attrs []*
 		return a.ID
 	})
 
-	result := lo.Map(productAttrs, func(pAttr product.ProductAttribute, _ int) events.ProductAttribute {
-		eventAttr := events.ProductAttribute{
+	result := lo.Map(productAttrs, func(pAttr product.AttributeValue, _ int) events.AttributeValue {
+		eventAttr := events.AttributeValue{
 			AttributeID:      pAttr.AttributeID,
 			OptionSlugValue:  pAttr.OptionSlugValue,
 			OptionSlugValues: lo.ToPtr(pAttr.OptionSlugValues),

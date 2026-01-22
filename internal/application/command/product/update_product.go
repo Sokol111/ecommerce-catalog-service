@@ -26,7 +26,7 @@ type UpdateProductCommand struct {
 	ImageID     *string
 	CategoryID  *string
 	Enabled     bool
-	Attributes  []product.ProductAttribute
+	Attributes  []product.AttributeValue
 }
 
 type UpdateProductCommandHandler interface {
@@ -70,7 +70,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		return nil, persistence.ErrOptimisticLocking
 	}
 
-	attrIDs := lo.Map(cmd.Attributes, func(attr product.ProductAttribute, _ int) string {
+	attrIDs := lo.Map(cmd.Attributes, func(attr product.AttributeValue, _ int) string {
 		return attr.AttributeID
 	})
 	attrs, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)

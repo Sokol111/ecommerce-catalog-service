@@ -56,7 +56,7 @@ func (m *productMapper) SetVersion(e *productEntity, version int) {
 	e.Version = version
 }
 
-func (m *productMapper) attributesToEntities(attrs []product.ProductAttribute) []productAttributeEntity {
+func (m *productMapper) attributesToEntities(attrs []product.AttributeValue) []productAttributeEntity {
 	if attrs == nil {
 		return nil
 	}
@@ -75,14 +75,14 @@ func (m *productMapper) attributesToEntities(attrs []product.ProductAttribute) [
 	return result
 }
 
-func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []product.ProductAttribute {
+func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []product.AttributeValue {
 	if entities == nil {
 		return nil
 	}
 
-	result := make([]product.ProductAttribute, len(entities))
+	result := make([]product.AttributeValue, len(entities))
 	for i, e := range entities {
-		result[i] = product.ProductAttribute{
+		result[i] = product.AttributeValue{
 			AttributeID:      e.AttributeID,
 			OptionSlugValue:  e.OptionSlugValue,
 			OptionSlugValues: e.OptionSlugValues,

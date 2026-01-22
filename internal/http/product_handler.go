@@ -66,14 +66,14 @@ func toOptBool(b *bool) httpapi.OptBool {
 	return httpapi.NewOptBool(*b)
 }
 
-func toProductAttributeInput(attr httpapi.ProductAttributeInput, _ int) product.ProductAttribute {
+func toAttributeValueInput(attr httpapi.AttributeValueInput, _ int) product.AttributeValue {
 	var numericValue *float32
 	if attr.NumericValue.IsSet() {
 		v := float32(attr.NumericValue.Value)
 		numericValue = &v
 	}
 
-	return product.ProductAttribute{
+	return product.AttributeValue{
 		AttributeID:      attr.AttributeId.String(),
 		OptionSlugValue:  lo.If(attr.OptionSlugValue.IsSet(), &attr.OptionSlugValue.Value).Else(nil),
 		OptionSlugValues: attr.OptionSlugValues,
@@ -83,8 +83,8 @@ func toProductAttributeInput(attr httpapi.ProductAttributeInput, _ int) product.
 	}
 }
 
-func toProductAttributeResponse(attr product.ProductAttribute, _ int) httpapi.ProductAttribute {
-	return httpapi.ProductAttribute{
+func toAttributeValueResponse(attr product.AttributeValue, _ int) httpapi.AttributeValue {
+	return httpapi.AttributeValue{
 		AttributeId:      attr.AttributeID,
 		OptionSlugValue:  toOptString(attr.OptionSlugValue),
 		OptionSlugValues: attr.OptionSlugValues,
@@ -105,7 +105,7 @@ func toProductResponse(p *product.Product) *httpapi.ProductResponse {
 		ImageId:     toOptString(p.ImageID),
 		CategoryId:  toOptString(p.CategoryID),
 		Enabled:     p.Enabled,
-		Attributes:  lo.Map(p.Attributes, toProductAttributeResponse),
+		Attributes:  lo.Map(p.Attributes, toAttributeValueResponse),
 		CreatedAt:   p.CreatedAt,
 		ModifiedAt:  p.ModifiedAt,
 	}
@@ -121,7 +121,7 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *httpapi.CreateP
 		ImageID:     optUUIDToStringPtr(req.ImageId),
 		CategoryID:  optUUIDToStringPtr(req.CategoryId),
 		Enabled:     req.Enabled,
-		Attributes:  lo.Map(req.Attributes, toProductAttributeInput),
+		Attributes:  lo.Map(req.Attributes, toAttributeValueInput),
 	}
 
 	created, err := h.createHandler.Handle(ctx, cmd)
@@ -191,7 +191,7 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 		ImageID:     optUUIDToStringPtr(req.ImageId),
 		CategoryID:  optUUIDToStringPtr(req.CategoryId),
 		Enabled:     req.Enabled,
-		Attributes:  lo.Map(req.Attributes, toProductAttributeInput),
+		Attributes:  lo.Map(req.Attributes, toAttributeValueInput),
 	}
 
 	updated, err := h.updateHandler.Handle(ctx, cmd)

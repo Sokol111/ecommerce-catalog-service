@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// ProductAttribute represents an attribute value assigned to a product
-type ProductAttribute struct {
+// AttributeValue represents an attribute value assigned to a product
+type AttributeValue struct {
 	AttributeID      string
 	OptionSlugValue  *string  // Slug of selected option (for single type)
 	OptionSlugValues []string // Slugs of selected options (for multiple type)
@@ -28,13 +28,13 @@ type Product struct {
 	ImageID     *string
 	CategoryID  *string
 	Enabled     bool
-	Attributes  []ProductAttribute
+	Attributes  []AttributeValue
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
 }
 
 // NewProduct creates a new product with validation
-func NewProduct(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []ProductAttribute) (*Product, error) {
+func NewProduct(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func NewProduct(name string, description *string, price float32, quantity int, i
 }
 
 // NewProductWithID creates a product with a specific ID (for idempotency)
-func NewProductWithID(id, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []ProductAttribute) (*Product, error) {
+func NewProductWithID(id, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func NewProductWithID(id, name string, description *string, price float32, quant
 }
 
 // Reconstruct rebuilds a product from persistence (no validation)
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []ProductAttribute, createdAt, modifiedAt time.Time) *Product {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue, createdAt, modifiedAt time.Time) *Product {
 	return &Product{
 		ID:          id,
 		Version:     version,
@@ -106,7 +106,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 }
 
 // Update modifies product data with validation
-func (p *Product) Update(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []ProductAttribute) error {
+func (p *Product) Update(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) error {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return err
 	}
