@@ -12,7 +12,6 @@ import (
 
 // CategoryEventFactory creates category events
 type CategoryEventFactory interface {
-	NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message
 	NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message
 }
 
@@ -39,21 +38,6 @@ func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute) []eve
 	})
 }
 
-func (f *categoryEventFactory) newCategoryCreatedEvent(c *category.Category) *events.CategoryCreatedEvent {
-	return &events.CategoryCreatedEvent{
-		// Metadata is populated automatically by outbox
-		Payload: events.CategoryCreatedPayload{
-			CategoryID: c.ID,
-			Name:       c.Name,
-			Enabled:    c.Enabled,
-			Attributes: toCategoryEventAttributes(c.Attributes),
-			Version:    c.Version,
-			CreatedAt:  c.CreatedAt,
-			ModifiedAt: c.ModifiedAt,
-		},
-	}
-}
-
 func (f *categoryEventFactory) newCategoryUpdatedEvent(c *category.Category) *events.CategoryUpdatedEvent {
 	return &events.CategoryUpdatedEvent{
 		// Metadata is populated automatically by outbox
@@ -66,13 +50,6 @@ func (f *categoryEventFactory) newCategoryUpdatedEvent(c *category.Category) *ev
 			CreatedAt:  c.CreatedAt,
 			ModifiedAt: c.ModifiedAt,
 		},
-	}
-}
-
-func (f *categoryEventFactory) NewCategoryCreatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message {
-	return outbox.Message{
-		Event: f.newCategoryCreatedEvent(c),
-		Key:   c.ID,
 	}
 }
 

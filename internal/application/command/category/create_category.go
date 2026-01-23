@@ -99,7 +99,7 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		return nil, fmt.Errorf("failed to create category: %w", err)
 	}
 
-	msg := h.eventFactory.NewCategoryCreatedOutboxMessage(ctx, c)
+	msg := h.eventFactory.NewCategoryUpdatedOutboxMessage(ctx, c)
 
 	return h.persistAndPublish(ctx, c, msg)
 }

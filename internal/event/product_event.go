@@ -13,7 +13,6 @@ import (
 
 // ProductEventFactory creates product events
 type ProductEventFactory interface {
-	NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) outbox.Message
 	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) outbox.Message
 }
 
@@ -56,26 +55,6 @@ func toProductEventAttributes(productAttrs []product.AttributeValue, attrs []*at
 	return &result
 }
 
-func (f *productEventFactory) newProductCreatedEvent(p *product.Product, attrs []*attribute.Attribute) *events.ProductCreatedEvent {
-	return &events.ProductCreatedEvent{
-		// Metadata is populated automatically by outbox
-		Payload: events.ProductCreatedPayload{
-			ProductID:   p.ID,
-			Name:        p.Name,
-			Description: p.Description,
-			Price:       p.Price,
-			Quantity:    p.Quantity,
-			Enabled:     p.Enabled,
-			Version:     p.Version,
-			ImageID:     p.ImageID,
-			CategoryID:  p.CategoryID,
-			CreatedAt:   p.CreatedAt,
-			ModifiedAt:  p.ModifiedAt,
-			Attributes:  toProductEventAttributes(p.Attributes, attrs),
-		},
-	}
-}
-
 func (f *productEventFactory) newProductUpdatedEvent(p *product.Product, attrs []*attribute.Attribute) *events.ProductUpdatedEvent {
 	return &events.ProductUpdatedEvent{
 		// Metadata is populated automatically by outbox
@@ -93,13 +72,6 @@ func (f *productEventFactory) newProductUpdatedEvent(p *product.Product, attrs [
 			ModifiedAt:  p.ModifiedAt,
 			Attributes:  toProductEventAttributes(p.Attributes, attrs),
 		},
-	}
-}
-
-func (f *productEventFactory) NewProductCreatedOutboxMessage(ctx context.Context, p *product.Product, attrs []*attribute.Attribute) outbox.Message {
-	return outbox.Message{
-		Event: f.newProductCreatedEvent(p, attrs),
-		Key:   p.ID,
 	}
 }
 
