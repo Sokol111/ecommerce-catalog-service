@@ -1,21 +1,54 @@
+# =============================================================================
+# Catalog Service - Production Configuration
+# =============================================================================
+# Values can be overridden by environment variables.
+# Viper automatically maps: mongo.host -> MONGO_HOST, kafka.brokers -> KAFKA_BROKERS, etc.
+
 logger:
-  level: "debug"
+  level: info
+  development: false
 
 server:
   port: 8080
 
 mongo:
-  host: ""
+  host: mongo
   port: 27017
+  username: admin
+  password: ""
+  database: catalog
   replica-set: rs0
-  database: "catalog"
   migrations:
     enabled: true
     auto-migrate: true
 
-kafka:
-  brokers: ""
-
 observability:
-  tracing-enabled: true
-  otel-collector-endpoint: ""
+  otel-collector-endpoint: http://otel-collector:4317
+  tracing:
+    enabled: true
+  metrics:
+    enabled: true
+
+security:
+  token:
+    public-key: ""
+
+kafka:
+  brokers: kafka:29092
+  schema-registry:
+    url: http://schema-registry:8081
+    auto-register-schemas: true
+  producers-config:
+    producers:
+      - name: product-events
+        topic: catalog.product.events
+      - name: category-events
+        topic: catalog.category.events
+      - name: attribute-events
+        topic: catalog.attribute.events
+  consumers-config:
+    default-group-id: ecommerce-catalog-service
+    default-auto-offset-reset: earliest
+    consumers:
+      - name: image-events
+        topic: image.product-image.events
