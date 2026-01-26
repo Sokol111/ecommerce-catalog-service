@@ -22,4 +22,6 @@ type Repository interface {
 	FindList(ctx context.Context, query ListQuery) (*commonsmongo.PageResult[Category], error)
 
 	Update(ctx context.Context, category *Category) (*Category, error)
+
+	Exists(ctx context.Context, id string) (bool, error)
 }

@@ -1,7 +1,7 @@
 package attribute
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -117,11 +117,11 @@ func (a *Attribute) Update(
 	options []Option,
 ) error {
 	if name == "" {
-		return errors.New("name is required")
+		return fmt.Errorf("%w: name is required", ErrInvalidAttributeData)
 	}
 
 	if len(name) > 100 {
-		return errors.New("name is too long (max 100 characters)")
+		return fmt.Errorf("%w: name is too long (max 100 characters)", ErrInvalidAttributeData)
 	}
 
 	if err := validateOptions(options); err != nil {
@@ -140,27 +140,27 @@ func (a *Attribute) Update(
 // validateAttributeData validates business rules
 func validateAttributeData(name string, slug string, attrType AttributeType) error {
 	if name == "" {
-		return errors.New("name is required")
+		return fmt.Errorf("%w: name is required", ErrInvalidAttributeData)
 	}
 
 	if len(name) > 100 {
-		return errors.New("name is too long (max 100 characters)")
+		return fmt.Errorf("%w: name is too long (max 100 characters)", ErrInvalidAttributeData)
 	}
 
 	if slug == "" {
-		return errors.New("slug is required")
+		return fmt.Errorf("%w: slug is required", ErrInvalidAttributeData)
 	}
 
 	if len(slug) > 50 {
-		return errors.New("slug is too long (max 50 characters)")
+		return fmt.Errorf("%w: slug is too long (max 50 characters)", ErrInvalidAttributeData)
 	}
 
 	if !slugRegex.MatchString(slug) {
-		return errors.New("slug must contain only lowercase letters, numbers, and hyphens")
+		return fmt.Errorf("%w: slug must contain only lowercase letters, numbers, and hyphens", ErrInvalidAttributeData)
 	}
 
 	if !isValidAttributeType(attrType) {
-		return errors.New("invalid attribute type")
+		return fmt.Errorf("%w: invalid attribute type", ErrInvalidAttributeData)
 	}
 
 	return nil
@@ -183,26 +183,26 @@ func validateOptions(options []Option) error {
 	slugs := make(map[string]bool)
 	for _, opt := range options {
 		if opt.Name == "" {
-			return errors.New("option name is required")
+			return fmt.Errorf("%w: option name is required", ErrInvalidAttributeData)
 		}
 		if len(opt.Name) > 100 {
-			return errors.New("option name is too long (max 100 characters)")
+			return fmt.Errorf("%w: option name is too long (max 100 characters)", ErrInvalidAttributeData)
 		}
 		if opt.Slug == "" {
-			return errors.New("option slug is required")
+			return fmt.Errorf("%w: option slug is required", ErrInvalidAttributeData)
 		}
 		if len(opt.Slug) > 50 {
-			return errors.New("option slug is too long (max 50 characters)")
+			return fmt.Errorf("%w: option slug is too long (max 50 characters)", ErrInvalidAttributeData)
 		}
 		if !slugRegex.MatchString(opt.Slug) {
-			return errors.New("option slug must contain only lowercase letters, numbers, and hyphens")
+			return fmt.Errorf("%w: option slug must contain only lowercase letters, numbers, and hyphens", ErrInvalidAttributeData)
 		}
 		if slugs[opt.Slug] {
-			return errors.New("duplicate option slug: " + opt.Slug)
+			return fmt.Errorf("%w: duplicate option slug: %s", ErrInvalidAttributeData, opt.Slug)
 		}
 		slugs[opt.Slug] = true
 		if opt.SortOrder < 0 {
-			return errors.New("option sortOrder cannot be negative")
+			return fmt.Errorf("%w: option sortOrder cannot be negative", ErrInvalidAttributeData)
 		}
 	}
 	return nil

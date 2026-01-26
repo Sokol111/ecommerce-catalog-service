@@ -52,3 +52,7 @@ func (r *categoryRepository) FindList(ctx context.Context, query category.ListQu
 
 	return r.FindWithOptions(ctx, opts)
 }
+
+func (r *categoryRepository) Exists(ctx context.Context, id string) (bool, error) {
+	return r.GenericRepository.Exists(ctx, id)
+}

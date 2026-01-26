@@ -80,6 +80,13 @@ func (h *attributeHandler) CreateAttribute(ctx context.Context, req *httpapi.Cre
 
 	created, err := h.createHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, attribute.ErrInvalidAttributeData) {
+			return &httpapi.CreateAttributeBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
 		if errors.Is(err, attribute.ErrSlugAlreadyExists) {
 			return &httpapi.CreateAttributeConflict{
 				Status: 409,
@@ -159,6 +166,13 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *httpapi.Upd
 
 	updated, err := h.updateHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, attribute.ErrInvalidAttributeData) {
+			return &httpapi.UpdateAttributeBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
 		if errors.Is(err, persistence.ErrEntityNotFound) {
 			return &httpapi.UpdateAttributeNotFound{
 				Status: 404,

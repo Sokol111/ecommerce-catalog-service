@@ -1,7 +1,7 @@
 package product
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -131,19 +131,19 @@ func (p *Product) Update(name string, description *string, price float32, quanti
 // validateProductData validates business rules
 func validateProductData(name string, price float32, quantity int) error {
 	if name == "" {
-		return errors.New("name is required")
+		return fmt.Errorf("%w: name is required", ErrInvalidProductData)
 	}
 
 	if len(name) > 255 {
-		return errors.New("name is too long (max 255 characters)")
+		return fmt.Errorf("%w: name is too long (max 255 characters)", ErrInvalidProductData)
 	}
 
 	if price < 0 {
-		return errors.New("price must be positive")
+		return fmt.Errorf("%w: price must be positive", ErrInvalidProductData)
 	}
 
 	if quantity < 0 {
-		return errors.New("quantity cannot be negative")
+		return fmt.Errorf("%w: quantity cannot be negative", ErrInvalidProductData)
 	}
 
 	return nil
@@ -156,19 +156,19 @@ func validateEnabledState(enabled bool, price float32, quantity int, imageID *st
 	}
 
 	if price <= 0 {
-		return errors.New("cannot enable product: price must be greater than 0")
+		return fmt.Errorf("%w: cannot enable product with price <= 0", ErrInvalidProductData)
 	}
 
 	if quantity <= 0 {
-		return errors.New("cannot enable product: quantity must be greater than 0")
+		return fmt.Errorf("%w: cannot enable product with quantity <= 0", ErrInvalidProductData)
 	}
 
 	if imageID == nil {
-		return errors.New("cannot enable product: imageID is required")
+		return fmt.Errorf("%w: cannot enable product without imageID", ErrInvalidProductData)
 	}
 
 	if categoryID == nil {
-		return errors.New("cannot enable product: categoryID is required")
+		return fmt.Errorf("%w: cannot enable product without categoryID", ErrInvalidProductData)
 	}
 
 	return nil

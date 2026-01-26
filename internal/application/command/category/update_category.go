@@ -55,7 +55,25 @@ func NewUpdateCategoryHandler(
 }
 
 func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCommand) (*category.Category, error) {
-	c, err := h.repo.FindByID(ctx, cmd.ID)
+	c, err := h.findAndValidateCategory(ctx, cmd.ID, cmd.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryAttrs, err := h.buildCategoryAttributes(ctx, cmd.Attributes)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.Update(cmd.Name, cmd.Enabled, categoryAttrs); err != nil {
+		return nil, fmt.Errorf("failed to update category: %w", err)
+	}
+
+	return h.persistAndPublish(ctx, c)
+}
+
+func (h *updateCategoryHandler) findAndValidateCategory(ctx context.Context, id string, version int) (*category.Category, error) {
+	c, err := h.repo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, persistence.ErrEntityNotFound) {
 			return nil, persistence.ErrEntityNotFound
@@ -63,11 +81,15 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 		return nil, fmt.Errorf("failed to get category: %w", err)
 	}
 
-	if c.Version != cmd.Version {
+	if c.Version != version {
 		return nil, persistence.ErrOptimisticLocking
 	}
 
-	attrIDs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) string {
+	return c, nil
+}
+
+func (h *updateCategoryHandler) buildCategoryAttributes(ctx context.Context, inputs []CategoryAttributeInput) ([]category.CategoryAttribute, error) {
+	attrIDs := lo.Map(inputs, func(attr CategoryAttributeInput, _ int) string {
 		return attr.AttributeID
 	})
 
@@ -76,12 +98,11 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 		return nil, err
 	}
 
-	// Build lookup map for attribute slugs
 	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
 		return a.ID
 	})
 
-	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
+	return lo.Map(inputs, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
 		slug := ""
 		if a, ok := attrMap[attr.AttributeID]; ok {
 			slug = a.Slug
@@ -95,13 +116,7 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 			Filterable:  attr.Filterable,
 			Searchable:  attr.Searchable,
 		}
-	})
-
-	if err := c.Update(cmd.Name, cmd.Enabled, categoryAttrs); err != nil {
-		return nil, fmt.Errorf("failed to update category: %w", err)
-	}
-
-	return h.persistAndPublish(ctx, c)
+	}), nil
 }
 
 func (h *updateCategoryHandler) persistAndPublish(

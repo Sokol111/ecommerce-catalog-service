@@ -64,7 +64,23 @@ func NewCreateCategoryHandler(
 }
 
 func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCommand) (*category.Category, error) {
-	attrIDs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) string {
+	categoryAttrs, err := h.buildCategoryAttributes(ctx, cmd.Attributes)
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := h.createCategory(cmd, categoryAttrs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create category: %w", err)
+	}
+
+	msg := h.eventFactory.NewCategoryUpdatedOutboxMessage(ctx, c)
+
+	return h.persistAndPublish(ctx, c, msg)
+}
+
+func (h *createCategoryHandler) buildCategoryAttributes(ctx context.Context, inputs []CategoryAttributeInput) ([]category.CategoryAttribute, error) {
+	attrIDs := lo.Map(inputs, func(attr CategoryAttributeInput, _ int) string {
 		return attr.AttributeID
 	})
 
@@ -73,12 +89,11 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 		return nil, err
 	}
 
-	// Build lookup map for attribute slugs
 	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
 		return a.ID
 	})
 
-	categoryAttrs := lo.Map(cmd.Attributes, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
+	return lo.Map(inputs, func(attr CategoryAttributeInput, _ int) category.CategoryAttribute {
 		slug := ""
 		if a, ok := attrMap[attr.AttributeID]; ok {
 			slug = a.Slug
@@ -92,16 +107,7 @@ func (h *createCategoryHandler) Handle(ctx context.Context, cmd CreateCategoryCo
 			Filterable:  attr.Filterable,
 			Searchable:  attr.Searchable,
 		}
-	})
-
-	c, err := h.createCategory(cmd, categoryAttrs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create category: %w", err)
-	}
-
-	msg := h.eventFactory.NewCategoryUpdatedOutboxMessage(ctx, c)
-
-	return h.persistAndPublish(ctx, c, msg)
+	}), nil
 }
 
 func (h *createCategoryHandler) createCategory(cmd CreateCategoryCommand, attrs []category.CategoryAttribute) (*category.Category, error) {

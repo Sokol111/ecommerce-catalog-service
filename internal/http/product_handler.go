@@ -126,6 +126,20 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *httpapi.CreateP
 
 	created, err := h.createHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, product.ErrInvalidProductData) {
+			return &httpapi.CreateProductBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
+		if errors.Is(err, product.ErrCategoryNotFound) {
+			return &httpapi.CreateProductBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  "Category not found",
+			}, nil
+		}
 		return nil, err
 	}
 
@@ -196,6 +210,13 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 
 	updated, err := h.updateHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, product.ErrInvalidProductData) {
+			return &httpapi.UpdateProductBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
 		if errors.Is(err, persistence.ErrEntityNotFound) {
 			return &httpapi.UpdateProductBadRequest{
 				Status: 400,
@@ -208,6 +229,13 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 				Status: 412,
 				Type:   *aboutBlankURL,
 				Title:  "Version mismatch",
+			}, nil
+		}
+		if errors.Is(err, product.ErrCategoryNotFound) {
+			return &httpapi.UpdateProductBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  "Category not found",
 			}, nil
 		}
 		return nil, err

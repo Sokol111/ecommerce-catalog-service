@@ -1,7 +1,7 @@
 package category
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -133,11 +133,11 @@ func (c *Category) IncrementVersion() {
 // validateCategoryData validates business rules
 func validateCategoryData(name string) error {
 	if name == "" {
-		return errors.New("name is required")
+		return fmt.Errorf("%w: name is required", ErrInvalidCategoryData)
 	}
 
 	if len(name) > 255 {
-		return errors.New("name is too long (max 255 characters)")
+		return fmt.Errorf("%w: name is too long (max 255 characters)", ErrInvalidCategoryData)
 	}
 
 	return nil

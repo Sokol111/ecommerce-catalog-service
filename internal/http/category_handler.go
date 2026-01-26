@@ -78,6 +78,13 @@ func (h *categoryHandler) CreateCategory(ctx context.Context, req *httpapi.Creat
 
 	created, err := h.createHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, category.ErrInvalidCategoryData) {
+			return &httpapi.CreateCategoryBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
 		return nil, err
 	}
 
@@ -141,6 +148,13 @@ func (h *categoryHandler) UpdateCategory(ctx context.Context, req *httpapi.Updat
 
 	updated, err := h.updateHandler.Handle(ctx, cmd)
 	if err != nil {
+		if errors.Is(err, category.ErrInvalidCategoryData) {
+			return &httpapi.UpdateCategoryBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  err.Error(),
+			}, nil
+		}
 		if errors.Is(err, persistence.ErrEntityNotFound) {
 			return &httpapi.UpdateCategoryBadRequest{
 				Status: 400,
