@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
+	"github.com/samber/lo"
 )
 
 type categoryMapper struct{}
@@ -39,18 +40,18 @@ func (m *categoryMapper) attributesToEntities(attrs []category.CategoryAttribute
 		return nil
 	}
 
-	result := make([]categoryAttributeEntity, len(attrs))
-	for i, attr := range attrs {
-		result[i] = categoryAttributeEntity{
-			AttributeID: attr.AttributeID,
-			Role:        string(attr.Role),
-			Required:    attr.Required,
-			SortOrder:   attr.SortOrder,
-			Filterable:  attr.Filterable,
-			Searchable:  attr.Searchable,
-		}
+	return lo.Map(attrs, mapCategoryAttributeToEntity)
+}
+
+func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) categoryAttributeEntity {
+	return categoryAttributeEntity{
+		AttributeID: attr.AttributeID,
+		Role:        string(attr.Role),
+		Required:    attr.Required,
+		SortOrder:   attr.SortOrder,
+		Filterable:  attr.Filterable,
+		Searchable:  attr.Searchable,
 	}
-	return result
 }
 
 func (m *categoryMapper) attributesToDomain(entities []categoryAttributeEntity) []category.CategoryAttribute {
@@ -58,18 +59,18 @@ func (m *categoryMapper) attributesToDomain(entities []categoryAttributeEntity) 
 		return nil
 	}
 
-	result := make([]category.CategoryAttribute, len(entities))
-	for i, attr := range entities {
-		result[i] = category.CategoryAttribute{
-			AttributeID: attr.AttributeID,
-			Role:        category.AttributeRole(attr.Role),
-			Required:    attr.Required,
-			SortOrder:   attr.SortOrder,
-			Filterable:  attr.Filterable,
-			Searchable:  attr.Searchable,
-		}
+	return lo.Map(entities, mapCategoryAttributeToDomain)
+}
+
+func mapCategoryAttributeToDomain(attr categoryAttributeEntity, _ int) category.CategoryAttribute {
+	return category.CategoryAttribute{
+		AttributeID: attr.AttributeID,
+		Role:        category.AttributeRole(attr.Role),
+		Required:    attr.Required,
+		SortOrder:   attr.SortOrder,
+		Filterable:  attr.Filterable,
+		Searchable:  attr.Searchable,
 	}
-	return result
 }
 
 func (m *categoryMapper) GetID(e *categoryEntity) string {

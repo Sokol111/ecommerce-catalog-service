@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
+	"github.com/samber/lo"
 )
 
 type productMapper struct{}
@@ -61,18 +62,18 @@ func (m *productMapper) attributesToEntities(attrs []product.AttributeValue) []p
 		return nil
 	}
 
-	result := make([]productAttributeEntity, len(attrs))
-	for i, attr := range attrs {
-		result[i] = productAttributeEntity{
-			AttributeID:      attr.AttributeID,
-			OptionSlugValue:  attr.OptionSlugValue,
-			OptionSlugValues: attr.OptionSlugValues,
-			NumericValue:     attr.NumericValue,
-			TextValue:        attr.TextValue,
-			BooleanValue:     attr.BooleanValue,
-		}
+	return lo.Map(attrs, mapProductAttributeToEntity)
+}
+
+func mapProductAttributeToEntity(attr product.AttributeValue, _ int) productAttributeEntity {
+	return productAttributeEntity{
+		AttributeID:      attr.AttributeID,
+		OptionSlugValue:  attr.OptionSlugValue,
+		OptionSlugValues: attr.OptionSlugValues,
+		NumericValue:     attr.NumericValue,
+		TextValue:        attr.TextValue,
+		BooleanValue:     attr.BooleanValue,
 	}
-	return result
 }
 
 func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []product.AttributeValue {
@@ -80,16 +81,16 @@ func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []
 		return nil
 	}
 
-	result := make([]product.AttributeValue, len(entities))
-	for i, e := range entities {
-		result[i] = product.AttributeValue{
-			AttributeID:      e.AttributeID,
-			OptionSlugValue:  e.OptionSlugValue,
-			OptionSlugValues: e.OptionSlugValues,
-			NumericValue:     e.NumericValue,
-			TextValue:        e.TextValue,
-			BooleanValue:     e.BooleanValue,
-		}
+	return lo.Map(entities, mapProductAttributeToDomain)
+}
+
+func mapProductAttributeToDomain(e productAttributeEntity, _ int) product.AttributeValue {
+	return product.AttributeValue{
+		AttributeID:      e.AttributeID,
+		OptionSlugValue:  e.OptionSlugValue,
+		OptionSlugValues: e.OptionSlugValues,
+		NumericValue:     e.NumericValue,
+		TextValue:        e.TextValue,
+		BooleanValue:     e.BooleanValue,
 	}
-	return result
 }
