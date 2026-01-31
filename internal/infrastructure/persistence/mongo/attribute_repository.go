@@ -8,20 +8,17 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type attributeRepository struct {
 	*commonsmongo.GenericRepository[attribute.Attribute, attributeEntity]
-	collection commonsmongo.Collection
 }
 
 func newAttributeRepository(mongoClient commonsmongo.Mongo, mapper *attributeMapper) (attribute.Repository, error) {
-	collection := mongoClient.GetCollection("attribute")
-
 	genericRepo, err := commonsmongo.NewGenericRepository(
-		collection,
+		mongoClient.GetCollection("attribute"),
 		mapper,
 	)
 	if err != nil {
@@ -30,7 +27,6 @@ func newAttributeRepository(mongoClient commonsmongo.Mongo, mapper *attributeMap
 
 	return &attributeRepository{
 		GenericRepository: genericRepo,
-		collection:        collection,
 	}, nil
 }
 

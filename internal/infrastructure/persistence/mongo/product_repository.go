@@ -5,7 +5,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type productRepository struct {
