@@ -10,7 +10,7 @@ import (
 	command "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/category"
 	query "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type categoryHandler struct {
@@ -95,7 +95,7 @@ func (h *categoryHandler) GetCategoryById(ctx context.Context, params httpapi.Ge
 	q := query.GetCategoryByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
-	if errors.Is(err, persistence.ErrEntityNotFound) {
+	if errors.Is(err, mongo.ErrEntityNotFound) {
 		return &httpapi.GetCategoryByIdNotFound{
 			Status: 404,
 			Type:   *aboutBlankURL,
@@ -155,14 +155,14 @@ func (h *categoryHandler) UpdateCategory(ctx context.Context, req *httpapi.Updat
 				Title:  err.Error(),
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrEntityNotFound) {
+		if errors.Is(err, mongo.ErrEntityNotFound) {
 			return &httpapi.UpdateCategoryBadRequest{
 				Status: 400,
 				Type:   *aboutBlankURL,
 				Title:  "Category not found",
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrOptimisticLocking) {
+		if errors.Is(err, mongo.ErrOptimisticLocking) {
 			return &httpapi.UpdateCategoryPreconditionFailed{
 				Status: 412,
 				Type:   *aboutBlankURL,

@@ -11,7 +11,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -43,7 +43,7 @@ type createCategoryHandler struct {
 	repo         category.Repository
 	attrRepo     attribute.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.CategoryEventFactory
 }
 
@@ -51,7 +51,7 @@ func NewCreateCategoryHandler(
 	repo category.Repository,
 	attrRepo attribute.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.CategoryEventFactory,
 ) CreateCategoryCommandHandler {
 	return &createCategoryHandler{
@@ -127,7 +127,7 @@ func (h *createCategoryHandler) persistAndPublish(
 		Send     outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, c); err != nil {
 			return nil, fmt.Errorf("failed to insert category: %w", err)
 		}

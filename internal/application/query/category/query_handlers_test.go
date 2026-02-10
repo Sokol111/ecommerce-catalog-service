@@ -12,7 +12,6 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	categorymocks "github.com/Sokol111/ecommerce-catalog-service/internal/domain/category/mocks"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
@@ -69,12 +68,12 @@ func TestGetCategoryByIDHandler_Handle_NotFound(t *testing.T) {
 
 	repo.EXPECT().
 		FindByID(mock.Anything, "non-existent-id").
-		Return(nil, persistence.ErrEntityNotFound)
+		Return(nil, commonsmongo.ErrEntityNotFound)
 
 	result, err := handler.Handle(ctx, GetCategoryByIDQuery{ID: "non-existent-id"})
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, commonsmongo.ErrEntityNotFound)
 	assert.Nil(t, result)
 }
 

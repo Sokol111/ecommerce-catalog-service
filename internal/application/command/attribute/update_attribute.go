@@ -11,7 +11,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"go.uber.org/zap"
 )
 
@@ -31,14 +31,14 @@ type UpdateAttributeCommandHandler interface {
 type updateAttributeHandler struct {
 	repo         attribute.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.AttributeEventFactory
 }
 
 func NewUpdateAttributeHandler(
 	repo attribute.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.AttributeEventFactory,
 ) UpdateAttributeCommandHandler {
 	return &updateAttributeHandler{
@@ -52,14 +52,14 @@ func NewUpdateAttributeHandler(
 func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttributeCommand) (*attribute.Attribute, error) {
 	a, err := h.repo.FindByID(ctx, cmd.ID)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, persistence.ErrEntityNotFound
+		if errors.Is(err, mongo.ErrEntityNotFound) {
+			return nil, mongo.ErrEntityNotFound
 		}
 		return nil, fmt.Errorf("failed to get attribute: %w", err)
 	}
 
 	if a.Version != cmd.Version {
-		return nil, persistence.ErrOptimisticLocking
+		return nil, mongo.ErrOptimisticLocking
 	}
 
 	options := lo.Map(cmd.Options, func(opt OptionInput, _ int) attribute.Option {
@@ -92,11 +92,11 @@ func (h *updateAttributeHandler) persistAndPublish(
 		Send      outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
 		updated, err := h.repo.Update(txCtx, a)
 		if err != nil {
-			if errors.Is(err, persistence.ErrOptimisticLocking) {
-				return nil, persistence.ErrOptimisticLocking
+			if errors.Is(err, mongo.ErrOptimisticLocking) {
+				return nil, mongo.ErrOptimisticLocking
 			}
 			return nil, fmt.Errorf("failed to update attribute: %w", err)
 		}

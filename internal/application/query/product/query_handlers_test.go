@@ -12,7 +12,6 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 	productmocks "github.com/Sokol111/ecommerce-catalog-service/internal/domain/product/mocks"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
@@ -66,12 +65,12 @@ func TestGetProductByIDHandler_Handle_NotFound(t *testing.T) {
 
 	repo.EXPECT().
 		FindByID(mock.Anything, productID).
-		Return(nil, persistence.ErrEntityNotFound)
+		Return(nil, mongo.ErrEntityNotFound)
 
 	result, err := handler.Handle(ctx, GetProductByIDQuery{ID: productID})
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, mongo.ErrEntityNotFound)
 	assert.Nil(t, result)
 }
 

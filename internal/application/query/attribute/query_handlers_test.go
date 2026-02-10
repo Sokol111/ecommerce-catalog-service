@@ -12,7 +12,6 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	attributemocks "github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute/mocks"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
@@ -66,12 +65,12 @@ func TestGetAttributeByIDHandler_Handle_NotFound(t *testing.T) {
 
 	repo.EXPECT().
 		FindByID(mock.Anything, "non-existent-id").
-		Return(nil, persistence.ErrEntityNotFound)
+		Return(nil, commonsmongo.ErrEntityNotFound)
 
 	result, err := handler.Handle(ctx, GetAttributeByIDQuery{ID: "non-existent-id"})
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, commonsmongo.ErrEntityNotFound)
 	assert.Nil(t, result)
 }
 

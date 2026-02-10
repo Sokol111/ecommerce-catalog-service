@@ -18,7 +18,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/testutil/mocks"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 // testCtx creates a context with a no-op logger for testing
@@ -132,12 +132,12 @@ func TestUpdateProductHandler_Handle_ProductNotFound(t *testing.T) {
 
 	repo.EXPECT().
 		FindByID(mock.Anything, cmd.ID).
-		Return(nil, persistence.ErrEntityNotFound)
+		Return(nil, mongo.ErrEntityNotFound)
 
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, mongo.ErrEntityNotFound)
 	assert.Nil(t, result)
 }
 
@@ -161,7 +161,7 @@ func TestUpdateProductHandler_Handle_OptimisticLockingVersionMismatch(t *testing
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrOptimisticLocking)
+	assert.ErrorIs(t, err, mongo.ErrOptimisticLocking)
 	assert.Nil(t, result)
 }
 
@@ -320,12 +320,12 @@ func TestUpdateProductHandler_Handle_OptimisticLockingOnUpdate(t *testing.T) {
 
 	repo.EXPECT().
 		Update(mock.Anything, mock.Anything).
-		Return(nil, persistence.ErrOptimisticLocking)
+		Return(nil, mongo.ErrOptimisticLocking)
 
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrOptimisticLocking)
+	assert.ErrorIs(t, err, mongo.ErrOptimisticLocking)
 	assert.Nil(t, result)
 }
 

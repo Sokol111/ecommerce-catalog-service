@@ -9,21 +9,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	mongooptions "go.mongodb.org/mongo-driver/v2/mongo/options"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
+	"github.com/Sokol111/ecommerce-catalog-service/test/testutil"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 var (
-	testClient   *mongo.Client
-	testDatabase *mongo.Database
-	testMongo    commonsmongo.Mongo
+	testMongoContainer *testutil.MongoDBContainer
+	testDatabase       *mongo.Database
+	testMongo          commonsmongo.Mongo
 
 	// Repositories for tests
 	testAttributeRepo attribute.Repository
@@ -37,32 +36,13 @@ func TestMain(m *testing.M) {
 	ctx := context.Background()
 
 	// Start MongoDB container
-	mongoContainer, err := mongodb.Run(ctx, "mongo:7")
+	var err error
+	testMongoContainer, err = testutil.StartMongoDBContainer(ctx)
 	if err != nil {
 		log.Fatalf("failed to start mongodb container: %v", err)
 	}
 
-	// Get connection string
-	connectionString, err := mongoContainer.ConnectionString(ctx)
-	if err != nil {
-		log.Fatalf("failed to get connection string: %v", err)
-	}
-
-	// Connect to MongoDB
-	clientOpts := options.Client().ApplyURI(connectionString)
-	testClient, err = mongo.Connect(clientOpts)
-	if err != nil {
-		log.Fatalf("failed to connect to mongodb: %v", err)
-	}
-
-	// Ping to verify connection
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	if err := testClient.Ping(ctx, nil); err != nil {
-		log.Fatalf("failed to ping mongodb: %v", err)
-	}
-
-	testDatabase = testClient.Database(testDBName)
+	testDatabase = testMongoContainer.Database(testDBName)
 	testMongo = &testMongoWrapper{db: testDatabase}
 
 	// Create repositories with mappers
@@ -90,11 +70,8 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	// Cleanup
-	if err := testClient.Disconnect(context.Background()); err != nil {
-		log.Printf("failed to disconnect from mongodb: %v", err)
-	}
-	if err := testcontainers.TerminateContainer(mongoContainer); err != nil {
-		log.Printf("failed to terminate mongodb container: %v", err)
+	if err := testMongoContainer.Terminate(context.Background()); err != nil {
+		log.Printf("failed to terminate mongodb: %v", err)
 	}
 
 	os.Exit(code)
@@ -113,7 +90,7 @@ func createIndexes(ctx context.Context) error {
 	// Attribute unique slug index
 	_, err := testDatabase.Collection("attribute").Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys:    map[string]int{"slug": 1},
-		Options: options.Index().SetUnique(true),
+		Options: mongooptions.Index().SetUnique(true),
 	})
 	if err != nil {
 		return err

@@ -10,7 +10,7 @@ import (
 	command "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/attribute"
 	query "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type attributeHandler struct {
@@ -104,7 +104,7 @@ func (h *attributeHandler) GetAttributeById(ctx context.Context, params httpapi.
 	q := query.GetAttributeByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
-	if errors.Is(err, persistence.ErrEntityNotFound) {
+	if errors.Is(err, mongo.ErrEntityNotFound) {
 		return &httpapi.GetAttributeByIdNotFound{
 			Status: 404,
 			Type:   *aboutBlankURL,
@@ -173,14 +173,14 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *httpapi.Upd
 				Title:  err.Error(),
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrEntityNotFound) {
+		if errors.Is(err, mongo.ErrEntityNotFound) {
 			return &httpapi.UpdateAttributeNotFound{
 				Status: 404,
 				Type:   *aboutBlankURL,
 				Title:  "Attribute not found",
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrOptimisticLocking) {
+		if errors.Is(err, mongo.ErrOptimisticLocking) {
 			return &httpapi.UpdateAttributePreconditionFailed{
 				Status: 412,
 				Type:   *aboutBlankURL,

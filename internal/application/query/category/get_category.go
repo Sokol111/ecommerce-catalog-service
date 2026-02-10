@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type GetCategoryByIDQuery struct {
@@ -28,8 +28,8 @@ func NewGetCategoryByIDHandler(repo category.Repository) GetCategoryByIDQueryHan
 func (h *getCategoryByIDHandler) Handle(ctx context.Context, query GetCategoryByIDQuery) (*category.Category, error) {
 	c, err := h.repo.FindByID(ctx, query.ID)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, persistence.ErrEntityNotFound
+		if errors.Is(err, mongo.ErrEntityNotFound) {
+			return nil, mongo.ErrEntityNotFound
 		}
 		return nil, fmt.Errorf("failed to get category: %w", err)
 	}

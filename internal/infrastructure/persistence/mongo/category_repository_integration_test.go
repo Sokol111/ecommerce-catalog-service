@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -94,7 +94,7 @@ func TestCategoryRepository_FindByID(t *testing.T) {
 	// Find non-existing
 	_, err = testCategoryRepo.FindByID(ctx, uuid.New().String())
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, mongo.ErrEntityNotFound)
 }
 
 func TestCategoryRepository_FindList(t *testing.T) {

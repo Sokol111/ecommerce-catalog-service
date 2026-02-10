@@ -12,7 +12,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"go.uber.org/zap"
 )
 
@@ -34,7 +34,7 @@ type updateCategoryHandler struct {
 	repo         category.Repository
 	attrRepo     attribute.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.CategoryEventFactory
 }
 
@@ -42,7 +42,7 @@ func NewUpdateCategoryHandler(
 	repo category.Repository,
 	attrRepo attribute.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.CategoryEventFactory,
 ) UpdateCategoryCommandHandler {
 	return &updateCategoryHandler{
@@ -75,14 +75,14 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 func (h *updateCategoryHandler) findAndValidateCategory(ctx context.Context, id string, version int) (*category.Category, error) {
 	c, err := h.repo.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, persistence.ErrEntityNotFound
+		if errors.Is(err, mongo.ErrEntityNotFound) {
+			return nil, mongo.ErrEntityNotFound
 		}
 		return nil, fmt.Errorf("failed to get category: %w", err)
 	}
 
 	if c.Version != version {
-		return nil, persistence.ErrOptimisticLocking
+		return nil, mongo.ErrOptimisticLocking
 	}
 
 	return c, nil
@@ -128,11 +128,11 @@ func (h *updateCategoryHandler) persistAndPublish(
 		Send     outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
 		updated, err := h.repo.Update(txCtx, c)
 		if err != nil {
-			if errors.Is(err, persistence.ErrOptimisticLocking) {
-				return nil, persistence.ErrOptimisticLocking
+			if errors.Is(err, mongo.ErrOptimisticLocking) {
+				return nil, mongo.ErrOptimisticLocking
 			}
 			return nil, fmt.Errorf("failed to update category: %w", err)
 		}

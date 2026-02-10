@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type GetAttributeByIDQuery struct {
@@ -28,7 +28,7 @@ func NewGetAttributeByIDHandler(repo attribute.Repository) GetAttributeByIDQuery
 func (h *getAttributeByIDHandler) Handle(ctx context.Context, query GetAttributeByIDQuery) (*attribute.Attribute, error) {
 	a, err := h.repo.FindByID(ctx, query.ID)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
+		if errors.Is(err, mongo.ErrEntityNotFound) {
 			return nil, err
 		}
 		return nil, fmt.Errorf("failed to get attribute: %w", err)

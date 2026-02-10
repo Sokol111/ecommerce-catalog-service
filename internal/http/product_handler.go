@@ -11,7 +11,7 @@ import (
 	command "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/product"
 	query "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/product"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type productHandler struct {
@@ -150,7 +150,7 @@ func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetP
 	q := query.GetProductByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
-	if errors.Is(err, persistence.ErrEntityNotFound) {
+	if errors.Is(err, mongo.ErrEntityNotFound) {
 		return &httpapi.GetProductByIdNotFound{
 			Status: 404,
 			Type:   *aboutBlankURL,
@@ -217,14 +217,14 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 				Title:  err.Error(),
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrEntityNotFound) {
+		if errors.Is(err, mongo.ErrEntityNotFound) {
 			return &httpapi.UpdateProductBadRequest{
 				Status: 400,
 				Type:   *aboutBlankURL,
 				Title:  "Product not found",
 			}, nil
 		}
-		if errors.Is(err, persistence.ErrOptimisticLocking) {
+		if errors.Is(err, mongo.ErrOptimisticLocking) {
 			return &httpapi.UpdateProductPreconditionFailed{
 				Status: 412,
 				Type:   *aboutBlankURL,

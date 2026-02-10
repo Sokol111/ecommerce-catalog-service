@@ -11,7 +11,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"go.uber.org/zap"
 )
 
@@ -39,14 +39,14 @@ type CreateAttributeCommandHandler interface {
 type createAttributeHandler struct {
 	repo         attribute.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.AttributeEventFactory
 }
 
 func NewCreateAttributeHandler(
 	repo attribute.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.AttributeEventFactory,
 ) CreateAttributeCommandHandler {
 	return &createAttributeHandler{
@@ -100,7 +100,7 @@ func (h *createAttributeHandler) persistAndPublish(
 		Send      outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, a); err != nil {
 			return nil, fmt.Errorf("failed to insert attribute: %w", err)
 		}

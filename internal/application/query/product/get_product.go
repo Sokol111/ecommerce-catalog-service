@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 type GetProductByIDQuery struct {
@@ -28,7 +28,7 @@ func NewGetProductByIDHandler(repo product.Repository) GetProductByIDQueryHandle
 func (h *getProductByIDHandler) Handle(ctx context.Context, query GetProductByIDQuery) (*product.Product, error) {
 	p, err := h.repo.FindByID(ctx, query.ID)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
+		if errors.Is(err, mongo.ErrEntityNotFound) {
 			return nil, err
 		}
 		return nil, fmt.Errorf("failed to get product: %w", err)

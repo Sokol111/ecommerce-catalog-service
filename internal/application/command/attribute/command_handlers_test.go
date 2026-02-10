@@ -18,7 +18,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/testutil/mocks"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
 func ptr[T any](v T) *T {
@@ -390,12 +390,12 @@ func TestUpdateAttributeHandler_Handle_NotFound(t *testing.T) {
 
 	repo.EXPECT().
 		FindByID(mock.Anything, cmd.ID).
-		Return(nil, persistence.ErrEntityNotFound)
+		Return(nil, mongo.ErrEntityNotFound)
 
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrEntityNotFound)
+	assert.ErrorIs(t, err, mongo.ErrEntityNotFound)
 	assert.Nil(t, result)
 }
 
@@ -418,7 +418,7 @@ func TestUpdateAttributeHandler_Handle_OptimisticLockingVersionMismatch(t *testi
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
-	assert.ErrorIs(t, err, persistence.ErrOptimisticLocking)
+	assert.ErrorIs(t, err, mongo.ErrOptimisticLocking)
 	assert.Nil(t, result)
 }
 

@@ -12,7 +12,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 )
 
-func NewHttpHandlerModule() fx.Option {
+func Module() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newProductHandler,

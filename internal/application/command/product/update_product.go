@@ -13,7 +13,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +39,7 @@ type updateProductHandler struct {
 	attrRepo     attribute.Repository
 	categoryRepo category.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.ProductEventFactory
 }
 
@@ -48,7 +48,7 @@ func NewUpdateProductHandler(
 	attrRepo attribute.Repository,
 	categoryRepo category.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.ProductEventFactory,
 ) UpdateProductCommandHandler {
 	return &updateProductHandler{
@@ -85,14 +85,14 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 func (h *updateProductHandler) findAndValidateProduct(ctx context.Context, id string, version int) (*product.Product, error) {
 	p, err := h.repo.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, persistence.ErrEntityNotFound
+		if errors.Is(err, mongo.ErrEntityNotFound) {
+			return nil, mongo.ErrEntityNotFound
 		}
 		return nil, fmt.Errorf("failed to get product: %w", err)
 	}
 
 	if p.Version != version {
-		return nil, persistence.ErrOptimisticLocking
+		return nil, mongo.ErrOptimisticLocking
 	}
 
 	return p, nil
@@ -130,11 +130,11 @@ func (h *updateProductHandler) persistAndPublish(
 		Send    outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*updateResult, error) {
 		updated, err := h.repo.Update(txCtx, p)
 		if err != nil {
-			if errors.Is(err, persistence.ErrOptimisticLocking) {
-				return nil, persistence.ErrOptimisticLocking
+			if errors.Is(err, mongo.ErrOptimisticLocking) {
+				return nil, err
 			}
 			return nil, fmt.Errorf("failed to update product: %w", err)
 		}

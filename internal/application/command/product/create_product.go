@@ -10,7 +10,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
@@ -37,7 +37,7 @@ type createProductHandler struct {
 	attrRepo     attribute.Repository
 	categoryRepo category.Repository
 	outbox       outbox.Outbox
-	txManager    persistence.TxManager
+	txManager    mongo.TxManager
 	eventFactory event.ProductEventFactory
 }
 
@@ -46,7 +46,7 @@ func NewCreateProductHandler(
 	attrRepo attribute.Repository,
 	categoryRepo category.Repository,
 	outbox outbox.Outbox,
-	txManager persistence.TxManager,
+	txManager mongo.TxManager,
 	eventFactory event.ProductEventFactory,
 ) CreateProductCommandHandler {
 	return &createProductHandler{
@@ -126,7 +126,7 @@ func (h *createProductHandler) persistAndPublish(
 		Send    outbox.SendFunc
 	}
 
-	res, err := persistence.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
 		if err := h.repo.Insert(txCtx, p); err != nil {
 			return nil, fmt.Errorf("failed to insert product: %w", err)
 		}
