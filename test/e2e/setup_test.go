@@ -6,24 +6,27 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
 	internalhttp "github.com/Sokol111/ecommerce-catalog-service/internal/http"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/persistence/mongo"
-	"github.com/Sokol111/ecommerce-catalog-service/test/testutil"
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/config"
+	"github.com/Sokol111/ecommerce-commons/pkg/core/health"
 	commons_http "github.com/Sokol111/ecommerce-commons/pkg/http"
+	"github.com/Sokol111/ecommerce-commons/pkg/security/token"
+	"github.com/Sokol111/ecommerce-commons/pkg/testutil/container"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/http/server"
 	commons_messaging "github.com/Sokol111/ecommerce-commons/pkg/messaging"
+	kafka_config "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/config"
 	commons_observability "github.com/Sokol111/ecommerce-commons/pkg/observability"
 	commons_persistence "github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	commons_mongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
@@ -31,10 +34,12 @@ import (
 )
 
 var (
-	testApp            *fxtest.App
-	testServerURL      string
-	testClient         *httpapi.Client
-	testMongoContainer *testutil.MongoDBContainer
+	testApp                     *fxtest.App
+	testServerURL               string
+	testClient                  *httpapi.Client
+	testMongoContainer          *container.MongoDBContainer
+	testSchemaRegistryContainer *container.SchemaRegistryContainer
+	testReadinessWaiter         health.ReadinessWaiter
 )
 
 const testServerPort = 18080
@@ -42,17 +47,55 @@ const testServerPort = 18080
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 
-	// 1. Start MongoDB container
+	startContainers(ctx)
+	startApp(ctx)
+	createTestClient()
+
+	code := m.Run()
+
+	stopApp()
+	stopContainers()
+
+	os.Exit(code)
+}
+
+func startContainers(ctx context.Context) {
 	var err error
-	testMongoContainer, err = testutil.StartMongoDBContainer(ctx, testutil.WithReplicaSet("rs0"))
+
+	// Start MongoDB container
+	testMongoContainer, err = container.StartMongoDBContainer(ctx, container.WithReplicaSet("rs0"))
 	if err != nil {
 		log.Fatalf("failed to start mongodb container: %v", err)
 	}
 
-	os.Setenv("KAFKA_ENABLED", "false")
+	// Start Schema Registry container (Redpanda with embedded Kafka)
+	testSchemaRegistryContainer, err = container.StartSchemaRegistryContainer(ctx)
+	if err != nil {
+		log.Fatalf("failed to start schema registry container: %v", err)
+	}
+}
+
+func stopContainers() {
+	ctx := context.Background()
+	if err := testMongoContainer.Terminate(ctx); err != nil {
+		log.Printf("failed to terminate mongodb: %v", err)
+	}
+	if err := testSchemaRegistryContainer.Terminate(ctx); err != nil {
+		log.Printf("failed to terminate schema registry: %v", err)
+	}
+}
+
+func startApp(ctx context.Context) {
+	kafkaBroker, err := testSchemaRegistryContainer.KafkaBroker(ctx)
+	if err != nil {
+		log.Fatalf("failed to get kafka broker: %v", err)
+	}
 
 	testApp = fxtest.New(
 		&testing.T{},
+
+		// Extract ReadinessWaiter from DI
+		fx.Populate(&testReadinessWaiter),
 
 		// Commons modules with test configs
 		commons_core.NewCoreModule(
@@ -85,9 +128,16 @@ func TestMain(m *testing.M) {
 			commons_observability.WithoutMetrics(),
 			commons_observability.WithoutTracing(),
 		),
-		commons_messaging.NewMessagingModule(),
+		commons_messaging.NewMessagingModule(
+			commons_messaging.WithKafkaConfig(kafka_config.Config{
+				Brokers: kafkaBroker,
+				SchemaRegistry: kafka_config.SchemaRegistryConfig{
+					URL: testSchemaRegistryContainer.URL,
+				},
+			}),
+		),
 		commons_security.NewSecurityModule(
-			commons_security.WithoutSecurity(),
+			commons_security.WithTestValidator(),
 		),
 
 		// Application modules
@@ -98,52 +148,37 @@ func TestMain(m *testing.M) {
 
 	testApp.RequireStart()
 
-	testServerURL = fmt.Sprintf("http://localhost:%d", testServerPort)
-	if err := waitForServer(testServerURL, 10*time.Second); err != nil {
-		log.Fatalf("server did not start: %v", err)
+	// Wait for all components to be ready
+	readyCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	if err = testReadinessWaiter.WaitReady(readyCtx); err != nil {
+		log.Fatalf("app not ready: %v", err)
 	}
 
-	testClient, err = httpapi.NewClient(testServerURL, &noopSecuritySource{})
+	testServerURL = fmt.Sprintf("http://localhost:%d", testServerPort)
+}
+
+func createTestClient() {
+	var err error
+	testClient, err = httpapi.NewClient(testServerURL, &testSecuritySource{
+		token: token.GenerateAdminTestToken(),
+	})
 	if err != nil {
 		log.Fatalf("failed to create test client: %v", err)
 	}
+}
 
-	code := m.Run()
-
+func stopApp() {
 	testApp.RequireStop()
-	if err := testMongoContainer.Terminate(context.Background()); err != nil {
-		log.Printf("failed to terminate mongodb: %v", err)
-	}
-
-	os.Exit(code)
 }
 
-// noopSecuritySource implements SecuritySource for the client
-type noopSecuritySource struct{}
-
-func (s *noopSecuritySource) BearerAuth(ctx context.Context, operationName httpapi.OperationName) (httpapi.BearerAuth, error) {
-	return httpapi.BearerAuth{Token: "test-token"}, nil
+// testSecuritySource provides test tokens for the HTTP client.
+type testSecuritySource struct {
+	token string
 }
 
-func waitForServer(url string, timeout time.Duration) error {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("server not ready after %v", timeout)
-		default:
-			resp, err := http.Get(url + "/health/ready")
-			if err == nil {
-				resp.Body.Close()
-				if resp.StatusCode == http.StatusOK {
-					return nil
-				}
-			}
-			time.Sleep(100 * time.Millisecond)
-		}
-	}
+func (s *testSecuritySource) BearerAuth(context.Context, httpapi.OperationName) (httpapi.BearerAuth, error) {
+	return httpapi.BearerAuth{Token: s.token}, nil
 }
 
 func cleanupDatabase(t *testing.T) {

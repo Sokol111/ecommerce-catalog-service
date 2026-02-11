@@ -8,15 +8,15 @@ import (
 )
 
 type securityHandler struct {
-	tokenValidator token.Validator
+	handler token.SecurityHandler
 }
 
-func newSecurityHandler(tokenValidator token.Validator) httpapi.SecurityHandler {
-	return &securityHandler{tokenValidator: tokenValidator}
+func newSecurityHandler(handler token.SecurityHandler) httpapi.SecurityHandler {
+	return &securityHandler{handler: handler}
 }
 
 // HandleBearerAuth handles BearerAuth security.
 func (s *securityHandler) HandleBearerAuth(ctx context.Context, operationName httpapi.OperationName, t httpapi.BearerAuth) (context.Context, error) {
-	ctx, _, err := token.HandleBearerAuth(ctx, s.tokenValidator, t.Token, t.Roles)
+	ctx, _, err := s.handler.HandleBearerAuth(ctx, t.Token, t.Roles)
 	return ctx, err
 }
