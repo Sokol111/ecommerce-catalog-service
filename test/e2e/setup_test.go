@@ -40,9 +40,10 @@ var (
 	testMongoContainer          *container.MongoDBContainer
 	testSchemaRegistryContainer *container.SchemaRegistryContainer
 	testReadinessWaiter         health.ReadinessWaiter
+	testServer                  server.Server
 )
 
-const testServerPort = 18080
+const testServerPort = 0
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
@@ -94,8 +95,9 @@ func startApp(ctx context.Context) {
 	testApp = fxtest.New(
 		&testing.T{},
 
-		// Extract ReadinessWaiter from DI
+		// Extract ReadinessWaiter and Server from DI
 		fx.Populate(&testReadinessWaiter),
+		fx.Populate(&testServer),
 
 		// Commons modules with test configs
 		commons_core.NewCoreModule(
@@ -155,7 +157,7 @@ func startApp(ctx context.Context) {
 		log.Fatalf("app not ready: %v", err)
 	}
 
-	testServerURL = fmt.Sprintf("http://localhost:%d", testServerPort)
+	testServerURL = fmt.Sprintf("http://%s", testServer.Addr().String())
 }
 
 func createTestClient() {
