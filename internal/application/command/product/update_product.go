@@ -157,7 +157,7 @@ func (h *updateProductHandler) persistAndPublish(
 
 	h.log(ctx).Debug("product updated", zap.String("id", res.Product.ID))
 
-	_ = res.Send(ctx)
+	_ = res.Send(ctx) //nolint:errcheck // best-effort send, errors already logged in outbox
 
 	return res.Product, nil
 }

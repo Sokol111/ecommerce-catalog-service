@@ -121,7 +121,7 @@ func (h *createAttributeHandler) persistAndPublish(
 
 	h.log(ctx).Debug("attribute created", zap.String("id", res.Attribute.ID))
 
-	_ = res.Send(ctx)
+	_ = res.Send(ctx) //nolint:errcheck // best-effort send, errors already logged in outbox
 
 	return res.Attribute, nil
 }

@@ -1,4 +1,4 @@
-package http
+package http //nolint:revive // package name intentional
 
 import (
 	"context"
@@ -100,7 +100,7 @@ func (h *attributeHandler) CreateAttribute(ctx context.Context, req *httpapi.Cre
 	return toAttributeResponse(created), nil
 }
 
-func (h *attributeHandler) GetAttributeById(ctx context.Context, params httpapi.GetAttributeByIdParams) (httpapi.GetAttributeByIdRes, error) {
+func (h *attributeHandler) GetAttributeById(ctx context.Context, params httpapi.GetAttributeByIdParams) (httpapi.GetAttributeByIdRes, error) { //nolint:revive // name from OpenAPI spec
 	q := query.GetAttributeByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)

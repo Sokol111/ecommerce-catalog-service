@@ -1,4 +1,4 @@
-package http
+package http //nolint:revive // package name intentional
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func newProductHandler(
 	}
 }
 
-var aboutBlankURL, _ = url.Parse("about:blank")
+var aboutBlankURL, _ = url.Parse("about:blank") //nolint:errcheck // static URL always valid
 
 func optUUIDToStringPtr(o httpapi.OptUUID) *string {
 	if !o.IsSet() {
@@ -146,7 +146,7 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *httpapi.CreateP
 	return toProductResponse(created), nil
 }
 
-func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) {
+func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) { //nolint:revive // name from OpenAPI spec
 	q := query.GetProductByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)

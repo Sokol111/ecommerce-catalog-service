@@ -148,7 +148,7 @@ func (h *createCategoryHandler) persistAndPublish(
 
 	h.log(ctx).Debug("category created", zap.String("id", res.Category.ID))
 
-	_ = res.Send(ctx)
+	_ = res.Send(ctx) //nolint:errcheck // best-effort send, errors already logged in outbox
 
 	return res.Category, nil
 }

@@ -15,12 +15,12 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
-	"github.com/Sokol111/ecommerce-catalog-service/test/testutil"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/testutil/container"
 )
 
 var (
-	testMongoContainer *testutil.MongoDBContainer
+	testMongoContainer *container.MongoDBContainer
 	testDatabase       *mongo.Database
 	testMongo          commonsmongo.Mongo
 
@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 
 	// Start MongoDB container
 	var err error
-	testMongoContainer, err = testutil.StartMongoDBContainer(ctx)
+	testMongoContainer, err = container.StartMongoDBContainer(ctx)
 	if err != nil {
 		log.Fatalf("failed to start mongodb container: %v", err)
 	}

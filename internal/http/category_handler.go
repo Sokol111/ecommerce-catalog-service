@@ -1,4 +1,4 @@
-package http
+package http //nolint:revive // package name intentional
 
 import (
 	"context"
@@ -91,7 +91,7 @@ func (h *categoryHandler) CreateCategory(ctx context.Context, req *httpapi.Creat
 	return toCategoryResponse(created), nil
 }
 
-func (h *categoryHandler) GetCategoryById(ctx context.Context, params httpapi.GetCategoryByIdParams) (httpapi.GetCategoryByIdRes, error) {
+func (h *categoryHandler) GetCategoryById(ctx context.Context, params httpapi.GetCategoryByIdParams) (httpapi.GetCategoryByIdRes, error) { //nolint:revive // name from OpenAPI spec
 	q := query.GetCategoryByIDQuery{ID: params.ID.String()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
