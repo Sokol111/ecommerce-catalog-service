@@ -116,23 +116,94 @@ func TestAttribute_List(t *testing.T) {
 		Size: 10,
 	})
 	require.NoError(t, err)
-	require.IsType(t, &httpapi.AttributeListResponse{}, listResp)
 
-	list := listResp.(*httpapi.AttributeListResponse)
+	list, ok := listResp.(*httpapi.AttributeListResponse)
+	require.True(t, ok, "expected *httpapi.AttributeListResponse, got %T", listResp)
 	assert.GreaterOrEqual(t, len(list.Items), 3)
-	assert.GreaterOrEqual(t, list.Total, int64(3))
+	assert.GreaterOrEqual(t, list.Total, 3)
+}
+
+func TestAttribute_ListWithFilters(t *testing.T) {
+	ctx := context.Background()
+	uniqueSuffix := uuid.New().String()[:8]
+
+	// 1. Create attributes with different types and enabled status
+	enabledSingle := &httpapi.CreateAttributeRequest{
+		Name:    "FilterTest Enabled Single",
+		Slug:    "filter-enabled-single-" + uniqueSuffix,
+		Type:    httpapi.CreateAttributeRequestTypeSingle,
+		Enabled: true,
+		Options: []httpapi.AttributeOptionInput{
+			{Name: "Option1", Slug: "opt1", SortOrder: httpapi.NewOptInt(1)},
+		},
+	}
+	_, err := testClient.CreateAttribute(ctx, enabledSingle)
+	require.NoError(t, err)
+
+	disabledBoolean := &httpapi.CreateAttributeRequest{
+		Name:    "FilterTest Disabled Boolean",
+		Slug:    "filter-disabled-bool-" + uniqueSuffix,
+		Type:    httpapi.CreateAttributeRequestTypeBoolean,
+		Enabled: false,
+	}
+	_, err = testClient.CreateAttribute(ctx, disabledBoolean)
+	require.NoError(t, err)
+
+	// 2. Test filter by enabled=true
+	listResp, err := testClient.GetAttributeList(ctx, httpapi.GetAttributeListParams{
+		Page:    1,
+		Size:    100,
+		Enabled: httpapi.NewOptBool(true),
+	})
+	require.NoError(t, err)
+	list := listResp.(*httpapi.AttributeListResponse)
+
+	for _, item := range list.Items {
+		assert.True(t, item.Enabled, "expected all items to be enabled")
+	}
+
+	// 3. Test filter by type=boolean
+	listResp, err = testClient.GetAttributeList(ctx, httpapi.GetAttributeListParams{
+		Page: 1,
+		Size: 100,
+		Type: httpapi.NewOptGetAttributeListType(httpapi.GetAttributeListTypeBoolean),
+	})
+	require.NoError(t, err)
+	list = listResp.(*httpapi.AttributeListResponse)
+
+	for _, item := range list.Items {
+		assert.Equal(t, httpapi.AttributeResponseTypeBoolean, item.Type, "expected all items to be boolean type")
+	}
+
+	// 4. Test sorting by name desc
+	listResp, err = testClient.GetAttributeList(ctx, httpapi.GetAttributeListParams{
+		Page:  1,
+		Size:  10,
+		Sort:  httpapi.NewOptGetAttributeListSort(httpapi.GetAttributeListSortName),
+		Order: httpapi.NewOptGetAttributeListOrder(httpapi.GetAttributeListOrderDesc),
+	})
+	require.NoError(t, err)
+	list = listResp.(*httpapi.AttributeListResponse)
+
+	// Verify descending order
+	for i := 1; i < len(list.Items); i++ {
+		assert.GreaterOrEqual(t, list.Items[i-1].Name, list.Items[i].Name,
+			"expected items sorted by name descending")
+	}
 }
 
 func TestAttribute_NotFound(t *testing.T) {
 	ctx := context.Background()
 
 	// Try to get non-existent attribute
-	_, err := testClient.GetAttributeById(ctx, httpapi.GetAttributeByIdParams{
+	resp, err := testClient.GetAttributeById(ctx, httpapi.GetAttributeByIdParams{
 		ID: uuid.New(),
 	})
+	require.NoError(t, err)
 
-	// Should return error (404)
-	require.Error(t, err)
+	// Should return NotFound response type
+	_, ok := resp.(*httpapi.GetAttributeByIdNotFound)
+	assert.True(t, ok, "expected *httpapi.GetAttributeByIdNotFound, got %T", resp)
 }
 
 func TestAttribute_DuplicateSlug(t *testing.T) {
@@ -157,8 +228,63 @@ func TestAttribute_DuplicateSlug(t *testing.T) {
 		Type:    httpapi.CreateAttributeRequestTypeBoolean,
 		Enabled: true,
 	}
-	_, err = testClient.CreateAttribute(ctx, duplicateReq)
+	resp, err := testClient.CreateAttribute(ctx, duplicateReq)
+	require.NoError(t, err)
 
-	// Should return error (409 Conflict)
-	require.Error(t, err)
+	// Should return Conflict response type
+	_, ok := resp.(*httpapi.CreateAttributeConflict)
+	assert.True(t, ok, "expected *httpapi.CreateAttributeConflict, got %T", resp)
+}
+
+func TestAttribute_UpdateNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	// Try to update non-existent attribute
+	updateReq := &httpapi.UpdateAttributeRequest{
+		ID:      uuid.New(),
+		Name:    "Non-existent",
+		Enabled: true,
+		Version: 1,
+	}
+
+	resp, err := testClient.UpdateAttribute(ctx, updateReq)
+	require.NoError(t, err)
+
+	// Should return NotFound response type
+	_, ok := resp.(*httpapi.UpdateAttributeNotFound)
+	assert.True(t, ok, "expected *httpapi.UpdateAttributeNotFound, got %T", resp)
+}
+
+func TestAttribute_UpdateVersionMismatch(t *testing.T) {
+	ctx := context.Background()
+
+	// 1. Create attribute
+	createReq := &httpapi.CreateAttributeRequest{
+		Name:    "Version Test",
+		Slug:    "version-test-" + uuid.New().String()[:8],
+		Type:    httpapi.CreateAttributeRequestTypeText,
+		Enabled: true,
+	}
+
+	createResp, err := testClient.CreateAttribute(ctx, createReq)
+	require.NoError(t, err)
+	created := createResp.(*httpapi.AttributeResponse)
+
+	createdID, err := uuid.Parse(created.ID)
+	require.NoError(t, err)
+
+	// 2. Try to update with wrong version
+	updateReq := &httpapi.UpdateAttributeRequest{
+		ID:      createdID,
+		Name:    "Updated Name",
+		Enabled: true,
+		Version: 999, // Wrong version
+	}
+
+	resp, err := testClient.UpdateAttribute(ctx, updateReq)
+	require.NoError(t, err)
+
+	// Should return PreconditionFailed response type
+	_, ok := resp.(*httpapi.UpdateAttributePreconditionFailed)
+	assert.True(t, ok, "expected *httpapi.UpdateAttributePreconditionFailed, got %T", resp)
 }

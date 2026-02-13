@@ -2,8 +2,8 @@ package event
 
 import "go.uber.org/fx"
 
-// EventModule provides event factory dependencies
-func EventModule() fx.Option {
+// Module provides event factory dependencies
+func Module() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newProductEventFactory,

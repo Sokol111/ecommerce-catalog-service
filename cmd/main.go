@@ -30,7 +30,7 @@ var AppModules = fx.Options(
 
 	// Domain & Application
 	mongo.Module(),
-	event.EventModule(),
+	event.Module(),
 	application.Module(),
 	kafka.Module(),
 

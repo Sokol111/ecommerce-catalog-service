@@ -15,6 +15,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
 	internalhttp "github.com/Sokol111/ecommerce-catalog-service/internal/http"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/persistence/mongo"
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
@@ -40,15 +41,15 @@ var (
 	testMongoContainer          *container.MongoDBContainer
 	testSchemaRegistryContainer *container.SchemaRegistryContainer
 	testReadinessWaiter         health.ReadinessWaiter
-	testServer                  server.Server
 )
 
-const testServerPort = 0
+const testServerPort = 18080
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 
 	startContainers(ctx)
+	runMigrations(ctx)
 	startApp(ctx)
 	createTestClient()
 
@@ -76,6 +77,13 @@ func startContainers(ctx context.Context) {
 	}
 }
 
+func runMigrations(ctx context.Context) {
+	if err := testMongoContainer.RunMigrations(ctx, "catalog_e2e_test", "../../db/migrations"); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
+	log.Printf("migrations applied successfully")
+}
+
 func stopContainers() {
 	ctx := context.Background()
 	if err := testMongoContainer.Terminate(ctx); err != nil {
@@ -95,9 +103,8 @@ func startApp(ctx context.Context) {
 	testApp = fxtest.New(
 		&testing.T{},
 
-		// Extract ReadinessWaiter and Server from DI
+		// Extract ReadinessWaiter from DI
 		fx.Populate(&testReadinessWaiter),
-		fx.Populate(&testServer),
 
 		// Commons modules with test configs
 		commons_core.NewCoreModule(
@@ -144,6 +151,7 @@ func startApp(ctx context.Context) {
 
 		// Application modules
 		mongo.Module(),
+		event.Module(),
 		application.Module(),
 		internalhttp.Module(),
 	)
@@ -157,7 +165,7 @@ func startApp(ctx context.Context) {
 		log.Fatalf("app not ready: %v", err)
 	}
 
-	testServerURL = fmt.Sprintf("http://%s", testServer.Addr().String())
+	testServerURL = fmt.Sprintf("http://localhost:%d", testServerPort)
 }
 
 func createTestClient() {

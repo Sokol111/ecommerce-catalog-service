@@ -102,6 +102,11 @@ test-integration: ## Run integration tests
 	@echo "$(COLOR_GREEN)Running integration tests...$(COLOR_RESET)"
 	go test -v -race -tags=integration ./...
 
+.PHONY: test-e2e
+test-e2e: ## Run e2e tests (requires running service)
+	@echo "$(COLOR_GREEN)Running e2e tests...$(COLOR_RESET)"
+	go test -v -race -tags=e2e ./test/e2e/...
+
 .PHONY: test-coverage
 test-coverage: test ## Generate and open coverage report
 	@echo "$(COLOR_GREEN)Generating coverage report...$(COLOR_RESET)"
