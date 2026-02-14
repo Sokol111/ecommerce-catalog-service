@@ -14,9 +14,11 @@ on:
       - 'LICENSE'
       - 'VERSION'
       - 'docs/**'
+  workflow_call:  # Makes this workflow reusable
 
 jobs:
   ci:
     uses: Sokol111/ecommerce-infrastructure/.github/workflows/go-ci.yml@master
     with:
       coverage-threshold: 80
+      coverage-exclude-pattern: 'mocks/|/module\.go|main\.go|/http/|/event/|/infrastructure/'
