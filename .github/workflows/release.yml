@@ -12,11 +12,11 @@ permissions:
   contents: write
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml  # Reference local workflow
+  checks:
+    uses: ./.github/workflows/ci.yml
 
   release:
-    needs: ci
+    needs: checks
     uses: Sokol111/ecommerce-infrastructure/.github/workflows/go-release.yml@master
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

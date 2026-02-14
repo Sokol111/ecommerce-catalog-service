@@ -17,7 +17,7 @@ on:
   workflow_call:  # Makes this workflow reusable
 
 jobs:
-  ci:
+  go-ci:
     uses: Sokol111/ecommerce-infrastructure/.github/workflows/go-ci.yml@master
     with:
       coverage-threshold: 80
