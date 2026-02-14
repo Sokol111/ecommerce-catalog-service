@@ -192,11 +192,3 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *httpapi.Upd
 
 	return toAttributeResponse(updated), nil
 }
-
-func (h *attributeHandler) DeleteAttribute(ctx context.Context, params httpapi.DeleteAttributeParams) (httpapi.DeleteAttributeRes, error) {
-	return &httpapi.DeleteAttributeInternalServerError{
-		Status: 500,
-		Type:   *aboutBlankURL,
-		Title:  "Not implemented",
-	}, nil
-}
