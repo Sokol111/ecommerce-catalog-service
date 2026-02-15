@@ -3,10 +3,10 @@ module github.com/Sokol111/ecommerce-catalog-service
 go 1.26.0
 
 require (
-	github.com/Sokol111/ecommerce-catalog-service-api v1.0.9
+	github.com/Sokol111/ecommerce-catalog-service-api v1.0.11
 	github.com/Sokol111/ecommerce-commons v0.4.4
 	github.com/google/uuid v1.6.0
-	github.com/ogen-go/ogen v1.18.0
+	github.com/ogen-go/ogen v1.19.0
 	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
 	go.mongodb.org/mongo-driver/v2 v2.5.0
