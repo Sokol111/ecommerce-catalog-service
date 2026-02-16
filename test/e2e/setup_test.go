@@ -49,7 +49,6 @@ func TestMain(m *testing.M) {
 	ctx := context.Background()
 
 	startContainers(ctx)
-	runMigrations(ctx)
 	startApp(ctx)
 	createTestClient()
 
@@ -75,13 +74,6 @@ func startContainers(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("failed to start schema registry container: %v", err)
 	}
-}
-
-func runMigrations(ctx context.Context) {
-	if err := testMongoContainer.RunMigrations(ctx, "catalog_e2e_test", "../../db/migrations"); err != nil {
-		log.Fatalf("failed to run migrations: %v", err)
-	}
-	log.Printf("migrations applied successfully")
 }
 
 func stopContainers() {
@@ -123,6 +115,10 @@ func startApp(ctx context.Context) {
 				commons_mongo.Config{
 					ConnectionString: testMongoContainer.ConnectionString,
 					Database:         "catalog_e2e_test",
+					Migrations: commons_mongo.MigrationConfig{
+						Enabled: true,
+						Path:    "../../db/migrations",
+					},
 				},
 			),
 		),
