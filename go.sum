@@ -16,8 +16,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/Microsoft/hcsshim v0.11.5 h1:haEcLNpj9Ka1gd3B3tAEs9CpE0c+1IhoL59w/exYU38=
 github.com/Microsoft/hcsshim v0.11.5/go.mod h1:MV8xMfmECjl5HdO7U/3/hFVnkmSBjAjmA09d4bExKcU=
-github.com/Sokol111/ecommerce-catalog-service-api v1.0.11 h1:QeSa7vypDSD6KN3NECf5LWqaNqQw6apb8SKYR1IKXc0=
-github.com/Sokol111/ecommerce-catalog-service-api v1.0.11/go.mod h1:/fJBKJIlK2lTtWlce+f/EuH8zxUHmPo3bhtHG2Ji7Dk=
+github.com/Sokol111/ecommerce-catalog-service-api v1.0.12 h1:NYlRS001IsVslbsE5U1fDSIRKktnaDwAG4bQt9FLqWc=
+github.com/Sokol111/ecommerce-catalog-service-api v1.0.12/go.mod h1:/fJBKJIlK2lTtWlce+f/EuH8zxUHmPo3bhtHG2Ji7Dk=
 github.com/Sokol111/ecommerce-commons v0.4.6 h1:RMC02yeN/BucJs+jt01ENHhLWJuNxzz/s/fLD9qAz5s=
 github.com/Sokol111/ecommerce-commons v0.4.6/go.mod h1:ByMhIaEYr5OjLc5MvqNAUdKewUCOFawBVZUTzHld8D8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
