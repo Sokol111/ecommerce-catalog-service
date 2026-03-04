@@ -34,7 +34,6 @@ func TestNewCategory(t *testing.T) {
 					AttributeID: "attr-1",
 					Slug:        "color",
 					Role:        AttributeRoleVariant,
-					Required:    true,
 					SortOrder:   1,
 					Filterable:  true,
 					Searchable:  true,
@@ -43,7 +42,6 @@ func TestNewCategory(t *testing.T) {
 					AttributeID: "attr-2",
 					Slug:        "size",
 					Role:        AttributeRoleSpecification,
-					Required:    false,
 					SortOrder:   2,
 					Filterable:  true,
 					Searchable:  false,
@@ -334,7 +332,6 @@ func TestCategoryAttribute(t *testing.T) {
 		AttributeID: "attr-123",
 		Slug:        "color",
 		Role:        AttributeRoleVariant,
-		Required:    true,
 		SortOrder:   1,
 		Filterable:  true,
 		Searchable:  false,
@@ -343,7 +340,6 @@ func TestCategoryAttribute(t *testing.T) {
 	assert.Equal(t, "attr-123", attr.AttributeID)
 	assert.Equal(t, "color", attr.Slug)
 	assert.Equal(t, AttributeRoleVariant, attr.Role)
-	assert.True(t, attr.Required)
 	assert.Equal(t, 1, attr.SortOrder)
 	assert.True(t, attr.Filterable)
 	assert.False(t, attr.Searchable)

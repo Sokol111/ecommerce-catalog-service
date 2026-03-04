@@ -23,8 +23,8 @@ func TestCategoryRepository_Insert(t *testing.T) {
 		"Electronics",
 		true,
 		[]category.CategoryAttribute{
-			{AttributeID: uuid.New().String(), Slug: "color", Role: category.AttributeRoleVariant, Required: true, SortOrder: 1, Filterable: true},
-			{AttributeID: uuid.New().String(), Slug: "size", Role: category.AttributeRoleSpecification, Required: false, SortOrder: 2, Filterable: false},
+			{AttributeID: uuid.New().String(), Slug: "color", Role: category.AttributeRoleVariant, SortOrder: 1, Filterable: true},
+			{AttributeID: uuid.New().String(), Slug: "size", Role: category.AttributeRoleSpecification, SortOrder: 2, Filterable: false},
 		},
 	)
 	require.NoError(t, err)

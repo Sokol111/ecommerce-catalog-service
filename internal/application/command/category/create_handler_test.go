@@ -62,7 +62,6 @@ func TestCreateCategoryHandler_Handle_Success(t *testing.T) {
 			{
 				AttributeID: "attr-1",
 				Role:        "variant",
-				Required:    true,
 				SortOrder:   1,
 				Filterable:  true,
 				Searchable:  true,

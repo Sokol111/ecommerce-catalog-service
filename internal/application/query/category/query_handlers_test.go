@@ -27,7 +27,6 @@ func createTestCategory(id, name string, enabled bool) *category.Category {
 				AttributeID: "attr-1",
 				Slug:        "color",
 				Role:        category.AttributeRoleVariant,
-				Required:    true,
 				SortOrder:   1,
 				Filterable:  true,
 				Searchable:  true,

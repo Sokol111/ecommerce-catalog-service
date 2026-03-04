@@ -30,7 +30,6 @@ func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute) []eve
 			AttributeID:   catAttr.AttributeID,
 			AttributeSlug: catAttr.Slug,
 			Role:          string(catAttr.Role),
-			Required:      catAttr.Required,
 			SortOrder:     catAttr.SortOrder,
 			Filterable:    catAttr.Filterable,
 			Searchable:    catAttr.Searchable,

@@ -111,7 +111,6 @@ func (h *updateCategoryHandler) buildCategoryAttributes(ctx context.Context, inp
 			AttributeID: attr.AttributeID,
 			Slug:        slug,
 			Role:        category.AttributeRole(attr.Role),
-			Required:    attr.Required,
 			SortOrder:   attr.SortOrder,
 			Filterable:  attr.Filterable,
 			Searchable:  attr.Searchable,

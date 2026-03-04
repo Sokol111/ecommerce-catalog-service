@@ -20,7 +20,6 @@ import (
 type CategoryAttributeInput struct {
 	AttributeID string
 	Role        string
-	Required    bool
 	SortOrder   int
 	Filterable  bool
 	Searchable  bool
@@ -102,7 +101,6 @@ func (h *createCategoryHandler) buildCategoryAttributes(ctx context.Context, inp
 			AttributeID: attr.AttributeID,
 			Slug:        slug,
 			Role:        category.AttributeRole(attr.Role),
-			Required:    attr.Required,
 			SortOrder:   attr.SortOrder,
 			Filterable:  attr.Filterable,
 			Searchable:  attr.Searchable,

@@ -25,7 +25,6 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 					AttributeID: "attr-1",
 					Slug:        "color",
 					Role:        category.AttributeRoleVariant,
-					Required:    true,
 					SortOrder:   1,
 					Filterable:  true,
 					Searchable:  true,
@@ -34,7 +33,6 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 					AttributeID: "attr-2",
 					Slug:        "size",
 					Role:        category.AttributeRoleSpecification,
-					Required:    false,
 					SortOrder:   2,
 					Filterable:  true,
 					Searchable:  false,
@@ -57,14 +55,12 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 		require.Len(t, entity.Attributes, 2)
 		assert.Equal(t, "attr-1", entity.Attributes[0].AttributeID)
 		assert.Equal(t, "variant", entity.Attributes[0].Role)
-		assert.True(t, entity.Attributes[0].Required)
 		assert.Equal(t, 1, entity.Attributes[0].SortOrder)
 		assert.True(t, entity.Attributes[0].Filterable)
 		assert.True(t, entity.Attributes[0].Searchable)
 
 		assert.Equal(t, "attr-2", entity.Attributes[1].AttributeID)
 		assert.Equal(t, "specification", entity.Attributes[1].Role)
-		assert.False(t, entity.Attributes[1].Required)
 	})
 
 	t.Run("maps category without attributes", func(t *testing.T) {
@@ -121,7 +117,6 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 				{
 					AttributeID: "attr-10",
 					Role:        "variant",
-					Required:    true,
 					SortOrder:   1,
 					Filterable:  true,
 					Searchable:  true,
@@ -129,7 +124,6 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 				{
 					AttributeID: "attr-20",
 					Role:        "specification",
-					Required:    false,
 					SortOrder:   2,
 					Filterable:  false,
 					Searchable:  true,
@@ -152,7 +146,6 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 		require.Len(t, domain.Attributes, 2)
 		assert.Equal(t, "attr-10", domain.Attributes[0].AttributeID)
 		assert.Equal(t, category.AttributeRoleVariant, domain.Attributes[0].Role)
-		assert.True(t, domain.Attributes[0].Required)
 		assert.Equal(t, 1, domain.Attributes[0].SortOrder)
 		assert.True(t, domain.Attributes[0].Filterable)
 		assert.True(t, domain.Attributes[0].Searchable)
@@ -242,7 +235,6 @@ func TestCategoryMapper_RoundTrip(t *testing.T) {
 					AttributeID: "attr-brand",
 					Slug:        "brand",
 					Role:        category.AttributeRoleVariant,
-					Required:    true,
 					SortOrder:   1,
 					Filterable:  true,
 					Searchable:  true,
@@ -251,7 +243,6 @@ func TestCategoryMapper_RoundTrip(t *testing.T) {
 					AttributeID: "attr-model",
 					Slug:        "model",
 					Role:        category.AttributeRoleSpecification,
-					Required:    false,
 					SortOrder:   2,
 					Filterable:  false,
 					Searchable:  true,
@@ -275,7 +266,6 @@ func TestCategoryMapper_RoundTrip(t *testing.T) {
 		for i, attr := range original.Attributes {
 			assert.Equal(t, attr.AttributeID, restored.Attributes[i].AttributeID)
 			assert.Equal(t, attr.Role, restored.Attributes[i].Role)
-			assert.Equal(t, attr.Required, restored.Attributes[i].Required)
 			assert.Equal(t, attr.SortOrder, restored.Attributes[i].SortOrder)
 			assert.Equal(t, attr.Filterable, restored.Attributes[i].Filterable)
 			assert.Equal(t, attr.Searchable, restored.Attributes[i].Searchable)
@@ -288,7 +278,6 @@ func TestMapCategoryAttributeToEntity(t *testing.T) {
 		AttributeID: "attr-123",
 		Slug:        "color",
 		Role:        category.AttributeRoleVariant,
-		Required:    true,
 		SortOrder:   5,
 		Filterable:  true,
 		Searchable:  false,
@@ -298,7 +287,6 @@ func TestMapCategoryAttributeToEntity(t *testing.T) {
 
 	assert.Equal(t, "attr-123", entity.AttributeID)
 	assert.Equal(t, "variant", entity.Role)
-	assert.True(t, entity.Required)
 	assert.Equal(t, 5, entity.SortOrder)
 	assert.True(t, entity.Filterable)
 	assert.False(t, entity.Searchable)
@@ -308,7 +296,6 @@ func TestMapCategoryAttributeToDomain(t *testing.T) {
 	entity := categoryAttributeEntity{
 		AttributeID: "attr-456",
 		Role:        "specification",
-		Required:    false,
 		SortOrder:   10,
 		Filterable:  false,
 		Searchable:  true,
@@ -318,7 +305,6 @@ func TestMapCategoryAttributeToDomain(t *testing.T) {
 
 	assert.Equal(t, "attr-456", attr.AttributeID)
 	assert.Equal(t, category.AttributeRoleSpecification, attr.Role)
-	assert.False(t, attr.Required)
 	assert.Equal(t, 10, attr.SortOrder)
 	assert.False(t, attr.Filterable)
 	assert.True(t, attr.Searchable)

@@ -8,7 +8,6 @@ import (
 type categoryAttributeEntity struct {
 	AttributeID string `bson:"attributeId"`
 	Role        string `bson:"role"`
-	Required    bool   `bson:"required"`
 	SortOrder   int    `bson:"sortOrder"`
 	Filterable  bool   `bson:"filterable"`
 	Searchable  bool   `bson:"searchable"`

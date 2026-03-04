@@ -38,7 +38,6 @@ func toCategoryAttributeResponse(attr category.CategoryAttribute, _ int) httpapi
 	return httpapi.CategoryAttribute{
 		AttributeId: attr.AttributeID,
 		Role:        httpapi.CategoryAttributeRole(attr.Role),
-		Required:    attr.Required,
 		SortOrder:   attr.SortOrder,
 		Filterable:  attr.Filterable,
 		Searchable:  attr.Searchable,
@@ -61,7 +60,6 @@ func toAttributeInput(attr httpapi.CategoryAttributeInput, _ int) command.Catego
 	return command.CategoryAttributeInput{
 		AttributeID: attr.AttributeId.String(),
 		Role:        string(attr.Role),
-		Required:    attr.Required.Or(false),
 		SortOrder:   attr.SortOrder.Or(0),
 		Filterable:  attr.Filterable,
 		Searchable:  attr.Searchable,

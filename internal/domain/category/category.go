@@ -22,7 +22,6 @@ type CategoryAttribute struct {
 	AttributeID string
 	Slug        string // Attribute slug (immutable, stored for events)
 	Role        AttributeRole
-	Required    bool
 	SortOrder   int
 	Filterable  bool
 	Searchable  bool

@@ -47,7 +47,6 @@ func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) catego
 	return categoryAttributeEntity{
 		AttributeID: attr.AttributeID,
 		Role:        string(attr.Role),
-		Required:    attr.Required,
 		SortOrder:   attr.SortOrder,
 		Filterable:  attr.Filterable,
 		Searchable:  attr.Searchable,
@@ -66,7 +65,6 @@ func mapCategoryAttributeToDomain(attr categoryAttributeEntity, _ int) category.
 	return category.CategoryAttribute{
 		AttributeID: attr.AttributeID,
 		Role:        category.AttributeRole(attr.Role),
-		Required:    attr.Required,
 		SortOrder:   attr.SortOrder,
 		Filterable:  attr.Filterable,
 		Searchable:  attr.Searchable,
