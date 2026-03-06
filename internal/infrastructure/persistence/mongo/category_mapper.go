@@ -46,6 +46,7 @@ func (m *categoryMapper) attributesToEntities(attrs []category.CategoryAttribute
 func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) categoryAttributeEntity {
 	return categoryAttributeEntity{
 		AttributeID: attr.AttributeID,
+		Slug:        attr.Slug,
 		Role:        string(attr.Role),
 		SortOrder:   attr.SortOrder,
 		Filterable:  attr.Filterable,
@@ -64,6 +65,7 @@ func (m *categoryMapper) attributesToDomain(entities []categoryAttributeEntity) 
 func mapCategoryAttributeToDomain(attr categoryAttributeEntity, _ int) category.CategoryAttribute {
 	return category.CategoryAttribute{
 		AttributeID: attr.AttributeID,
+		Slug:        attr.Slug,
 		Role:        category.AttributeRole(attr.Role),
 		SortOrder:   attr.SortOrder,
 		Filterable:  attr.Filterable,

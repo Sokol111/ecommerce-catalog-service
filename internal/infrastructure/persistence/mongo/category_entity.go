@@ -7,6 +7,7 @@ import (
 // categoryAttributeEntity represents embedded category attribute in MongoDB
 type categoryAttributeEntity struct {
 	AttributeID string `bson:"attributeId"`
+	Slug        string `bson:"slug"`
 	Role        string `bson:"role"`
 	SortOrder   int    `bson:"sortOrder"`
 	Filterable  bool   `bson:"filterable"`
