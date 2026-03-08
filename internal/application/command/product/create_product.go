@@ -20,7 +20,7 @@ type CreateProductCommand struct {
 	ID          *uuid.UUID
 	Name        string
 	Description *string
-	Price       float32
+	Price       float64
 	Quantity    int
 	ImageID     *string
 	CategoryID  *string

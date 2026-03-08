@@ -22,7 +22,7 @@ type UpdateProductCommand struct {
 	Version     int
 	Name        string
 	Description *string
-	Price       float32
+	Price       float64
 	Quantity    int
 	ImageID     *string
 	CategoryID  *string

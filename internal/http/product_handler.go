@@ -52,11 +52,11 @@ func toOptString(s *string) httpapi.OptString {
 	return httpapi.NewOptString(*s)
 }
 
-func toOptFloat64(f *float32) httpapi.OptFloat64 {
+func toOptFloat64(f *float64) httpapi.OptFloat64 {
 	if f == nil {
 		return httpapi.OptFloat64{}
 	}
-	return httpapi.NewOptFloat64(float64(*f))
+	return httpapi.NewOptFloat64(*f)
 }
 
 func toOptBool(b *bool) httpapi.OptBool {
@@ -67,9 +67,9 @@ func toOptBool(b *bool) httpapi.OptBool {
 }
 
 func toAttributeValueInput(attr httpapi.AttributeValueInput, _ int) product.AttributeValue {
-	var numericValue *float32
+	var numericValue *float64
 	if attr.NumericValue.IsSet() {
-		v := float32(attr.NumericValue.Value)
+		v := attr.NumericValue.Value
 		numericValue = &v
 	}
 
@@ -100,7 +100,7 @@ func toProductResponse(p *product.Product) *httpapi.ProductResponse {
 		Version:     p.Version,
 		Name:        p.Name,
 		Description: toOptString(p.Description),
-		Price:       float64(p.Price),
+		Price:       p.Price,
 		Quantity:    p.Quantity,
 		ImageId:     toOptString(p.ImageID),
 		CategoryId:  toOptString(p.CategoryID),
@@ -117,7 +117,7 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *httpapi.CreateP
 		Name:        req.Name,
 		Description: lo.If(req.Description.IsSet(), &req.Description.Value).Else(nil),
 		Quantity:    req.Quantity,
-		Price:       float32(req.Price),
+		Price:       req.Price,
 		ImageID:     optUUIDToStringPtr(req.ImageId),
 		CategoryID:  optUUIDToStringPtr(req.CategoryId),
 		Enabled:     req.Enabled,
@@ -200,7 +200,7 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 		Version:     req.Version,
 		Name:        req.Name,
 		Description: lo.If(req.Description.IsSet(), &req.Description.Value).Else(nil),
-		Price:       float32(req.Price),
+		Price:       req.Price,
 		Quantity:    req.Quantity,
 		ImageID:     optUUIDToStringPtr(req.ImageId),
 		CategoryID:  optUUIDToStringPtr(req.CategoryId),

@@ -18,7 +18,7 @@ func TestNewProduct(t *testing.T) {
 		name        string
 		productName string
 		description *string
-		price       float32
+		price       float64
 		quantity    int
 		imageID     *string
 		categoryID  *string
@@ -178,7 +178,7 @@ func TestNewProductWithID(t *testing.T) {
 		name        string
 		id          string
 		productName string
-		price       float32
+		price       float64
 		quantity    int
 		enabled     bool
 		wantErr     bool
@@ -235,7 +235,7 @@ func TestProduct_Update(t *testing.T) {
 		setup       func() *Product
 		newName     string
 		description *string
-		price       float32
+		price       float64
 		quantity    int
 		imageID     *string
 		categoryID  *string
@@ -344,7 +344,7 @@ func TestReconstruct(t *testing.T) {
 		assert.Equal(t, "id-123", product.ID)
 		assert.Equal(t, 5, product.Version)
 		assert.Equal(t, "", product.Name)
-		assert.Equal(t, float32(-100), product.Price)
+		assert.Equal(t, float64(-100), product.Price)
 		assert.Equal(t, -50, product.Quantity)
 		assert.True(t, product.Enabled)
 	})
@@ -354,7 +354,7 @@ func TestValidateProductData(t *testing.T) {
 	tests := []struct {
 		name        string
 		productName string
-		price       float32
+		price       float64
 		quantity    int
 		wantErr     bool
 		errContains string
@@ -407,7 +407,7 @@ func TestValidateEnabledState(t *testing.T) {
 	tests := []struct {
 		name        string
 		enabled     bool
-		price       float32
+		price       float64
 		quantity    int
 		imageID     *string
 		categoryID  *string

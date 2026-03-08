@@ -10,7 +10,7 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/domain/product"
 )
 
-func ptrFloat32(v float32) *float32 {
+func ptrFloat64(v float64) *float64 {
 	return &v
 }
 
@@ -44,7 +44,7 @@ func TestProductMapper_ToEntity(t *testing.T) {
 				},
 				{
 					AttributeID:  "attr-weight",
-					NumericValue: ptrFloat32(187.5),
+					NumericValue: ptrFloat64(187.5),
 				},
 			},
 			now,
@@ -58,7 +58,7 @@ func TestProductMapper_ToEntity(t *testing.T) {
 		assert.Equal(t, 2, entity.Version)
 		assert.Equal(t, "iPhone 15 Pro", entity.Name)
 		assert.Equal(t, ptr("Latest iPhone model"), entity.Description)
-		assert.Equal(t, float32(999.99), entity.Price)
+		assert.Equal(t, float64(999.99), entity.Price)
 		assert.Equal(t, 50, entity.Quantity)
 		assert.Equal(t, ptr("image-123"), entity.ImageID)
 		assert.Equal(t, ptr("category-phones"), entity.CategoryID)
@@ -74,7 +74,7 @@ func TestProductMapper_ToEntity(t *testing.T) {
 		assert.Equal(t, []string{"128gb", "256gb", "512gb"}, entity.Attributes[1].OptionSlugValues)
 
 		assert.Equal(t, "attr-weight", entity.Attributes[2].AttributeID)
-		assert.Equal(t, ptrFloat32(187.5), entity.Attributes[2].NumericValue)
+		assert.Equal(t, ptrFloat64(187.5), entity.Attributes[2].NumericValue)
 	})
 
 	t.Run("maps product without optional fields", func(t *testing.T) {
@@ -121,7 +121,7 @@ func TestProductMapper_ToEntity(t *testing.T) {
 			[]product.AttributeValue{
 				{AttributeID: "single", OptionSlugValue: ptr("option-1")},
 				{AttributeID: "multiple", OptionSlugValues: []string{"opt-a", "opt-b"}},
-				{AttributeID: "numeric", NumericValue: ptrFloat32(42.5)},
+				{AttributeID: "numeric", NumericValue: ptrFloat64(42.5)},
 				{AttributeID: "text", TextValue: ptr("Some text value")},
 				{AttributeID: "boolean", BooleanValue: ptrBool(true)},
 			},
@@ -134,7 +134,7 @@ func TestProductMapper_ToEntity(t *testing.T) {
 		require.Len(t, entity.Attributes, 5)
 		assert.Equal(t, ptr("option-1"), entity.Attributes[0].OptionSlugValue)
 		assert.Equal(t, []string{"opt-a", "opt-b"}, entity.Attributes[1].OptionSlugValues)
-		assert.Equal(t, ptrFloat32(42.5), entity.Attributes[2].NumericValue)
+		assert.Equal(t, ptrFloat64(42.5), entity.Attributes[2].NumericValue)
 		assert.Equal(t, ptr("Some text value"), entity.Attributes[3].TextValue)
 		assert.Equal(t, ptrBool(true), entity.Attributes[4].BooleanValue)
 	})
@@ -158,7 +158,7 @@ func TestProductMapper_ToDomain(t *testing.T) {
 			Attributes: []productAttributeEntity{
 				{AttributeID: "attr-cpu", OptionSlugValue: ptr("m3-pro")},
 				{AttributeID: "attr-ram", OptionSlugValues: []string{"16gb", "32gb"}},
-				{AttributeID: "attr-screen", NumericValue: ptrFloat32(14.2)},
+				{AttributeID: "attr-screen", NumericValue: ptrFloat64(14.2)},
 			},
 			CreatedAt:  now,
 			ModifiedAt: now,
@@ -171,7 +171,7 @@ func TestProductMapper_ToDomain(t *testing.T) {
 		assert.Equal(t, 5, domain.Version)
 		assert.Equal(t, "MacBook Pro", domain.Name)
 		assert.Equal(t, ptr("Professional laptop"), domain.Description)
-		assert.Equal(t, float32(2499.99), domain.Price)
+		assert.Equal(t, float64(2499.99), domain.Price)
 		assert.Equal(t, 25, domain.Quantity)
 		assert.Equal(t, ptr("img-macbook"), domain.ImageID)
 		assert.Equal(t, ptr("cat-laptops"), domain.CategoryID)
@@ -273,7 +273,7 @@ func TestProductMapper_RoundTrip(t *testing.T) {
 			[]product.AttributeValue{
 				{AttributeID: "color", OptionSlugValue: ptr("phantom-black")},
 				{AttributeID: "storage", OptionSlugValues: []string{"256gb", "512gb"}},
-				{AttributeID: "weight", NumericValue: ptrFloat32(168.0)},
+				{AttributeID: "weight", NumericValue: ptrFloat64(168.0)},
 				{AttributeID: "notes", TextValue: ptr("Includes charger")},
 				{AttributeID: "5g", BooleanValue: ptrBool(true)},
 			},
@@ -340,7 +340,7 @@ func TestMapProductAttributeToEntity(t *testing.T) {
 			AttributeID:      "attr-3",
 			OptionSlugValue:  ptr("opt"),
 			OptionSlugValues: []string{"a", "b"},
-			NumericValue:     ptrFloat32(99.9),
+			NumericValue:     ptrFloat64(99.9),
 			TextValue:        ptr("text"),
 			BooleanValue:     ptrBool(false),
 		}
@@ -349,7 +349,7 @@ func TestMapProductAttributeToEntity(t *testing.T) {
 
 		assert.Equal(t, ptr("opt"), entity.OptionSlugValue)
 		assert.Equal(t, []string{"a", "b"}, entity.OptionSlugValues)
-		assert.Equal(t, ptrFloat32(99.9), entity.NumericValue)
+		assert.Equal(t, ptrFloat64(99.9), entity.NumericValue)
 		assert.Equal(t, ptr("text"), entity.TextValue)
 		assert.Equal(t, ptrBool(false), entity.BooleanValue)
 	})
@@ -386,7 +386,7 @@ func TestMapProductAttributeToDomain(t *testing.T) {
 			AttributeID:      "attr-3",
 			OptionSlugValue:  ptr("value"),
 			OptionSlugValues: []string{"x", "y"},
-			NumericValue:     ptrFloat32(123.45),
+			NumericValue:     ptrFloat64(123.45),
 			TextValue:        ptr("description"),
 			BooleanValue:     ptrBool(true),
 		}
@@ -395,7 +395,7 @@ func TestMapProductAttributeToDomain(t *testing.T) {
 
 		assert.Equal(t, ptr("value"), attr.OptionSlugValue)
 		assert.Equal(t, []string{"x", "y"}, attr.OptionSlugValues)
-		assert.Equal(t, ptrFloat32(123.45), attr.NumericValue)
+		assert.Equal(t, ptrFloat64(123.45), attr.NumericValue)
 		assert.Equal(t, ptr("description"), attr.TextValue)
 		assert.Equal(t, ptrBool(true), attr.BooleanValue)
 	})

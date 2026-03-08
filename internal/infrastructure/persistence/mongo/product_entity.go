@@ -9,7 +9,7 @@ type productAttributeEntity struct {
 	AttributeID      string   `bson:"attributeId"`
 	OptionSlugValue  *string  `bson:"optionSlugValue,omitempty"`
 	OptionSlugValues []string `bson:"optionSlugValues,omitempty"`
-	NumericValue     *float32 `bson:"numericValue,omitempty"`
+	NumericValue     *float64 `bson:"numericValue,omitempty"`
 	TextValue        *string  `bson:"textValue,omitempty"`
 	BooleanValue     *bool    `bson:"booleanValue,omitempty"`
 }
@@ -20,7 +20,7 @@ type productEntity struct {
 	Version     int                      `bson:"version"`
 	Name        string                   `bson:"name"`
 	Description *string                  `bson:"description,omitempty"`
-	Price       float32                  `bson:"price"`
+	Price       float64                  `bson:"price"`
 	Quantity    int                      `bson:"quantity"`
 	ImageID     *string                  `bson:"imageId,omitempty"`
 	CategoryID  *string                  `bson:"categoryId,omitempty"`

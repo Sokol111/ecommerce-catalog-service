@@ -12,7 +12,7 @@ type AttributeValue struct {
 	AttributeID      string
 	OptionSlugValue  *string  // Slug of selected option (for single type)
 	OptionSlugValues []string // Slugs of selected options (for multiple type)
-	NumericValue     *float32 // Numeric value (for range type)
+	NumericValue     *float64 // Numeric value (for range type)
 	TextValue        *string  // Free text value (for text type)
 	BooleanValue     *bool    // Boolean value (for boolean type)
 }
@@ -23,7 +23,7 @@ type Product struct {
 	Version     int
 	Name        string
 	Description *string
-	Price       float32
+	Price       float64
 	Quantity    int
 	ImageID     *string
 	CategoryID  *string
@@ -34,7 +34,7 @@ type Product struct {
 }
 
 // NewProduct creates a new product with validation
-func NewProduct(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
+func NewProduct(name string, description *string, price float64, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func NewProduct(name string, description *string, price float32, quantity int, i
 }
 
 // NewProductWithID creates a product with a specific ID (for idempotency)
-func NewProductWithID(id, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
+func NewProductWithID(id, name string, description *string, price float64, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) (*Product, error) {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func NewProductWithID(id, name string, description *string, price float32, quant
 }
 
 // Reconstruct rebuilds a product from persistence (no validation)
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue, createdAt, modifiedAt time.Time) *Product {
+func Reconstruct(id string, version int, name string, description *string, price float64, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue, createdAt, modifiedAt time.Time) *Product {
 	return &Product{
 		ID:          id,
 		Version:     version,
@@ -106,7 +106,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 }
 
 // Update modifies product data with validation
-func (p *Product) Update(name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) error {
+func (p *Product) Update(name string, description *string, price float64, quantity int, imageID *string, categoryID *string, enabled bool, attributes []AttributeValue) error {
 	if err := validateProductData(name, price, quantity); err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (p *Product) Update(name string, description *string, price float32, quanti
 }
 
 // validateProductData validates business rules
-func validateProductData(name string, price float32, quantity int) error {
+func validateProductData(name string, price float64, quantity int) error {
 	if name == "" {
 		return fmt.Errorf("%w: name is required", ErrInvalidProductData)
 	}
@@ -150,7 +150,7 @@ func validateProductData(name string, price float32, quantity int) error {
 }
 
 // validateEnabledState validates that a product can be enabled
-func validateEnabledState(enabled bool, price float32, quantity int, imageID *string, categoryID *string) error {
+func validateEnabledState(enabled bool, price float64, quantity int, imageID *string, categoryID *string) error {
 	if !enabled {
 		return nil // No validation needed when disabling
 	}

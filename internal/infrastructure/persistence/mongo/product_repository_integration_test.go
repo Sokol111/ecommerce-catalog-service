@@ -31,7 +31,7 @@ func TestProductRepository_Insert(t *testing.T) {
 		true,
 		[]product.AttributeValue{
 			{AttributeID: uuid.New().String(), OptionSlugValue: ptrI("red")},
-			{AttributeID: uuid.New().String(), NumericValue: ptrI(float32(42))},
+			{AttributeID: uuid.New().String(), NumericValue: ptrI(float64(42))},
 		},
 	)
 	require.NoError(t, err)
@@ -83,7 +83,7 @@ func TestProductRepository_Update(t *testing.T) {
 	found, err := testProductRepo.FindByID(ctx, prod.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "Updated Name", found.Name)
-	assert.Equal(t, float32(20.00), found.Price)
+	assert.Equal(t, float64(20.00), found.Price)
 	assert.True(t, found.Enabled)
 	assert.Equal(t, result.Version, found.Version)
 }
