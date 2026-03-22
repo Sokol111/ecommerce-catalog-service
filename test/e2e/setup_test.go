@@ -116,8 +116,7 @@ func startApp(ctx context.Context) {
 					ConnectionString: testMongoContainer.ConnectionString,
 					Database:         "catalog_e2e_test",
 					Migrations: commons_mongo.MigrationConfig{
-						Enabled: true,
-						Path:    "../../db/migrations",
+						Path: "../../db/migrations",
 					},
 				},
 			),
