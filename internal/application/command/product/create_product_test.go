@@ -59,7 +59,7 @@ func setupCreateProductHandler(t *testing.T) (
 }
 
 func TestCreateProductHandler_Handle_Success(t *testing.T) {
-	repo, attrRepo, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
+	repo, _, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	categoryID := "category-123"
@@ -78,11 +78,6 @@ func TestCreateProductHandler_Handle_Success(t *testing.T) {
 	categoryRepo.EXPECT().
 		Exists(mock.Anything, categoryID).
 		Return(true, nil)
-
-	// Mock empty attributes lookup
-	attrRepo.EXPECT().
-		FindByIDsOrFail(mock.Anything, []string{}).
-		Return(nil, nil)
 
 	// Mock event factory
 	eventFactory.EXPECT().
@@ -121,7 +116,7 @@ func TestCreateProductHandler_Handle_Success(t *testing.T) {
 }
 
 func TestCreateProductHandler_Handle_WithCustomID(t *testing.T) {
-	repo, attrRepo, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
+	repo, _, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	customID := uuid.New()
@@ -137,7 +132,6 @@ func TestCreateProductHandler_Handle_WithCustomID(t *testing.T) {
 	}
 
 	categoryRepo.EXPECT().Exists(mock.Anything, categoryID).Return(true, nil)
-	attrRepo.EXPECT().FindByIDsOrFail(mock.Anything, []string{}).Return(nil, nil)
 	eventFactory.EXPECT().NewProductUpdatedOutboxMessage(mock.Anything, mock.Anything).Return(outbox.Message{})
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).
@@ -203,7 +197,7 @@ func TestCreateProductHandler_Handle_CategoryCheckError(t *testing.T) {
 }
 
 func TestCreateProductHandler_Handle_InvalidProductData(t *testing.T) {
-	_, attrRepo, _, _, _, _, handler := setupCreateProductHandler(t)
+	_, _, _, _, _, _, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	cmd := CreateProductCommand{
@@ -212,9 +206,6 @@ func TestCreateProductHandler_Handle_InvalidProductData(t *testing.T) {
 		Quantity: 5,
 		Enabled:  false,
 	}
-
-	// Mock empty attributes lookup
-	attrRepo.EXPECT().FindByIDsOrFail(mock.Anything, []string{}).Return(nil, nil)
 
 	result, err := handler.Handle(ctx, cmd)
 
@@ -248,7 +239,7 @@ func TestCreateProductHandler_Handle_AttributeValidationFailure(t *testing.T) {
 }
 
 func TestCreateProductHandler_Handle_InsertError(t *testing.T) {
-	repo, attrRepo, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
+	repo, _, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	categoryID := "category-123"
@@ -262,7 +253,6 @@ func TestCreateProductHandler_Handle_InsertError(t *testing.T) {
 	}
 
 	categoryRepo.EXPECT().Exists(mock.Anything, categoryID).Return(true, nil)
-	attrRepo.EXPECT().FindByIDsOrFail(mock.Anything, []string{}).Return(nil, nil)
 	eventFactory.EXPECT().NewProductUpdatedOutboxMessage(mock.Anything, mock.Anything).Return(outbox.Message{})
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).
@@ -282,7 +272,7 @@ func TestCreateProductHandler_Handle_InsertError(t *testing.T) {
 }
 
 func TestCreateProductHandler_Handle_OutboxError(t *testing.T) {
-	repo, attrRepo, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
+	repo, _, categoryRepo, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	categoryID := "category-123"
@@ -296,7 +286,6 @@ func TestCreateProductHandler_Handle_OutboxError(t *testing.T) {
 	}
 
 	categoryRepo.EXPECT().Exists(mock.Anything, categoryID).Return(true, nil)
-	attrRepo.EXPECT().FindByIDsOrFail(mock.Anything, []string{}).Return(nil, nil)
 	eventFactory.EXPECT().NewProductUpdatedOutboxMessage(mock.Anything, mock.Anything).Return(outbox.Message{})
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).
@@ -314,7 +303,7 @@ func TestCreateProductHandler_Handle_OutboxError(t *testing.T) {
 }
 
 func TestCreateProductHandler_Handle_NoCategoryValidation(t *testing.T) {
-	repo, attrRepo, _, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
+	repo, _, _, outboxMock, txManager, eventFactory, handler := setupCreateProductHandler(t)
 
 	ctx := testCtx()
 	cmd := CreateProductCommand{
@@ -326,7 +315,6 @@ func TestCreateProductHandler_Handle_NoCategoryValidation(t *testing.T) {
 	}
 
 	// Category repo should NOT be called
-	attrRepo.EXPECT().FindByIDsOrFail(mock.Anything, []string{}).Return(nil, nil)
 	eventFactory.EXPECT().NewProductUpdatedOutboxMessage(mock.Anything, mock.Anything).Return(outbox.Message{})
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).

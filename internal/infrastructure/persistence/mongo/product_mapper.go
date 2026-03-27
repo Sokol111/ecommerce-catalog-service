@@ -68,6 +68,7 @@ func (m *productMapper) attributesToEntities(attrs []product.AttributeValue) []p
 func mapProductAttributeToEntity(attr product.AttributeValue, _ int) productAttributeEntity {
 	return productAttributeEntity{
 		AttributeID:      attr.AttributeID,
+		AttributeSlug:    attr.AttributeSlug,
 		OptionSlugValue:  attr.OptionSlugValue,
 		OptionSlugValues: attr.OptionSlugValues,
 		NumericValue:     attr.NumericValue,
@@ -87,6 +88,7 @@ func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []
 func mapProductAttributeToDomain(e productAttributeEntity, _ int) product.AttributeValue {
 	return product.AttributeValue{
 		AttributeID:      e.AttributeID,
+		AttributeSlug:    e.AttributeSlug,
 		OptionSlugValue:  e.OptionSlugValue,
 		OptionSlugValues: e.OptionSlugValues,
 		NumericValue:     e.NumericValue,

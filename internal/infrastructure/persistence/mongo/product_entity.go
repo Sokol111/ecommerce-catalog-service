@@ -7,6 +7,7 @@ import (
 // productAttributeEntity represents an attribute value in MongoDB
 type productAttributeEntity struct {
 	AttributeID      string   `bson:"attributeId"`
+	AttributeSlug    string   `bson:"attributeSlug"`
 	OptionSlugValue  *string  `bson:"optionSlugValue,omitempty"`
 	OptionSlugValues []string `bson:"optionSlugValues,omitempty"`
 	NumericValue     *float64 `bson:"numericValue,omitempty"`

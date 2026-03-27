@@ -10,6 +10,7 @@ import (
 // AttributeValue represents an attribute value assigned to a product
 type AttributeValue struct {
 	AttributeID      string
+	AttributeSlug    string   // Attribute slug (immutable, stored for events)
 	OptionSlugValue  *string  // Slug of selected option (for single type)
 	OptionSlugValues []string // Slugs of selected options (for multiple type)
 	NumericValue     *float64 // Numeric value (for range type)

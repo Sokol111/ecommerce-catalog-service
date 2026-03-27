@@ -71,11 +71,12 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		return nil, err
 	}
 
-	if err := h.validateAttributes(ctx, cmd.Attributes); err != nil {
+	attrs, err := h.buildAttributes(ctx, cmd.Attributes)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := p.Update(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, cmd.Attributes); err != nil {
+	if err := p.Update(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, attrs); err != nil {
 		return nil, fmt.Errorf("failed to update product: %w", err)
 	}
 
@@ -113,12 +114,30 @@ func (h *updateProductHandler) validateCategory(ctx context.Context, categoryID 
 	return nil
 }
 
-func (h *updateProductHandler) validateAttributes(ctx context.Context, productAttrs []product.AttributeValue) error {
+func (h *updateProductHandler) buildAttributes(ctx context.Context, productAttrs []product.AttributeValue) ([]product.AttributeValue, error) {
+	if len(productAttrs) == 0 {
+		return productAttrs, nil
+	}
+
 	attrIDs := lo.Map(productAttrs, func(attr product.AttributeValue, _ int) string {
 		return attr.AttributeID
 	})
-	_, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
-	return err
+
+	attrs, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
+	return lo.Map(productAttrs, func(attr product.AttributeValue, _ int) product.AttributeValue {
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			attr.AttributeSlug = a.Slug
+		}
+		return attr
+	}), nil
 }
 
 func (h *updateProductHandler) persistAndPublish(

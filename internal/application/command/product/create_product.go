@@ -64,9 +64,11 @@ func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductComm
 		return nil, err
 	}
 
-	if err := h.validateAttributes(ctx, cmd.Attributes); err != nil {
+	attrs, err := h.buildAttributes(ctx, cmd.Attributes)
+	if err != nil {
 		return nil, err
 	}
+	cmd.Attributes = attrs
 
 	p, err := h.createProduct(cmd)
 	if err != nil {
@@ -93,12 +95,30 @@ func (h *createProductHandler) validateCategory(ctx context.Context, categoryID 
 	return nil
 }
 
-func (h *createProductHandler) validateAttributes(ctx context.Context, productAttrs []product.AttributeValue) error {
+func (h *createProductHandler) buildAttributes(ctx context.Context, productAttrs []product.AttributeValue) ([]product.AttributeValue, error) {
+	if len(productAttrs) == 0 {
+		return productAttrs, nil
+	}
+
 	attrIDs := lo.Map(productAttrs, func(attr product.AttributeValue, _ int) string {
 		return attr.AttributeID
 	})
-	_, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
-	return err
+
+	attrs, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
+	return lo.Map(productAttrs, func(attr product.AttributeValue, _ int) product.AttributeValue {
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			attr.AttributeSlug = a.Slug
+		}
+		return attr
+	}), nil
 }
 
 func (h *createProductHandler) createProduct(cmd CreateProductCommand) (*product.Product, error) {

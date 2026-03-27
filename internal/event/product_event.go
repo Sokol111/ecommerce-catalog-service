@@ -30,6 +30,7 @@ func toProductEventAttributes(productAttrs []product.AttributeValue) *[]events.A
 	result := lo.Map(productAttrs, func(pAttr product.AttributeValue, _ int) events.AttributeValue {
 		return events.AttributeValue{
 			AttributeID:      pAttr.AttributeID,
+			AttributeSlug:    pAttr.AttributeSlug,
 			OptionSlugValue:  pAttr.OptionSlugValue,
 			OptionSlugValues: lo.ToPtr(pAttr.OptionSlugValues),
 			NumericValue:     pAttr.NumericValue,

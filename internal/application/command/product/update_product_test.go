@@ -49,7 +49,7 @@ func setupUpdateProductHandler(t *testing.T) (
 }
 
 func TestUpdateProductHandler_Handle_Success(t *testing.T) {
-	repo, attrRepo, categoryRepo, outboxMock, txManager, eventFactory, handler := setupUpdateProductHandler(t)
+	repo, _, categoryRepo, outboxMock, txManager, eventFactory, handler := setupUpdateProductHandler(t)
 
 	ctx := testCtxUpdate()
 	existingProduct := createTestProduct()
@@ -77,11 +77,6 @@ func TestUpdateProductHandler_Handle_Success(t *testing.T) {
 	categoryRepo.EXPECT().
 		Exists(mock.Anything, categoryID).
 		Return(true, nil)
-
-	// Mock empty attributes lookup
-	attrRepo.EXPECT().
-		FindByIDsOrFail(mock.Anything, []string{}).
-		Return(nil, nil)
 
 	// Mock transaction
 	txManager.EXPECT().
@@ -199,7 +194,7 @@ func TestUpdateProductHandler_Handle_CategoryNotFound(t *testing.T) {
 }
 
 func TestUpdateProductHandler_Handle_InvalidUpdateData(t *testing.T) {
-	repo, attrRepo, categoryRepo, _, _, _, handler := setupUpdateProductHandler(t)
+	repo, _, categoryRepo, _, _, _, handler := setupUpdateProductHandler(t)
 
 	ctx := testCtxUpdate()
 	existingProduct := createTestProduct()
@@ -224,10 +219,6 @@ func TestUpdateProductHandler_Handle_InvalidUpdateData(t *testing.T) {
 		Exists(mock.Anything, categoryID).
 		Return(true, nil)
 
-	attrRepo.EXPECT().
-		FindByIDsOrFail(mock.Anything, []string{}).
-		Return(nil, nil)
-
 	result, err := handler.Handle(ctx, cmd)
 
 	require.Error(t, err)
@@ -236,7 +227,7 @@ func TestUpdateProductHandler_Handle_InvalidUpdateData(t *testing.T) {
 }
 
 func TestUpdateProductHandler_Handle_UpdateRepositoryError(t *testing.T) {
-	repo, attrRepo, categoryRepo, _, txManager, _, handler := setupUpdateProductHandler(t)
+	repo, _, categoryRepo, _, txManager, _, handler := setupUpdateProductHandler(t)
 
 	ctx := testCtxUpdate()
 	existingProduct := createTestProduct()
@@ -260,10 +251,6 @@ func TestUpdateProductHandler_Handle_UpdateRepositoryError(t *testing.T) {
 	categoryRepo.EXPECT().
 		Exists(mock.Anything, categoryID).
 		Return(true, nil)
-
-	attrRepo.EXPECT().
-		FindByIDsOrFail(mock.Anything, []string{}).
-		Return(nil, nil)
 
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).
@@ -283,7 +270,7 @@ func TestUpdateProductHandler_Handle_UpdateRepositoryError(t *testing.T) {
 }
 
 func TestUpdateProductHandler_Handle_OptimisticLockingOnUpdate(t *testing.T) {
-	repo, attrRepo, categoryRepo, _, txManager, _, handler := setupUpdateProductHandler(t)
+	repo, _, categoryRepo, _, txManager, _, handler := setupUpdateProductHandler(t)
 
 	ctx := testCtxUpdate()
 	existingProduct := createTestProduct()
@@ -307,10 +294,6 @@ func TestUpdateProductHandler_Handle_OptimisticLockingOnUpdate(t *testing.T) {
 	categoryRepo.EXPECT().
 		Exists(mock.Anything, categoryID).
 		Return(true, nil)
-
-	attrRepo.EXPECT().
-		FindByIDsOrFail(mock.Anything, []string{}).
-		Return(nil, nil)
 
 	txManager.EXPECT().
 		WithTransaction(mock.Anything, mock.Anything).
