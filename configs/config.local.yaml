@@ -23,3 +23,7 @@ observability:
     enabled: true
   metrics:
     enabled: false
+
+pprof:
+  enabled: true
+  port: 6060

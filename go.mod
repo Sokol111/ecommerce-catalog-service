@@ -3,8 +3,8 @@ module github.com/Sokol111/ecommerce-catalog-service
 go 1.26.1
 
 require (
-	github.com/Sokol111/ecommerce-catalog-service-api v1.1.2
-	github.com/Sokol111/ecommerce-commons v0.5.1
+	github.com/Sokol111/ecommerce-catalog-service-api v1.1.3
+	github.com/Sokol111/ecommerce-commons v0.5.3
 	github.com/google/uuid v1.6.0
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
