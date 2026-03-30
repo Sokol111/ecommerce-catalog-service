@@ -67,7 +67,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		return nil, err
 	}
 
-	if err := h.validateCategory(ctx, cmd.CategoryID); err != nil {
+	if err = h.validateCategory(ctx, cmd.CategoryID); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 		return nil, err
 	}
 
-	if err := p.Update(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, attrs); err != nil {
+	if err = p.Update(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, attrs); err != nil {
 		return nil, fmt.Errorf("failed to update product: %w", err)
 	}
 
