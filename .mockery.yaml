@@ -40,7 +40,7 @@ packages:
     interfaces:
       Outbox:
 
-  github.com/Sokol111/ecommerce-commons/pkg/persistence:
+  github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo:
     config:
       dir: "internal/testutil/mocks"
     interfaces:

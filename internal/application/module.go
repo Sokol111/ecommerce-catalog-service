@@ -17,6 +17,7 @@ func Module() fx.Option {
 		fx.Provide(
 			prodcommand.NewCreateProductHandler,
 			prodcommand.NewUpdateProductHandler,
+			prodcommand.NewDeleteProductHandler,
 			catcommand.NewCreateCategoryHandler,
 			catcommand.NewUpdateCategoryHandler,
 			attrcommand.NewCreateAttributeHandler,

@@ -17,6 +17,7 @@ import (
 type productHandler struct {
 	createHandler  command.CreateProductCommandHandler
 	updateHandler  command.UpdateProductCommandHandler
+	deleteHandler  command.DeleteProductCommandHandler
 	getByIDHandler query.GetProductByIDQueryHandler
 	getListHandler query.GetListProductsQueryHandler
 }
@@ -24,12 +25,14 @@ type productHandler struct {
 func newProductHandler(
 	createHandler command.CreateProductCommandHandler,
 	updateHandler command.UpdateProductCommandHandler,
+	deleteHandler command.DeleteProductCommandHandler,
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getListHandler query.GetListProductsQueryHandler,
 ) *productHandler {
 	return &productHandler{
 		createHandler:  createHandler,
 		updateHandler:  updateHandler,
+		deleteHandler:  deleteHandler,
 		getByIDHandler: getByIDHandler,
 		getListHandler: getListHandler,
 	}
@@ -242,4 +245,22 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *httpapi.UpdateP
 	}
 
 	return toProductResponse(updated), nil
+}
+
+func (h *productHandler) DeleteProduct(ctx context.Context, params httpapi.DeleteProductParams) (httpapi.DeleteProductRes, error) {
+	cmd := command.DeleteProductCommand{ID: params.ID.String()}
+
+	err := h.deleteHandler.Handle(ctx, cmd)
+	if errors.Is(err, mongo.ErrEntityNotFound) {
+		return &httpapi.DeleteProductNotFound{
+			Status: 404,
+			Type:   *aboutBlankURL,
+			Title:  "Product not found",
+		}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &httpapi.DeleteProductNoContent{}, nil
 }

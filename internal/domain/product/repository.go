@@ -23,4 +23,6 @@ type Repository interface {
 	FindList(ctx context.Context, query ListQuery) (*commonsmongo.PageResult[Product], error)
 
 	Update(ctx context.Context, product *Product) (*Product, error)
+
+	Delete(ctx context.Context, id string) error
 }

@@ -13,6 +13,7 @@ import (
 // ProductEventFactory creates product events
 type ProductEventFactory interface {
 	NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product) outbox.Message
+	NewProductDeletedOutboxMessage(ctx context.Context, productID string) outbox.Message
 }
 
 type productEventFactory struct{}
@@ -66,5 +67,16 @@ func (f *productEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context
 	return outbox.Message{
 		Event: f.newProductUpdatedEvent(p),
 		Key:   p.ID,
+	}
+}
+
+func (f *productEventFactory) NewProductDeletedOutboxMessage(ctx context.Context, productID string) outbox.Message {
+	return outbox.Message{
+		Event: &events.ProductDeletedEvent{
+			Payload: events.ProductDeletedPayload{
+				ProductID: productID,
+			},
+		},
+		Key: productID,
 	}
 }

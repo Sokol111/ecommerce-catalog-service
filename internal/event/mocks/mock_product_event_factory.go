@@ -39,6 +39,63 @@ func (_m *MockProductEventFactory) EXPECT() *MockProductEventFactory_Expecter {
 	return &MockProductEventFactory_Expecter{mock: &_m.Mock}
 }
 
+// NewProductDeletedOutboxMessage provides a mock function for the type MockProductEventFactory
+func (_mock *MockProductEventFactory) NewProductDeletedOutboxMessage(ctx context.Context, productID string) outbox.Message {
+	ret := _mock.Called(ctx, productID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewProductDeletedOutboxMessage")
+	}
+
+	var r0 outbox.Message
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) outbox.Message); ok {
+		r0 = returnFunc(ctx, productID)
+	} else {
+		r0 = ret.Get(0).(outbox.Message)
+	}
+	return r0
+}
+
+// MockProductEventFactory_NewProductDeletedOutboxMessage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewProductDeletedOutboxMessage'
+type MockProductEventFactory_NewProductDeletedOutboxMessage_Call struct {
+	*mock.Call
+}
+
+// NewProductDeletedOutboxMessage is a helper method to define mock.On call
+//   - ctx context.Context
+//   - productID string
+func (_e *MockProductEventFactory_Expecter) NewProductDeletedOutboxMessage(ctx interface{}, productID interface{}) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
+	return &MockProductEventFactory_NewProductDeletedOutboxMessage_Call{Call: _e.mock.On("NewProductDeletedOutboxMessage", ctx, productID)}
+}
+
+func (_c *MockProductEventFactory_NewProductDeletedOutboxMessage_Call) Run(run func(ctx context.Context, productID string)) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProductEventFactory_NewProductDeletedOutboxMessage_Call) Return(message outbox.Message) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
+	_c.Call.Return(message)
+	return _c
+}
+
+func (_c *MockProductEventFactory_NewProductDeletedOutboxMessage_Call) RunAndReturn(run func(ctx context.Context, productID string) outbox.Message) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewProductUpdatedOutboxMessage provides a mock function for the type MockProductEventFactory
 func (_mock *MockProductEventFactory) NewProductUpdatedOutboxMessage(ctx context.Context, p *product.Product) outbox.Message {
 	ret := _mock.Called(ctx, p)
