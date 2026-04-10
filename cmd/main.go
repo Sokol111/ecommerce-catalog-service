@@ -37,6 +37,7 @@ var AppModules = fx.Options(
 	// Tenant
 	tenant.MiddlewareModule(),
 	tenantapi.NewTenantSlugsModule("clients.tenant-service"),
+	tenantapi.TenantEventsModule("tenant-events"),
 
 	// Domain & Application
 	mongo.Module(),

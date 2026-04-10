@@ -17,6 +17,16 @@ kafka:
   schema-registry:
     url: "http://redpanda:8081"
     auto-register-schemas: true
+  consumers-config:
+    default-group-id: "ecommerce-catalog-service"
+    default-auto-offset-reset: "earliest"
+    consumers:
+      - name: "tenant-events"
+        topic: "tenant.tenant.events"
+        max-retries: 5
+        initial-backoff: 2s
+        max-backoff: 30s
+        enable-dlq: true
 
 observability:
   otel-collector-endpoint: "otel-collector-opentelemetry-collector.observability.svc:4317"
