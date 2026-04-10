@@ -18,6 +18,7 @@ import (
 	commons_security "github.com/Sokol111/ecommerce-commons/pkg/security"
 	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
+	tenantapi "github.com/Sokol111/ecommerce-tenant-service-api/gen/httpapi"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -25,7 +26,7 @@ import (
 var AppModules = fx.Options(
 	// Commons
 	commons_core.NewCoreModule(),
-	commons_persistence.NewPersistenceModule(),
+	commons_persistence.NewPersistenceModule(commons_persistence.WithTenantMigrations()),
 	commons_http.NewHTTPModule(),
 	commons_observability.NewObservabilityModule(),
 	commons_messaging.NewMessagingModule(),
@@ -35,6 +36,7 @@ var AppModules = fx.Options(
 
 	// Tenant
 	tenant.MiddlewareModule(),
+	tenantapi.NewTenantSlugsModule("clients.tenant-service"),
 
 	// Domain & Application
 	mongo.Module(),

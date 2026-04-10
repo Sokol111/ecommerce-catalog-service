@@ -16,9 +16,9 @@ type attributeRepository struct {
 	*commonsmongo.GenericRepository[attribute.Attribute, attributeEntity]
 }
 
-func newAttributeRepository(mongoClient commonsmongo.Mongo, mapper *attributeMapper) (attribute.Repository, error) {
-	genericRepo, err := commonsmongo.NewGenericRepository(
-		mongoClient.GetCollection("attribute"),
+func newAttributeRepository(admin commonsmongo.Admin, mapper *attributeMapper) (attribute.Repository, error) {
+	genericRepo, err := commonsmongo.NewTenantRepository(
+		admin, "attribute",
 		mapper,
 	)
 	if err != nil {

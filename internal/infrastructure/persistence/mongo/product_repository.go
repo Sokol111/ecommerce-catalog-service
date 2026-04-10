@@ -12,9 +12,9 @@ type productRepository struct {
 	*commonsmongo.GenericRepository[product.Product, productEntity]
 }
 
-func newProductRepository(mongo commonsmongo.Mongo, mapper *productMapper) (product.Repository, error) {
-	genericRepo, err := commonsmongo.NewGenericRepository(
-		mongo.GetCollection("product"),
+func newProductRepository(admin commonsmongo.Admin, mapper *productMapper) (product.Repository, error) {
+	genericRepo, err := commonsmongo.NewTenantRepository(
+		admin, "product",
 		mapper,
 	)
 	if err != nil {

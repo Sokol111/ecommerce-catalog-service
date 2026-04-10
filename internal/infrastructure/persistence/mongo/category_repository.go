@@ -12,9 +12,9 @@ type categoryRepository struct {
 	*commonsmongo.GenericRepository[category.Category, categoryEntity]
 }
 
-func newCategoryRepository(mongo commonsmongo.Mongo, mapper *categoryMapper) (category.Repository, error) {
-	genericRepo, err := commonsmongo.NewGenericRepository(
-		mongo.GetCollection("category"),
+func newCategoryRepository(admin commonsmongo.Admin, mapper *categoryMapper) (category.Repository, error) {
+	genericRepo, err := commonsmongo.NewTenantRepository(
+		admin, "category",
 		mapper,
 	)
 	if err != nil {
