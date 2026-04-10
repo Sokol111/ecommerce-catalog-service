@@ -17,6 +17,7 @@ import (
 	commons_pprof "github.com/Sokol111/ecommerce-commons/pkg/pprof"
 	commons_security "github.com/Sokol111/ecommerce-commons/pkg/security"
 	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
+	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -31,6 +32,9 @@ var AppModules = fx.Options(
 	commons_security.NewSecurityModule(),
 	commons_pprof.NewPprofModule(),
 	commons_swaggerui.NewSwaggerModule(commons_swaggerui.SwaggerConfig{OpenAPIContent: httpapi.OpenAPIDoc}),
+
+	// Tenant
+	tenant.MiddlewareModule(),
 
 	// Domain & Application
 	mongo.Module(),
