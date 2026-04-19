@@ -3,9 +3,9 @@ module github.com/Sokol111/ecommerce-catalog-service
 go 1.26.2
 
 require (
-	github.com/Sokol111/ecommerce-catalog-service-api v1.1.9
-	github.com/Sokol111/ecommerce-commons v0.6.9
-	github.com/Sokol111/ecommerce-tenant-service-api v0.0.6
+	github.com/Sokol111/ecommerce-catalog-service-api v1.2.0
+	github.com/Sokol111/ecommerce-commons v0.7.1
+	github.com/Sokol111/ecommerce-tenant-service-api v0.0.8
 	github.com/google/uuid v1.6.0
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
@@ -30,7 +30,7 @@ require (
 	github.com/cpuguy83/dockercfg v0.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/dlclark/regexp2 v1.11.5 // indirect
+	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/docker/go-connections v0.7.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/ebitengine/purego v0.10.0 // indirect
@@ -102,7 +102,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20260417160527-b5d6715bda2f // indirect
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20260418015328-c5160bbfecff // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.68.0 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
