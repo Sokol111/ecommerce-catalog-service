@@ -22,7 +22,7 @@ import (
 var (
 	testMongoContainer *container.MongoDBContainer
 	testDatabase       *mongo.Database
-	testMongo          commonsmongo.Mongo
+	testMongo          commonsmongo.Admin
 
 	// Repositories for tests
 	testAttributeRepo attribute.Repository
@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 	}
 
 	testDatabase = testMongoContainer.Database(testDBName)
-	testMongo = &testMongoWrapper{db: testDatabase}
+	testMongo = &testMongoWrapper{db: testDatabase, client: testMongoContainer.Client}
 
 	// Create repositories with mappers
 	testAttributeRepo, err = newAttributeRepository(testMongo, newAttributeMapper())
@@ -77,13 +77,22 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// testMongoWrapper implements commonsmongo.Mongo interface
+// testMongoWrapper implements commonsmongo.Admin interface
 type testMongoWrapper struct {
-	db *mongo.Database
+	db     *mongo.Database
+	client *mongo.Client
 }
 
 func (m *testMongoWrapper) GetCollection(name string) *mongo.Collection {
 	return m.db.Collection(name)
+}
+
+func (m *testMongoWrapper) GetDatabase() *mongo.Database {
+	return m.db
+}
+
+func (m *testMongoWrapper) StartSession(ctx context.Context) (*mongo.Session, error) {
+	return m.client.StartSession()
 }
 
 func createIndexes(ctx context.Context) error {
