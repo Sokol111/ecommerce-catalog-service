@@ -22,7 +22,7 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/core/config"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/health"
 	commons_http "github.com/Sokol111/ecommerce-commons/pkg/http"
-	"github.com/Sokol111/ecommerce-commons/pkg/security/token"
+	"github.com/Sokol111/ecommerce-commons/pkg/security/validation"
 	"github.com/Sokol111/ecommerce-commons/pkg/testutil/container"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/http/server"
@@ -31,7 +31,6 @@ import (
 	commons_observability "github.com/Sokol111/ecommerce-commons/pkg/observability"
 	commons_persistence "github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	commons_mongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	commons_security "github.com/Sokol111/ecommerce-commons/pkg/security"
 )
 
 var (
@@ -140,9 +139,7 @@ func startApp(ctx context.Context) {
 				},
 			}),
 		),
-		commons_security.NewSecurityModule(
-			commons_security.WithTestValidator(),
-		),
+		validation.NewModule(validation.WithTestValidator()),
 
 		// Application modules
 		mongo.Module(),
@@ -166,7 +163,7 @@ func startApp(ctx context.Context) {
 func createTestClient() {
 	var err error
 	testClient, err = httpapi.NewClient(testServerURL, &testSecuritySource{
-		token: token.GenerateAdminTestToken(),
+		token: validation.GenerateAdminTestToken(),
 	})
 	if err != nil {
 		log.Fatalf("failed to create test client: %v", err)

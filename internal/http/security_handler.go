@@ -4,14 +4,14 @@ import (
 	"context"
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
-	"github.com/Sokol111/ecommerce-commons/pkg/security/token"
+	"github.com/Sokol111/ecommerce-commons/pkg/security/validation"
 )
 
 type securityHandler struct {
-	handler token.SecurityHandler
+	handler validation.SecurityHandler
 }
 
-func newSecurityHandler(handler token.SecurityHandler) httpapi.SecurityHandler {
+func newSecurityHandler(handler validation.SecurityHandler) httpapi.SecurityHandler {
 	return &securityHandler{handler: handler}
 }
 
