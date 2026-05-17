@@ -1,8 +1,6 @@
 package http //nolint:revive // package name intentional
 
 import (
-	"net/http"
-
 	"go.uber.org/fx"
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
@@ -15,10 +13,7 @@ func Module() fx.Option {
 			newCategoryHandler,
 			newAttributeHandler,
 			newCatalogHandler,
-			httpapi.ProvideServer,
-			newSecurityHandler,
 		),
-		fx.Invoke(registerOgenRoutes),
 	)
 }
 
@@ -34,8 +29,4 @@ func newCatalogHandler(productHandler *productHandler, categoryHandler *category
 		categoryHandler:  categoryHandler,
 		attributeHandler: attributeHandler,
 	}
-}
-
-func registerOgenRoutes(mux *http.ServeMux, server *httpapi.Server) {
-	mux.Handle("/", server)
 }
