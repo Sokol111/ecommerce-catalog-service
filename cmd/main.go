@@ -5,10 +5,9 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/http"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/messaging/kafka"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/persistence/mongo"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/http"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/kafka"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo"
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
 	commons_http "github.com/Sokol111/ecommerce-commons/pkg/http"
 	commons_messaging "github.com/Sokol111/ecommerce-commons/pkg/messaging"
@@ -43,7 +42,6 @@ var AppModules = fx.Options(
 
 	// Domain & Application
 	mongo.Module(),
-	event.Module(),
 	application.Module(),
 	kafka.Module(),
 
