@@ -1,12 +1,9 @@
 package application
 
 import (
-	attrcommand "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/attribute"
-	catcommand "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/category"
-	prodcommand "github.com/Sokol111/ecommerce-catalog-service/internal/application/command/product"
-	attrquery "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/attribute"
-	catquery "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/category"
-	prodquery "github.com/Sokol111/ecommerce-catalog-service/internal/application/query/product"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
 	"go.uber.org/fx"
 )
 
@@ -15,22 +12,22 @@ func Module() fx.Option {
 	return fx.Options(
 		// Command handlers
 		fx.Provide(
-			prodcommand.NewCreateProductHandler,
-			prodcommand.NewUpdateProductHandler,
-			prodcommand.NewDeleteProductHandler,
-			catcommand.NewCreateCategoryHandler,
-			catcommand.NewUpdateCategoryHandler,
-			attrcommand.NewCreateAttributeHandler,
-			attrcommand.NewUpdateAttributeHandler,
+			product.NewCreateProductHandler,
+			product.NewUpdateProductHandler,
+			product.NewDeleteProductHandler,
+			category.NewCreateCategoryHandler,
+			category.NewUpdateCategoryHandler,
+			attribute.NewCreateAttributeHandler,
+			attribute.NewUpdateAttributeHandler,
 		),
 		// Query handlers
 		fx.Provide(
-			prodquery.NewGetProductByIDHandler,
-			prodquery.NewGetListProductsHandler,
-			catquery.NewGetCategoryByIDHandler,
-			catquery.NewGetListCategoriesHandler,
-			attrquery.NewGetAttributeByIDHandler,
-			attrquery.NewGetAttributeListHandler,
+			product.NewGetProductByIDHandler,
+			product.NewGetListProductsHandler,
+			category.NewGetCategoryByIDHandler,
+			category.NewGetListCategoriesHandler,
+			attribute.NewGetAttributeByIDHandler,
+			attribute.NewGetAttributeListHandler,
 		),
 	)
 }

@@ -1,0 +1,175 @@
+package product
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
+	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
+	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"go.uber.org/zap"
+)
+
+type CreateProductCommand struct {
+	ID          *uuid.UUID
+	Name        string
+	Description *string
+	Price       float64
+	Quantity    int
+	ImageID     *string
+	CategoryID  *string
+	Enabled     bool
+	Attributes  []AttributeValue
+}
+
+type CreateProductCommandHandler interface {
+	Handle(ctx context.Context, cmd CreateProductCommand) (*Product, error)
+}
+
+type createProductHandler struct {
+	repo         Repository
+	attrRepo     attribute.Repository
+	categoryRepo category.Repository
+	outbox       outbox.Outbox
+	txManager    mongo.TxManager
+	eventFactory ProductEventFactory
+}
+
+func NewCreateProductHandler(
+	repo Repository,
+	attrRepo attribute.Repository,
+	categoryRepo category.Repository,
+	outbox outbox.Outbox,
+	txManager mongo.TxManager,
+	eventFactory ProductEventFactory,
+) CreateProductCommandHandler {
+	return &createProductHandler{
+		repo:         repo,
+		attrRepo:     attrRepo,
+		categoryRepo: categoryRepo,
+		outbox:       outbox,
+		txManager:    txManager,
+		eventFactory: eventFactory,
+	}
+}
+
+func (h *createProductHandler) Handle(ctx context.Context, cmd CreateProductCommand) (*Product, error) {
+	if err := h.validateCategory(ctx, cmd.CategoryID); err != nil {
+		return nil, err
+	}
+
+	attrs, err := h.buildAttributes(ctx, cmd.Attributes)
+	if err != nil {
+		return nil, err
+	}
+	cmd.Attributes = attrs
+
+	p, err := h.createProduct(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := h.eventFactory.NewProductUpdatedOutboxMessage(ctx, p)
+
+	return h.persistAndPublish(ctx, p, msg)
+}
+
+func (h *createProductHandler) validateCategory(ctx context.Context, categoryID *string) error {
+	if categoryID == nil {
+		return nil
+	}
+
+	exists, err := h.categoryRepo.Exists(ctx, *categoryID)
+	if err != nil {
+		return fmt.Errorf("failed to check category: %w", err)
+	}
+	if !exists {
+		return ErrCategoryNotFound
+	}
+	return nil
+}
+
+func (h *createProductHandler) buildAttributes(ctx context.Context, productAttrs []AttributeValue) ([]AttributeValue, error) {
+	if len(productAttrs) == 0 {
+		return productAttrs, nil
+	}
+
+	attrIDs := lo.Map(productAttrs, func(attr AttributeValue, _ int) string {
+		return attr.AttributeID
+	})
+
+	attrs, err := h.attrRepo.FindByIDsOrFail(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	attrMap := lo.KeyBy(attrs, func(a *attribute.Attribute) string {
+		return a.ID
+	})
+
+	return lo.Map(productAttrs, func(attr AttributeValue, _ int) AttributeValue {
+		if a, ok := attrMap[attr.AttributeID]; ok {
+			attr.AttributeSlug = a.Slug
+		}
+		return attr
+	}), nil
+}
+
+func (h *createProductHandler) createProduct(cmd CreateProductCommand) (*Product, error) {
+	var p *Product
+	var err error
+
+	if cmd.ID != nil {
+		p, err = NewProductWithID(cmd.ID.String(), cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, cmd.Attributes)
+	} else {
+		p, err = NewProduct(cmd.Name, cmd.Description, cmd.Price, cmd.Quantity, cmd.ImageID, cmd.CategoryID, cmd.Enabled, cmd.Attributes)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to create product: %w", err)
+	}
+	return p, nil
+}
+
+func (h *createProductHandler) persistAndPublish(
+	ctx context.Context,
+	p *Product,
+	msg outbox.Message,
+) (*Product, error) {
+	type createResult struct {
+		Product *Product
+		Send    outbox.SendFunc
+	}
+
+	res, err := mongo.WithTransaction(ctx, h.txManager, func(txCtx context.Context) (*createResult, error) {
+		if err := h.repo.Insert(txCtx, p); err != nil {
+			return nil, fmt.Errorf("failed to insert product: %w", err)
+		}
+
+		send, err := h.outbox.Create(txCtx, msg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create outbox: %w", err)
+		}
+
+		return &createResult{
+			Product: p,
+			Send:    send,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	h.log(ctx).Debug("product created", zap.String("id", res.Product.ID))
+
+	_ = res.Send(ctx) //nolint:errcheck // best-effort send, errors already logged in outbox
+
+	return res.Product, nil
+}
+
+func (h *createProductHandler) log(ctx context.Context) *zap.Logger {
+	return logger.Get(ctx).With(zap.String("component", "create-product-handler"))
+}

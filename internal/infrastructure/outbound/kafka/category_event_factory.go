@@ -1,0 +1,55 @@
+package kafka
+
+import (
+	"context"
+
+	"github.com/samber/lo"
+
+	"github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
+	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+)
+
+type categoryEventFactory struct{}
+
+// newCategoryEventFactory creates a new CategoryEventFactory
+func newCategoryEventFactory() category.CategoryEventFactory {
+	return &categoryEventFactory{}
+}
+
+// toCategoryEventAttributes converts category attributes to event attributes
+// Only immutable references and category-specific settings are included
+func toCategoryEventAttributes(categoryAttrs []category.CategoryAttribute) []events.CategoryAttribute {
+	return lo.Map(categoryAttrs, func(catAttr category.CategoryAttribute, _ int) events.CategoryAttribute {
+		return events.CategoryAttribute{
+			AttributeID:   catAttr.AttributeID,
+			AttributeSlug: catAttr.Slug,
+			Role:          string(catAttr.Role),
+			SortOrder:     catAttr.SortOrder,
+			Filterable:    catAttr.Filterable,
+			Searchable:    catAttr.Searchable,
+		}
+	})
+}
+
+func (f *categoryEventFactory) newCategoryUpdatedEvent(c *category.Category) *events.CategoryUpdatedEvent {
+	return &events.CategoryUpdatedEvent{
+		// Metadata is populated automatically by outbox
+		Payload: events.CategoryUpdatedPayload{
+			CategoryID: c.ID,
+			Name:       c.Name,
+			Enabled:    c.Enabled,
+			Attributes: toCategoryEventAttributes(c.Attributes),
+			Version:    c.Version,
+			CreatedAt:  c.CreatedAt,
+			ModifiedAt: c.ModifiedAt,
+		},
+	}
+}
+
+func (f *categoryEventFactory) NewCategoryUpdatedOutboxMessage(ctx context.Context, c *category.Category) outbox.Message {
+	return outbox.Message{
+		Event: f.newCategoryUpdatedEvent(c),
+		Key:   c.ID,
+	}
+}
