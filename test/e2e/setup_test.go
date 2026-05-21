@@ -15,9 +15,8 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/event"
-	internalhttp "github.com/Sokol111/ecommerce-catalog-service/internal/http"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/persistence/mongo"
+	internalhttp "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/http"
+	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo"
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/config"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/health"
@@ -143,7 +142,6 @@ func startApp(ctx context.Context) {
 
 		// Application modules
 		mongo.Module(),
-		event.Module(),
 		application.Module(),
 		internalhttp.Module(),
 	)
