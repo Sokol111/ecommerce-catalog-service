@@ -34,14 +34,7 @@ func NewGetAttributeListHandler(repo Repository) GetAttributeListQueryHandler {
 }
 
 func (h *getAttributeListHandler) Handle(ctx context.Context, query GetAttributeListQuery) (*ListAttributesResult, error) {
-	listQuery := ListQuery{
-		Page:    query.Page,
-		Size:    query.Size,
-		Enabled: query.Enabled,
-		Type:    query.Type,
-		Sort:    query.Sort,
-		Order:   query.Order,
-	}
+	listQuery := ListQuery(query)
 
 	result, err := h.repo.FindList(ctx, listQuery)
 	if err != nil {

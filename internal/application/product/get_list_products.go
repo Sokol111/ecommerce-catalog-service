@@ -34,14 +34,7 @@ func NewGetListProductsHandler(repo Repository) GetListProductsQueryHandler {
 }
 
 func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProductsQuery) (*ListProductsResult, error) {
-	listQuery := ListQuery{
-		Page:       query.Page,
-		Size:       query.Size,
-		Enabled:    query.Enabled,
-		CategoryID: query.CategoryID,
-		Sort:       query.Sort,
-		Order:      query.Order,
-	}
+	listQuery := ListQuery(query)
 
 	result, err := h.repo.FindList(ctx, listQuery)
 	if err != nil {

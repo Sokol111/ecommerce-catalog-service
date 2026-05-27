@@ -33,13 +33,7 @@ func NewGetListCategoriesHandler(repo Repository) GetListCategoriesQueryHandler 
 }
 
 func (h *getListCategoriesHandler) Handle(ctx context.Context, query GetListCategoriesQuery) (*ListCategoriesResult, error) {
-	listQuery := ListQuery{
-		Page:    query.Page,
-		Size:    query.Size,
-		Enabled: query.Enabled,
-		Sort:    query.Sort,
-		Order:   query.Order,
-	}
+	listQuery := ListQuery(query)
 
 	result, err := h.repo.FindList(ctx, listQuery)
 	if err != nil {

@@ -57,12 +57,7 @@ func NewCreateAttributeHandler(
 
 func (h *createAttributeHandler) Handle(ctx context.Context, cmd CreateAttributeCommand) (*Attribute, error) {
 	options := lo.Map(cmd.Options, func(opt OptionInput, _ int) Option {
-		return Option{
-			Name:      opt.Name,
-			Slug:      opt.Slug,
-			ColorCode: opt.ColorCode,
-			SortOrder: opt.SortOrder,
-		}
+		return Option(opt)
 	})
 
 	var id string

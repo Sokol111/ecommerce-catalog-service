@@ -61,12 +61,7 @@ func (h *updateAttributeHandler) Handle(ctx context.Context, cmd UpdateAttribute
 	}
 
 	options := lo.Map(cmd.Options, func(opt OptionInput, _ int) Option {
-		return Option{
-			Name:      opt.Name,
-			Slug:      opt.Slug,
-			ColorCode: opt.ColorCode,
-			SortOrder: opt.SortOrder,
-		}
+		return Option(opt)
 	})
 
 	if err := a.Update(
