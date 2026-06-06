@@ -19,6 +19,7 @@ import (
 	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	tenantapi "github.com/Sokol111/ecommerce-tenant-service-api/gen/httpapi"
+	"github.com/Sokol111/ecommerce-tenant-service-api/tenantevents"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -38,7 +39,7 @@ var AppModules = fx.Options(
 	// Tenant
 	tenant.MiddlewareModule(),
 	tenantapi.NewTenantSlugsModule(),
-	tenantapi.TenantEventsModule(),
+	tenantevents.Module(),
 
 	// Domain & Application
 	mongo.Module(),
