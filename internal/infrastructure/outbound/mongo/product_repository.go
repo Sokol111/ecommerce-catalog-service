@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -16,6 +17,7 @@ func newProductRepository(admin commonsmongo.Admin, mapper *productMapper) (prod
 	genericRepo, err := commonsmongo.NewTenantRepository(
 		admin, "product",
 		mapper,
+		tenant.MustSlugFromContext,
 	)
 	if err != nil {
 		return nil, err

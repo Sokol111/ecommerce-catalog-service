@@ -27,7 +27,7 @@ import (
 var AppModules = fx.Options(
 	// Commons
 	commons_core.NewCoreModule(),
-	commons_persistence.NewPersistenceModule(commons_persistence.WithTenantMigrations()),
+	commons_persistence.NewPersistenceModule(commons_persistence.WithoutMigrations()),
 	commons_http.NewHTTPModule(),
 	commons_observability.NewObservabilityModule(),
 	commons_messaging.NewMessagingModule(),
@@ -37,7 +37,7 @@ var AppModules = fx.Options(
 	httpclient.RegistryModule(),
 
 	// Tenant
-	tenant.MiddlewareModule(),
+	tenant.NewModule(),
 	tenantapi.NewTenantSlugsModule(),
 	tenantevents.Module(),
 
