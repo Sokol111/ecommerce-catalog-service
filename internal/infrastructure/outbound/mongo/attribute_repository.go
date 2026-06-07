@@ -8,7 +8,6 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -17,11 +16,11 @@ type attributeRepository struct {
 	*commonsmongo.GenericRepository[attribute.Attribute, attributeEntity]
 }
 
-func newAttributeRepository(admin commonsmongo.Admin, mapper *attributeMapper) (attribute.Repository, error) {
+func newAttributeRepository(admin commonsmongo.Admin, mapper *attributeMapper, resolver commonsmongo.DatabaseResolver) (attribute.Repository, error) {
 	genericRepo, err := commonsmongo.NewTenantRepository(
 		admin, "attribute",
 		mapper,
-		tenant.MustSlugFromContext,
+		resolver,
 	)
 	if err != nil {
 		return nil, err

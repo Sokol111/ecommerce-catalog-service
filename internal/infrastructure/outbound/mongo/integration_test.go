@@ -45,18 +45,20 @@ func TestMain(m *testing.M) {
 	testDatabase = testMongoContainer.Database(testDBName)
 	testMongo = &testMongoWrapper{db: testDatabase, client: testMongoContainer.Client}
 
+	resolver := func(_ context.Context) string { return testDBName }
+
 	// Create repositories with mappers
-	testAttributeRepo, err = newAttributeRepository(testMongo, newAttributeMapper())
+	testAttributeRepo, err = newAttributeRepository(testMongo, newAttributeMapper(), resolver)
 	if err != nil {
 		log.Fatalf("failed to create attribute repository: %v", err)
 	}
 
-	testCategoryRepo, err = newCategoryRepository(testMongo, newCategoryMapper())
+	testCategoryRepo, err = newCategoryRepository(testMongo, newCategoryMapper(), resolver)
 	if err != nil {
 		log.Fatalf("failed to create category repository: %v", err)
 	}
 
-	testProductRepo, err = newProductRepository(testMongo, newProductMapper())
+	testProductRepo, err = newProductRepository(testMongo, newProductMapper(), resolver)
 	if err != nil {
 		log.Fatalf("failed to create product repository: %v", err)
 	}

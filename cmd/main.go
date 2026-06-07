@@ -18,7 +18,6 @@ import (
 	commons_validation "github.com/Sokol111/ecommerce-commons/pkg/security/validation"
 	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
-	tenantapi "github.com/Sokol111/ecommerce-tenant-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-tenant-service-api/tenantevents"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -27,7 +26,7 @@ import (
 var AppModules = fx.Options(
 	// Commons
 	commons_core.NewCoreModule(),
-	commons_persistence.NewPersistenceModule(commons_persistence.WithoutMigrations()),
+	commons_persistence.NewPersistenceModule(),
 	commons_http.NewHTTPModule(),
 	commons_observability.NewObservabilityModule(),
 	commons_messaging.NewMessagingModule(),
@@ -37,8 +36,7 @@ var AppModules = fx.Options(
 	httpclient.RegistryModule(),
 
 	// Tenant
-	tenant.NewModule(),
-	tenantapi.NewTenantSlugsModule(),
+	tenant.NewModule(tenant.WithMigrations()),
 	tenantevents.Module(),
 
 	// Domain & Application
