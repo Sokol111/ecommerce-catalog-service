@@ -14,8 +14,8 @@ github.com/Sokol111/ecommerce-catalog-service-api v1.2.2 h1:B/DOwAy7kVP0ptCfJk4f
 github.com/Sokol111/ecommerce-catalog-service-api v1.2.2/go.mod h1:dRi3wjFZAF6pGwkugKVv+Q/veRKW+u7kRQR4KVg1ers=
 github.com/Sokol111/ecommerce-commons v0.8.1 h1:FOOeitQWNZ5URWDqHUa3QiBqTGDjBADSCe+2CVinEHs=
 github.com/Sokol111/ecommerce-commons v0.8.1/go.mod h1:bYr1qvnRHvUGiHhHykdf0QlWE0fldWtTad/fan+2On8=
-github.com/Sokol111/ecommerce-tenant-service-api v0.1.4 h1:Q0q7qqBKDDyzcGZVcvhT/78CrwyCikFQQv+2egZ5SWI=
-github.com/Sokol111/ecommerce-tenant-service-api v0.1.4/go.mod h1:H60jOEawfdITALxPrW1QM4BpRBCV8vT0NRTlCyMg2bo=
+github.com/Sokol111/ecommerce-tenant-service-api v0.1.5 h1:NTAbAi4q6By5U/glQqsh2tdIbtHqzzV2xSdLGCb8iBY=
+github.com/Sokol111/ecommerce-tenant-service-api v0.1.5/go.mod h1:H60jOEawfdITALxPrW1QM4BpRBCV8vT0NRTlCyMg2bo=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cenkalti/backoff/v5 v5.0.3 h1:ZN+IMa753KfX5hd8vVaMixjnqRZ3y8CuJKRKj1xcsSM=
