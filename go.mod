@@ -1,11 +1,11 @@
 module github.com/Sokol111/ecommerce-catalog-service
 
-go 1.26.3
+go 1.26.4
 
 require (
-	github.com/Sokol111/ecommerce-catalog-service-api v1.2.2
-	github.com/Sokol111/ecommerce-commons v0.8.1
-	github.com/Sokol111/ecommerce-tenant-service-api v0.1.5
+	github.com/Sokol111/ecommerce-catalog-service-api v1.2.3
+	github.com/Sokol111/ecommerce-commons v0.8.3
+	github.com/Sokol111/ecommerce-tenant-service-api v0.1.6
 	github.com/google/uuid v1.6.0
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
