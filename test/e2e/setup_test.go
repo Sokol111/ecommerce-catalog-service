@@ -6,16 +6,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
-	"github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
+	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/connect/catalog/v1/catalogv1connect"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
-	internalhttp "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/http"
+	internalconnect "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/connect"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo"
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/config"
@@ -35,7 +37,7 @@ import (
 var (
 	testApp                     *fxtest.App
 	testServerURL               string
-	testClient                  *httpapi.Client
+	testAttributeClient         catalogv1connect.AttributeServiceClient
 	testMongoContainer          *container.MongoDBContainer
 	testSchemaRegistryContainer *container.SchemaRegistryContainer
 	testReadinessWaiter         health.ReadinessWaiter
@@ -120,6 +122,7 @@ func startApp(ctx context.Context) {
 			),
 		),
 		commons_http.NewHTTPModule(
+			commons_http.WithH2C(),
 			commons_http.WithServerConfig(
 				server.Config{
 					Port: testServerPort,
@@ -143,7 +146,7 @@ func startApp(ctx context.Context) {
 		// Application modules
 		mongo.Module(),
 		application.Module(),
-		internalhttp.Module(),
+		internalconnect.Module(),
 	)
 
 	testApp.RequireStart()
@@ -159,26 +162,30 @@ func startApp(ctx context.Context) {
 }
 
 func createTestClient() {
-	var err error
-	testClient, err = httpapi.NewClient(testServerURL, &testSecuritySource{
-		token: validation.GenerateAdminTestToken(),
-	})
-	if err != nil {
-		log.Fatalf("failed to create test client: %v", err)
+	token := validation.GenerateAdminTestToken()
+	httpClient := &http.Client{}
+	opts := []connect.ClientOption{
+		connect.WithGRPC(),
+		connect.WithInterceptors(newBearerTokenInterceptor(token)),
+	}
+	testAttributeClient = catalogv1connect.NewAttributeServiceClient(httpClient, testServerURL, opts...)
+}
+
+// bearerTokenInterceptor injects an Authorization header on every outbound request.
+type bearerTokenInterceptor struct{ token string }
+
+func newBearerTokenInterceptor(token string) connect.UnaryInterceptorFunc {
+	i := &bearerTokenInterceptor{token: token}
+	return func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			req.Header().Set("Authorization", "Bearer "+i.token)
+			return next(ctx, req)
+		}
 	}
 }
 
 func stopApp() {
 	testApp.RequireStop()
-}
-
-// testSecuritySource provides test tokens for the HTTP client.
-type testSecuritySource struct {
-	token string
-}
-
-func (s *testSecuritySource) BearerAuth(context.Context, httpapi.OperationName) (httpapi.BearerAuth, error) {
-	return httpapi.BearerAuth{Token: s.token}, nil
 }
 
 func cleanupDatabase(t *testing.T) {
