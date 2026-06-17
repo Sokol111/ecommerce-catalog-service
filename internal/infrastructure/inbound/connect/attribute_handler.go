@@ -132,7 +132,7 @@ func toProtoAttribute(a *attribute.Attribute) *catalogv1.Attribute {
 			Name:      o.Name,
 			Slug:      o.Slug,
 			ColorCode: o.ColorCode,
-		SortOrder: int32(o.SortOrder), //nolint:gosec // SortOrder is a small integer, cannot overflow int32
+			SortOrder: int32(o.SortOrder), //nolint:gosec // SortOrder is a small integer, cannot overflow int32
 		}
 	}
 	return &catalogv1.Attribute{

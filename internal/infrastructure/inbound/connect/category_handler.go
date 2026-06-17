@@ -105,7 +105,7 @@ func toProtoCategory(c *category.Category) *catalogv1.Category {
 		attrs[i] = &catalogv1.CategoryAttribute{
 			AttributeId: a.AttributeID,
 			Role:        stringToProtoCategoryAttributeRole(string(a.Role)),
-		SortOrder:   int32(a.SortOrder), //nolint:gosec // SortOrder is a small integer, cannot overflow int32
+			SortOrder:   int32(a.SortOrder), //nolint:gosec // SortOrder is a small integer, cannot overflow int32
 			Filterable:  a.Filterable,
 			Searchable:  a.Searchable,
 		}
