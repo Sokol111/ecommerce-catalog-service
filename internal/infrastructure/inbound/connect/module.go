@@ -90,18 +90,18 @@ func registerConnectRoutes(
 
 func provideProcedurePermissions() validation.ProcedurePermissions {
 	return validation.ProcedurePermissions{
-		catalogv1connect.AttributeServiceCreateAttributeProcedure:  {"attribute:write"},
-		catalogv1connect.AttributeServiceUpdateAttributeProcedure:  {"attribute:write"},
-		catalogv1connect.AttributeServiceGetAttributeByIdProcedure: {"attribute:read"},
-		catalogv1connect.AttributeServiceGetAttributeListProcedure: {"attribute:read"},
-		catalogv1connect.CategoryServiceCreateCategoryProcedure:    {"category:write"},
-		catalogv1connect.CategoryServiceUpdateCategoryProcedure:    {"category:write"},
-		catalogv1connect.CategoryServiceGetCategoryByIdProcedure:   {"category:read"},
-		catalogv1connect.CategoryServiceGetCategoryListProcedure:   {"category:read"},
-		catalogv1connect.ProductServiceCreateProductProcedure:      {"product:write"},
-		catalogv1connect.ProductServiceUpdateProductProcedure:      {"product:write"},
-		catalogv1connect.ProductServiceDeleteProductProcedure:      {"product:write"},
-		catalogv1connect.ProductServiceGetProductByIdProcedure:     {"product:read"},
-		catalogv1connect.ProductServiceGetProductListProcedure:     {"product:read"},
+		catalogv1connect.AttributeServiceCreateAttributeProcedure:  {"attributes:write"},
+		catalogv1connect.AttributeServiceUpdateAttributeProcedure:  {"attributes:write"},
+		catalogv1connect.AttributeServiceGetAttributeByIdProcedure: {"attributes:read"},
+		catalogv1connect.AttributeServiceGetAttributeListProcedure: {"attributes:read"},
+		catalogv1connect.CategoryServiceCreateCategoryProcedure:    {"categories:write"},
+		catalogv1connect.CategoryServiceUpdateCategoryProcedure:    {"categories:write"},
+		catalogv1connect.CategoryServiceGetCategoryByIdProcedure:   {"categories:read"},
+		catalogv1connect.CategoryServiceGetCategoryListProcedure:   {"categories:read"},
+		catalogv1connect.ProductServiceCreateProductProcedure:      {"products:write"},
+		catalogv1connect.ProductServiceUpdateProductProcedure:      {"products:write"},
+		catalogv1connect.ProductServiceDeleteProductProcedure:      {"products:delete"},
+		catalogv1connect.ProductServiceGetProductByIdProcedure:     {"products:read"},
+		catalogv1connect.ProductServiceGetProductListProcedure:     {"products:read"},
 	}
 }
