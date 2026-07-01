@@ -128,7 +128,7 @@ func toProtoProduct(p *product.Product) *catalogv1.Product {
 	}
 	return &catalogv1.Product{
 		Id:          p.ID,
-		Version:     int32(p.Version), //nolint:gosec // Version is an optimistic lock counter, cannot realistically overflow int32
+		Version:     int64(p.Version),
 		Name:        p.Name,
 		Description: p.Description,
 		Price:       p.Price,

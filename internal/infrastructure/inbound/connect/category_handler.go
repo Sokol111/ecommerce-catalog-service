@@ -112,7 +112,7 @@ func toProtoCategory(c *category.Category) *catalogv1.Category {
 	}
 	return &catalogv1.Category{
 		Id:         c.ID,
-		Version:    int32(c.Version), //nolint:gosec // Version is an optimistic lock counter, cannot realistically overflow int32
+		Version:    int64(c.Version),
 		Name:       c.Name,
 		Enabled:    c.Enabled,
 		Attributes: attrs,

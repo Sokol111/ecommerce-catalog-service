@@ -137,7 +137,7 @@ func toProtoAttribute(a *attribute.Attribute) *catalogv1.Attribute {
 	}
 	return &catalogv1.Attribute{
 		Id:         a.ID,
-		Version:    int32(a.Version), //nolint:gosec // Version is an optimistic lock counter, cannot realistically overflow int32
+		Version:    int64(a.Version),
 		Name:       a.Name,
 		Slug:       a.Slug,
 		Type:       stringToProtoAttributeType(string(a.Type)),

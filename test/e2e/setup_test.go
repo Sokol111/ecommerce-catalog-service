@@ -136,9 +136,6 @@ func startApp(ctx context.Context) {
 		commons_messaging.NewMessagingModule(
 			commons_messaging.WithKafkaConfig(kafka_config.Config{
 				Brokers: kafkaBroker,
-				SchemaRegistry: kafka_config.SchemaRegistryConfig{
-					URL: testSchemaRegistryContainer.URL,
-				},
 			}),
 		),
 		validation.NewModule(validation.WithTestValidator()),
