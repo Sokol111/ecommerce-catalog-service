@@ -77,10 +77,10 @@ func (m *categoryMapper) GetID(e *categoryEntity) string {
 	return e.ID
 }
 
-func (m *categoryMapper) GetVersion(e *categoryEntity) int {
+func (m *categoryMapper) GetVersion(e *categoryEntity) int64 {
 	return e.Version
 }
 
-func (m *categoryMapper) SetVersion(e *categoryEntity, version int) {
+func (m *categoryMapper) SetVersion(e *categoryEntity, version int64) {
 	e.Version = version
 }

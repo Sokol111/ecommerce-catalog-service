@@ -9,7 +9,7 @@ type categoryAttributeEntity struct {
 	AttributeID string `bson:"attributeId"`
 	Slug        string `bson:"slug"`
 	Role        string `bson:"role"`
-	SortOrder   int    `bson:"sortOrder"`
+	SortOrder   int32  `bson:"sortOrder"`
 	Filterable  bool   `bson:"filterable"`
 	Searchable  bool   `bson:"searchable"`
 }
@@ -17,7 +17,7 @@ type categoryAttributeEntity struct {
 // categoryEntity represents the MongoDB document structure
 type categoryEntity struct {
 	ID         string                    `bson:"_id"`
-	Version    int                       `bson:"version"`
+	Version    int64                     `bson:"version"`
 	Name       string                    `bson:"name"`
 	Enabled    bool                      `bson:"enabled"`
 	Attributes []categoryAttributeEntity `bson:"attributes,omitempty"`

@@ -59,7 +59,7 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *connect.Req
 
 	cmd := attribute.UpdateAttributeCommand{
 		ID:      req.Msg.GetId(),
-		Version: int(req.Msg.GetVersion()),
+		Version: req.Msg.GetVersion(),
 		Name:    req.Msg.GetName(),
 		Unit:    unit,
 		Enabled: req.Msg.GetEnabled(),
@@ -152,9 +152,9 @@ func toProtoAttribute(a *attribute.Attribute) *catalogv1.Attribute {
 func protoToOptionInputs(opts []*catalogv1.AttributeOptionInput) []attribute.OptionInput {
 	result := make([]attribute.OptionInput, len(opts))
 	for i, o := range opts {
-		var sortOrder int
+		var sortOrder int32
 		if o.SortOrder != nil {
-			sortOrder = int(*o.SortOrder)
+			sortOrder = *o.SortOrder
 		}
 		result[i] = attribute.OptionInput{
 			Name:      o.GetName(),

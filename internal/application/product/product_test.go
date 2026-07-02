@@ -15,7 +15,7 @@ func TestNewProduct(t *testing.T) {
 		productName string
 		description *string
 		price       float64
-		quantity    int
+		quantity    int32
 		imageID     *string
 		categoryID  *string
 		enabled     bool
@@ -175,7 +175,7 @@ func TestNewProductWithID(t *testing.T) {
 		id          string
 		productName string
 		price       float64
-		quantity    int
+		quantity    int32
 		enabled     bool
 		wantErr     bool
 	}{
@@ -232,7 +232,7 @@ func TestProduct_Update(t *testing.T) {
 		newName     string
 		description *string
 		price       float64
-		quantity    int
+		quantity    int32
 		imageID     *string
 		categoryID  *string
 		enabled     bool
@@ -351,7 +351,7 @@ func TestValidateProductData(t *testing.T) {
 		name        string
 		productName string
 		price       float64
-		quantity    int
+		quantity    int32
 		wantErr     bool
 		errContains string
 	}{
@@ -404,7 +404,7 @@ func TestValidateEnabledState(t *testing.T) {
 		name        string
 		enabled     bool
 		price       float64
-		quantity    int
+		quantity    int32
 		imageID     *string
 		categoryID  *string
 		wantErr     bool

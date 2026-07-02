@@ -19,7 +19,7 @@ type CreateProductCommand struct {
 	Name        string
 	Description *string
 	Price       float64
-	Quantity    int
+	Quantity    int32
 	ImageID     *string
 	CategoryID  *string
 	Enabled     bool

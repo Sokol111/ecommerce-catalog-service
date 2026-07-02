@@ -18,11 +18,11 @@ type productAttributeEntity struct {
 // productEntity represents the MongoDB document structure
 type productEntity struct {
 	ID          string                   `bson:"_id"`
-	Version     int                      `bson:"version"`
+	Version     int64                    `bson:"version"`
 	Name        string                   `bson:"name"`
 	Description *string                  `bson:"description,omitempty"`
 	Price       float64                  `bson:"price"`
-	Quantity    int                      `bson:"quantity"`
+	Quantity    int32                    `bson:"quantity"`
 	ImageID     *string                  `bson:"imageId,omitempty"`
 	CategoryID  *string                  `bson:"categoryId,omitempty"`
 	Enabled     bool                     `bson:"enabled"`

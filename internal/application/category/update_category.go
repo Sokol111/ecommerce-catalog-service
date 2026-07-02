@@ -17,7 +17,7 @@ import (
 // UpdateCategoryCommand represents the input for updating a category
 type UpdateCategoryCommand struct {
 	ID         string
-	Version    int
+	Version    int64
 	Name       string
 	Enabled    bool
 	Attributes []CategoryAttributeInput
@@ -70,7 +70,7 @@ func (h *updateCategoryHandler) Handle(ctx context.Context, cmd UpdateCategoryCo
 	return h.persistAndPublish(ctx, c)
 }
 
-func (h *updateCategoryHandler) findAndValidateCategory(ctx context.Context, id string, version int) (*Category, error) {
+func (h *updateCategoryHandler) findAndValidateCategory(ctx context.Context, id string, version int64) (*Category, error) {
 	c, err := h.repo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrEntityNotFound) {

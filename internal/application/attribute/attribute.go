@@ -24,13 +24,13 @@ type Option struct {
 	Name      string
 	Slug      string
 	ColorCode *string
-	SortOrder int
+	SortOrder int32
 }
 
 // Attribute - domain aggregate root
 type Attribute struct {
 	ID         string
-	Version    int
+	Version    int64
 	Name       string
 	Slug       string
 	Type       AttributeType
@@ -84,7 +84,7 @@ func NewAttribute(
 // Reconstruct rebuilds an attribute from persistence (no validation)
 func Reconstruct(
 	id string,
-	version int,
+	version int64,
 	name string,
 	slug string,
 	attrType AttributeType,

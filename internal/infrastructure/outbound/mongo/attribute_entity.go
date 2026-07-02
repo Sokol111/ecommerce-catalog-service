@@ -9,13 +9,13 @@ type optionEntity struct {
 	Name      string  `bson:"name"`
 	Slug      string  `bson:"slug"`
 	ColorCode *string `bson:"colorCode,omitempty"`
-	SortOrder int     `bson:"sortOrder"`
+	SortOrder int32   `bson:"sortOrder"`
 }
 
 // attributeEntity represents the MongoDB document structure
 type attributeEntity struct {
 	ID         string         `bson:"_id"`
-	Version    int            `bson:"version"`
+	Version    int64          `bson:"version"`
 	Name       string         `bson:"name"`
 	Slug       string         `bson:"slug"`
 	Type       string         `bson:"type"`

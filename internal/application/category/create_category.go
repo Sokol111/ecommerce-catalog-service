@@ -18,7 +18,7 @@ import (
 type CategoryAttributeInput struct {
 	AttributeID string
 	Role        string
-	SortOrder   int
+	SortOrder   int32
 	Filterable  bool
 	Searchable  bool
 }

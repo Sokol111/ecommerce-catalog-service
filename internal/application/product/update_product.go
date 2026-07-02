@@ -17,11 +17,11 @@ import (
 
 type UpdateProductCommand struct {
 	ID          string
-	Version     int
+	Version     int64
 	Name        string
 	Description *string
 	Price       float64
-	Quantity    int
+	Quantity    int32
 	ImageID     *string
 	CategoryID  *string
 	Enabled     bool
@@ -81,7 +81,7 @@ func (h *updateProductHandler) Handle(ctx context.Context, cmd UpdateProductComm
 	return h.persistAndPublish(ctx, p)
 }
 
-func (h *updateProductHandler) findAndValidateProduct(ctx context.Context, id string, version int) (*Product, error) {
+func (h *updateProductHandler) findAndValidateProduct(ctx context.Context, id string, version int64) (*Product, error) {
 	p, err := h.repo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrEntityNotFound) {

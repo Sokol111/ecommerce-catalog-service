@@ -24,7 +24,7 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *connect.Request
 		Name:        req.Msg.GetName(),
 		Description: req.Msg.Description,
 		Price:       req.Msg.GetPrice(),
-		Quantity:    int(req.Msg.GetQuantity()),
+		Quantity:    req.Msg.GetQuantity(),
 		ImageID:     req.Msg.ImageId,
 		CategoryID:  req.Msg.CategoryId,
 		Enabled:     req.Msg.GetEnabled(),
@@ -47,11 +47,11 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *connect.Request
 func (h *productHandler) UpdateProduct(ctx context.Context, req *connect.Request[catalogv1.UpdateProductRequest]) (*connect.Response[catalogv1.UpdateProductResponse], error) {
 	cmd := product.UpdateProductCommand{
 		ID:          req.Msg.GetId(),
-		Version:     int(req.Msg.GetVersion()),
+		Version:     req.Msg.GetVersion(),
 		Name:        req.Msg.GetName(),
 		Description: req.Msg.Description,
 		Price:       req.Msg.GetPrice(),
-		Quantity:    int(req.Msg.GetQuantity()),
+		Quantity:    req.Msg.GetQuantity(),
 		ImageID:     req.Msg.ImageId,
 		CategoryID:  req.Msg.CategoryId,
 		Enabled:     req.Msg.GetEnabled(),

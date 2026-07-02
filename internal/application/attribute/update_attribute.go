@@ -15,7 +15,7 @@ import (
 
 type UpdateAttributeCommand struct {
 	ID      string
-	Version int
+	Version int64
 	Name    string
 	Unit    *string
 	Enabled bool

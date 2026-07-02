@@ -22,7 +22,7 @@ type CategoryAttribute struct {
 	AttributeID string
 	Slug        string // Attribute slug (immutable, stored for events)
 	Role        AttributeRole
-	SortOrder   int
+	SortOrder   int32
 	Filterable  bool
 	Searchable  bool
 }
@@ -30,7 +30,7 @@ type CategoryAttribute struct {
 // Category - domain aggregate root
 type Category struct {
 	ID         string
-	Version    int
+	Version    int64
 	Name       string
 	Enabled    bool
 	Attributes []CategoryAttribute
@@ -75,7 +75,7 @@ func NewCategoryWithID(id, name string, enabled bool, attributes []CategoryAttri
 }
 
 // Reconstruct rebuilds a category from persistence (no validation)
-func Reconstruct(id string, version int, name string, enabled bool, attributes []CategoryAttribute, createdAt, modifiedAt time.Time) *Category {
+func Reconstruct(id string, version int64, name string, enabled bool, attributes []CategoryAttribute, createdAt, modifiedAt time.Time) *Category {
 	return &Category{
 		ID:         id,
 		Version:    version,

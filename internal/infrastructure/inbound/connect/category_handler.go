@@ -41,7 +41,7 @@ func (h *categoryHandler) CreateCategory(ctx context.Context, req *connect.Reque
 func (h *categoryHandler) UpdateCategory(ctx context.Context, req *connect.Request[catalogv1.UpdateCategoryRequest]) (*connect.Response[catalogv1.UpdateCategoryResponse], error) {
 	cmd := category.UpdateCategoryCommand{
 		ID:         req.Msg.GetId(),
-		Version:    int(req.Msg.GetVersion()),
+		Version:    req.Msg.GetVersion(),
 		Name:       req.Msg.GetName(),
 		Enabled:    req.Msg.GetEnabled(),
 		Attributes: protoToCategoryAttributeInputs(req.Msg.GetAttributes()),
@@ -124,9 +124,9 @@ func toProtoCategory(c *category.Category) *catalogv1.Category {
 func protoToCategoryAttributeInputs(attrs []*catalogv1.CategoryAttributeInput) []category.CategoryAttributeInput {
 	result := make([]category.CategoryAttributeInput, len(attrs))
 	for i, a := range attrs {
-		var sortOrder int
+		var sortOrder int32
 		if a.SortOrder != nil {
-			sortOrder = int(*a.SortOrder)
+			sortOrder = *a.SortOrder
 		}
 		result[i] = category.CategoryAttributeInput{
 			AttributeID: a.GetAttributeId(),

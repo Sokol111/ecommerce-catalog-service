@@ -64,10 +64,10 @@ func (m *attributeMapper) GetID(e *attributeEntity) string {
 	return e.ID
 }
 
-func (m *attributeMapper) GetVersion(e *attributeEntity) int {
+func (m *attributeMapper) GetVersion(e *attributeEntity) int64 {
 	return e.Version
 }
 
-func (m *attributeMapper) SetVersion(e *attributeEntity, version int) {
+func (m *attributeMapper) SetVersion(e *attributeEntity, version int64) {
 	e.Version = version
 }

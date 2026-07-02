@@ -17,7 +17,7 @@ type OptionInput struct {
 	Name      string
 	Slug      string
 	ColorCode *string
-	SortOrder int
+	SortOrder int32
 }
 
 type CreateAttributeCommand struct {

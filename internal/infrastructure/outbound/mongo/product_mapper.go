@@ -49,11 +49,11 @@ func (m *productMapper) GetID(e *productEntity) string {
 	return e.ID
 }
 
-func (m *productMapper) GetVersion(e *productEntity) int {
+func (m *productMapper) GetVersion(e *productEntity) int64 {
 	return e.Version
 }
 
-func (m *productMapper) SetVersion(e *productEntity, version int) {
+func (m *productMapper) SetVersion(e *productEntity, version int64) {
 	e.Version = version
 }
 
