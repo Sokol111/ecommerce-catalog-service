@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
-	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/connect/catalog/v1"
+	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"google.golang.org/protobuf/types/known/timestamppb"

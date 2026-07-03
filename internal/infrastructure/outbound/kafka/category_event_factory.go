@@ -3,7 +3,7 @@ package kafka
 import (
 	"context"
 
-	eventsv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/catalog/events/v1"
+	eventsv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/events/v1"
 	apiEvents "github.com/Sokol111/ecommerce-catalog-service-api/pkg/events"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"

@@ -15,7 +15,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
-	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/connect/catalog/v1/catalogv1connect"
+	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1/catalogv1connect"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
 	internalconnect "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/connect"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo"

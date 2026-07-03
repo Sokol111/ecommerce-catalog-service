@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/connect/catalog/v1/catalogv1connect"
+	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1/catalogv1connect"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
