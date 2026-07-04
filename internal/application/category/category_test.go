@@ -87,7 +87,7 @@ func TestNewCategory(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, category)
 				assert.NotEmpty(t, category.ID)
-				assert.Equal(t, 1, category.Version)
+				assert.Equal(t, int64(1), category.Version)
 				assert.Equal(t, tt.catName, category.Name)
 				assert.Equal(t, tt.enabled, category.Enabled)
 				assert.Equal(t, tt.attributes, category.Attributes)
@@ -283,13 +283,13 @@ func TestCategory_Disable(t *testing.T) {
 
 func TestCategory_IncrementVersion(t *testing.T) {
 	category, _ := NewCategory("Test", false, nil)
-	assert.Equal(t, 1, category.Version)
+	assert.Equal(t, int64(1), category.Version)
 
 	category.IncrementVersion()
-	assert.Equal(t, 2, category.Version)
+	assert.Equal(t, int64(2), category.Version)
 
 	category.IncrementVersion()
-	assert.Equal(t, 3, category.Version)
+	assert.Equal(t, int64(3), category.Version)
 }
 
 func TestReconstruct(t *testing.T) {
@@ -313,7 +313,7 @@ func TestReconstruct(t *testing.T) {
 
 		require.NotNil(t, category)
 		assert.Equal(t, "cat-123", category.ID)
-		assert.Equal(t, 5, category.Version)
+		assert.Equal(t, int64(5), category.Version)
 		assert.Equal(t, "", category.Name)
 		assert.True(t, category.Enabled)
 		assert.Equal(t, attributes, category.Attributes)
@@ -340,7 +340,7 @@ func TestCategoryAttribute(t *testing.T) {
 	assert.Equal(t, "attr-123", attr.AttributeID)
 	assert.Equal(t, "color", attr.Slug)
 	assert.Equal(t, AttributeRoleVariant, attr.Role)
-	assert.Equal(t, 1, attr.SortOrder)
+	assert.Equal(t, int32(1), attr.SortOrder)
 	assert.True(t, attr.Filterable)
 	assert.False(t, attr.Searchable)
 }

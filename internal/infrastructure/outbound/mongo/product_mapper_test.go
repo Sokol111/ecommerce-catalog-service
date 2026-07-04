@@ -55,11 +55,11 @@ func TestProductMapper_ToEntity(t *testing.T) {
 
 		require.NotNil(t, entity)
 		assert.Equal(t, "prod-123", entity.ID)
-		assert.Equal(t, 2, entity.Version)
+		assert.Equal(t, int64(2), entity.Version)
 		assert.Equal(t, "iPhone 15 Pro", entity.Name)
 		assert.Equal(t, ptr("Latest iPhone model"), entity.Description)
 		assert.Equal(t, float64(999.99), entity.Price)
-		assert.Equal(t, 50, entity.Quantity)
+		assert.Equal(t, int32(50), entity.Quantity)
 		assert.Equal(t, ptr("image-123"), entity.ImageID)
 		assert.Equal(t, ptr("category-phones"), entity.CategoryID)
 		assert.True(t, entity.Enabled)
@@ -168,11 +168,11 @@ func TestProductMapper_ToDomain(t *testing.T) {
 
 		require.NotNil(t, domain)
 		assert.Equal(t, "prod-123", domain.ID)
-		assert.Equal(t, 5, domain.Version)
+		assert.Equal(t, int64(5), domain.Version)
 		assert.Equal(t, "MacBook Pro", domain.Name)
 		assert.Equal(t, ptr("Professional laptop"), domain.Description)
 		assert.Equal(t, float64(2499.99), domain.Price)
-		assert.Equal(t, 25, domain.Quantity)
+		assert.Equal(t, int32(25), domain.Quantity)
 		assert.Equal(t, ptr("img-macbook"), domain.ImageID)
 		assert.Equal(t, ptr("cat-laptops"), domain.CategoryID)
 		assert.True(t, domain.Enabled)
@@ -242,7 +242,7 @@ func TestProductMapper_GetVersion(t *testing.T) {
 
 	entity := &productEntity{Version: 12}
 
-	assert.Equal(t, 12, mapper.GetVersion(entity))
+	assert.Equal(t, int64(12), mapper.GetVersion(entity))
 }
 
 func TestProductMapper_SetVersion(t *testing.T) {
@@ -252,7 +252,7 @@ func TestProductMapper_SetVersion(t *testing.T) {
 
 	mapper.SetVersion(entity, 20)
 
-	assert.Equal(t, 20, entity.Version)
+	assert.Equal(t, int64(20), entity.Version)
 }
 
 func TestProductMapper_RoundTrip(t *testing.T) {

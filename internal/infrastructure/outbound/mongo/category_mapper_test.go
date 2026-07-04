@@ -46,7 +46,7 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 
 		require.NotNil(t, entity)
 		assert.Equal(t, "cat-123", entity.ID)
-		assert.Equal(t, 2, entity.Version)
+		assert.Equal(t, int64(2), entity.Version)
 		assert.Equal(t, "Electronics", entity.Name)
 		assert.True(t, entity.Enabled)
 		assert.Equal(t, now, entity.CreatedAt)
@@ -55,7 +55,7 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 		require.Len(t, entity.Attributes, 2)
 		assert.Equal(t, "attr-1", entity.Attributes[0].AttributeID)
 		assert.Equal(t, "variant", entity.Attributes[0].Role)
-		assert.Equal(t, 1, entity.Attributes[0].SortOrder)
+		assert.Equal(t, int32(1), entity.Attributes[0].SortOrder)
 		assert.True(t, entity.Attributes[0].Filterable)
 		assert.True(t, entity.Attributes[0].Searchable)
 
@@ -137,7 +137,7 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 
 		require.NotNil(t, domain)
 		assert.Equal(t, "cat-123", domain.ID)
-		assert.Equal(t, 3, domain.Version)
+		assert.Equal(t, int64(3), domain.Version)
 		assert.Equal(t, "Home & Garden", domain.Name)
 		assert.True(t, domain.Enabled)
 		assert.Equal(t, now.UTC(), domain.CreatedAt)
@@ -146,7 +146,7 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 		require.Len(t, domain.Attributes, 2)
 		assert.Equal(t, "attr-10", domain.Attributes[0].AttributeID)
 		assert.Equal(t, category.AttributeRoleVariant, domain.Attributes[0].Role)
-		assert.Equal(t, 1, domain.Attributes[0].SortOrder)
+		assert.Equal(t, int32(1), domain.Attributes[0].SortOrder)
 		assert.True(t, domain.Attributes[0].Filterable)
 		assert.True(t, domain.Attributes[0].Searchable)
 
@@ -207,7 +207,7 @@ func TestCategoryMapper_GetVersion(t *testing.T) {
 
 	entity := &categoryEntity{Version: 8}
 
-	assert.Equal(t, 8, mapper.GetVersion(entity))
+	assert.Equal(t, int64(8), mapper.GetVersion(entity))
 }
 
 func TestCategoryMapper_SetVersion(t *testing.T) {
@@ -217,7 +217,7 @@ func TestCategoryMapper_SetVersion(t *testing.T) {
 
 	mapper.SetVersion(entity, 15)
 
-	assert.Equal(t, 15, entity.Version)
+	assert.Equal(t, int64(15), entity.Version)
 }
 
 func TestCategoryMapper_RoundTrip(t *testing.T) {
@@ -287,7 +287,7 @@ func TestMapCategoryAttributeToEntity(t *testing.T) {
 
 	assert.Equal(t, "attr-123", entity.AttributeID)
 	assert.Equal(t, "variant", entity.Role)
-	assert.Equal(t, 5, entity.SortOrder)
+	assert.Equal(t, int32(5), entity.SortOrder)
 	assert.True(t, entity.Filterable)
 	assert.False(t, entity.Searchable)
 }
@@ -305,7 +305,7 @@ func TestMapCategoryAttributeToDomain(t *testing.T) {
 
 	assert.Equal(t, "attr-456", attr.AttributeID)
 	assert.Equal(t, category.AttributeRoleSpecification, attr.Role)
-	assert.Equal(t, 10, attr.SortOrder)
+	assert.Equal(t, int32(10), attr.SortOrder)
 	assert.False(t, attr.Filterable)
 	assert.True(t, attr.Searchable)
 }

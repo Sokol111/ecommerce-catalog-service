@@ -153,7 +153,7 @@ func TestNewProduct(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, product)
 				assert.NotEmpty(t, product.ID)
-				assert.Equal(t, 1, product.Version)
+				assert.Equal(t, int64(1), product.Version)
 				assert.Equal(t, tt.productName, product.Name)
 				assert.Equal(t, tt.description, product.Description)
 				assert.Equal(t, tt.price, product.Price)
@@ -338,10 +338,10 @@ func TestReconstruct(t *testing.T) {
 
 		require.NotNil(t, product)
 		assert.Equal(t, "id-123", product.ID)
-		assert.Equal(t, 5, product.Version)
+		assert.Equal(t, int64(5), product.Version)
 		assert.Equal(t, "", product.Name)
 		assert.Equal(t, float64(-100), product.Price)
-		assert.Equal(t, -50, product.Quantity)
+		assert.Equal(t, int32(-50), product.Quantity)
 		assert.True(t, product.Enabled)
 	})
 }

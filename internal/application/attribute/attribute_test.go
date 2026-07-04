@@ -208,7 +208,7 @@ func TestNewAttribute(t *testing.T) {
 				} else {
 					assert.Equal(t, tt.id, attr.ID)
 				}
-				assert.Equal(t, 1, attr.Version)
+				assert.Equal(t, int64(1), attr.Version)
 				assert.Equal(t, tt.attrName, attr.Name)
 				assert.Equal(t, tt.slug, attr.Slug)
 				assert.Equal(t, tt.attrType, attr.Type)
@@ -461,7 +461,7 @@ func TestReconstruct(t *testing.T) {
 
 		require.NotNil(t, attr)
 		assert.Equal(t, "attr-123", attr.ID)
-		assert.Equal(t, 5, attr.Version)
+		assert.Equal(t, int64(5), attr.Version)
 		assert.Equal(t, "", attr.Name)
 		assert.Equal(t, "INVALID", attr.Slug)
 		assert.Equal(t, AttributeType("unknown"), attr.Type)
@@ -521,5 +521,5 @@ func TestOption(t *testing.T) {
 	assert.Equal(t, "Red", opt.Name)
 	assert.Equal(t, "red", opt.Slug)
 	assert.Equal(t, "#FF0000", *opt.ColorCode)
-	assert.Equal(t, 1, opt.SortOrder)
+	assert.Equal(t, int32(1), opt.SortOrder)
 }

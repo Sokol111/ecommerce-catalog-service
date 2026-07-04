@@ -39,7 +39,7 @@ func TestAttributeMapper_ToEntity(t *testing.T) {
 
 		require.NotNil(t, entity)
 		assert.Equal(t, "attr-123", entity.ID)
-		assert.Equal(t, 1, entity.Version)
+		assert.Equal(t, int64(1), entity.Version)
 		assert.Equal(t, "Color", entity.Name)
 		assert.Equal(t, "color", entity.Slug)
 		assert.Equal(t, "single", entity.Type)
@@ -52,7 +52,7 @@ func TestAttributeMapper_ToEntity(t *testing.T) {
 		assert.Equal(t, "Red", entity.Options[0].Name)
 		assert.Equal(t, "red", entity.Options[0].Slug)
 		assert.Equal(t, ptr("#FF0000"), entity.Options[0].ColorCode)
-		assert.Equal(t, 1, entity.Options[0].SortOrder)
+		assert.Equal(t, int32(1), entity.Options[0].SortOrder)
 		assert.Equal(t, "Blue", entity.Options[1].Name)
 		assert.Equal(t, "blue", entity.Options[1].Slug)
 	})
@@ -129,7 +129,7 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 
 		require.NotNil(t, domain)
 		assert.Equal(t, "attr-123", domain.ID)
-		assert.Equal(t, 3, domain.Version)
+		assert.Equal(t, int64(3), domain.Version)
 		assert.Equal(t, "Size", domain.Name)
 		assert.Equal(t, "size", domain.Slug)
 		assert.Equal(t, attribute.AttributeTypeMultiple, domain.Type)
@@ -141,7 +141,7 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 		require.Len(t, domain.Options, 3)
 		assert.Equal(t, "Small", domain.Options[0].Name)
 		assert.Equal(t, "small", domain.Options[0].Slug)
-		assert.Equal(t, 1, domain.Options[0].SortOrder)
+		assert.Equal(t, int32(1), domain.Options[0].SortOrder)
 	})
 
 	t.Run("maps entity without options", func(t *testing.T) {
@@ -204,7 +204,7 @@ func TestAttributeMapper_GetVersion(t *testing.T) {
 
 	entity := &attributeEntity{Version: 5}
 
-	assert.Equal(t, 5, mapper.GetVersion(entity))
+	assert.Equal(t, int64(5), mapper.GetVersion(entity))
 }
 
 func TestAttributeMapper_SetVersion(t *testing.T) {
@@ -214,7 +214,7 @@ func TestAttributeMapper_SetVersion(t *testing.T) {
 
 	mapper.SetVersion(entity, 10)
 
-	assert.Equal(t, 10, entity.Version)
+	assert.Equal(t, int64(10), entity.Version)
 }
 
 func TestAttributeMapper_RoundTrip(t *testing.T) {
