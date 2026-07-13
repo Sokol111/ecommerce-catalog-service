@@ -63,7 +63,7 @@ type MockProductEventFactory_NewProductDeletedOutboxMessage_Call struct {
 // NewProductDeletedOutboxMessage is a helper method to define mock.On call
 //   - ctx context.Context
 //   - productID string
-func (_e *MockProductEventFactory_Expecter) NewProductDeletedOutboxMessage(ctx interface{}, productID interface{}) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
+func (_e *MockProductEventFactory_Expecter) NewProductDeletedOutboxMessage(ctx any, productID any) *MockProductEventFactory_NewProductDeletedOutboxMessage_Call {
 	return &MockProductEventFactory_NewProductDeletedOutboxMessage_Call{Call: _e.mock.On("NewProductDeletedOutboxMessage", ctx, productID)}
 }
 
@@ -120,7 +120,7 @@ type MockProductEventFactory_NewProductUpdatedOutboxMessage_Call struct {
 // NewProductUpdatedOutboxMessage is a helper method to define mock.On call
 //   - ctx context.Context
 //   - p *Product
-func (_e *MockProductEventFactory_Expecter) NewProductUpdatedOutboxMessage(ctx interface{}, p interface{}) *MockProductEventFactory_NewProductUpdatedOutboxMessage_Call {
+func (_e *MockProductEventFactory_Expecter) NewProductUpdatedOutboxMessage(ctx any, p any) *MockProductEventFactory_NewProductUpdatedOutboxMessage_Call {
 	return &MockProductEventFactory_NewProductUpdatedOutboxMessage_Call{Call: _e.mock.On("NewProductUpdatedOutboxMessage", ctx, p)}
 }
 

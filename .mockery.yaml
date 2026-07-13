@@ -2,46 +2,47 @@
 # https://vektra.github.io/mockery/latest/configuration/
 
 # Global settings
+# Application mocks are generated inline: same directory and same package as the
+# source interface (dir=InterfaceDir, pkgname=SrcPackageName). The commons mocks
+# below override dir/pkgname to land in internal/testutil/mocks instead.
 all: false
-dir: "{{.InterfaceDir}}/mocks"
+dir: "{{.InterfaceDir}}"
 filename: "mock_{{.InterfaceName | snakecase}}.go"
 structname: "Mock{{.InterfaceName}}"
-pkgname: "mocks"
+pkgname: "{{.SrcPackageName}}"
 template: testify
 formatter: goimports
 log-level: info
 
 packages:
-  # ===== Domain Repositories =====
-  github.com/Sokol111/ecommerce-catalog-service/internal/domain/product:
+  # ===== Application aggregates (repository port + event factory per aggregate) =====
+  github.com/Sokol111/ecommerce-catalog-service/internal/application/product:
     interfaces:
       Repository:
-
-  github.com/Sokol111/ecommerce-catalog-service/internal/domain/category:
-    interfaces:
-      Repository:
-
-  github.com/Sokol111/ecommerce-catalog-service/internal/domain/attribute:
-    interfaces:
-      Repository:
-
-  # ===== Event Factories =====
-  github.com/Sokol111/ecommerce-catalog-service/internal/event:
-    interfaces:
       ProductEventFactory:
+
+  github.com/Sokol111/ecommerce-catalog-service/internal/application/category:
+    interfaces:
+      Repository:
       CategoryEventFactory:
+
+  github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute:
+    interfaces:
+      Repository:
       AttributeEventFactory:
 
   # ===== External Dependencies (ecommerce-commons) =====
-  # These mocks will be generated in testutil/mocks
+  # Generated into internal/testutil/mocks as package mocks.
   github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox:
     config:
       dir: "internal/testutil/mocks"
+      pkgname: "mocks"
     interfaces:
       Outbox:
 
   github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo:
     config:
       dir: "internal/testutil/mocks"
+      pkgname: "mocks"
     interfaces:
       TxManager:

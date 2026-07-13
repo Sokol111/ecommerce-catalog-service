@@ -73,7 +73,7 @@ type MockTxManager_WithTransaction_Call struct {
 // WithTransaction is a helper method to define mock.On call
 //   - ctx context.Context
 //   - fn func(txCtx context.Context) (any, error)
-func (_e *MockTxManager_Expecter) WithTransaction(ctx interface{}, fn interface{}) *MockTxManager_WithTransaction_Call {
+func (_e *MockTxManager_Expecter) WithTransaction(ctx any, fn any) *MockTxManager_WithTransaction_Call {
 	return &MockTxManager_WithTransaction_Call{Call: _e.mock.On("WithTransaction", ctx, fn)}
 }
 

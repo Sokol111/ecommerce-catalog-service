@@ -63,7 +63,7 @@ type MockCategoryEventFactory_NewCategoryUpdatedOutboxMessage_Call struct {
 // NewCategoryUpdatedOutboxMessage is a helper method to define mock.On call
 //   - ctx context.Context
 //   - c *Category
-func (_e *MockCategoryEventFactory_Expecter) NewCategoryUpdatedOutboxMessage(ctx interface{}, c interface{}) *MockCategoryEventFactory_NewCategoryUpdatedOutboxMessage_Call {
+func (_e *MockCategoryEventFactory_Expecter) NewCategoryUpdatedOutboxMessage(ctx any, c any) *MockCategoryEventFactory_NewCategoryUpdatedOutboxMessage_Call {
 	return &MockCategoryEventFactory_NewCategoryUpdatedOutboxMessage_Call{Call: _e.mock.On("NewCategoryUpdatedOutboxMessage", ctx, c)}
 }
 

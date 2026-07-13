@@ -62,8 +62,8 @@ type MockAttributeEventFactory_NewAttributeUpdatedOutboxMessage_Call struct {
 
 // NewAttributeUpdatedOutboxMessage is a helper method to define mock.On call
 //   - ctx context.Context
-//   - a *attribute.Attribute
-func (_e *MockAttributeEventFactory_Expecter) NewAttributeUpdatedOutboxMessage(ctx interface{}, a interface{}) *MockAttributeEventFactory_NewAttributeUpdatedOutboxMessage_Call {
+//   - a *Attribute
+func (_e *MockAttributeEventFactory_Expecter) NewAttributeUpdatedOutboxMessage(ctx any, a any) *MockAttributeEventFactory_NewAttributeUpdatedOutboxMessage_Call {
 	return &MockAttributeEventFactory_NewAttributeUpdatedOutboxMessage_Call{Call: _e.mock.On("NewAttributeUpdatedOutboxMessage", ctx, a)}
 }
 

@@ -74,7 +74,7 @@ type MockOutbox_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - msg outbox.Message
-func (_e *MockOutbox_Expecter) Create(ctx interface{}, msg interface{}) *MockOutbox_Create_Call {
+func (_e *MockOutbox_Expecter) Create(ctx any, msg any) *MockOutbox_Create_Call {
 	return &MockOutbox_Create_Call{Call: _e.mock.On("Create", ctx, msg)}
 }
 

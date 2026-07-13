@@ -63,7 +63,7 @@ type MockRepository_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockRepository_Expecter) Delete(ctx interface{}, id interface{}) *MockRepository_Delete_Call {
+func (_e *MockRepository_Expecter) Delete(ctx any, id any) *MockRepository_Delete_Call {
 	return &MockRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
@@ -131,7 +131,7 @@ type MockRepository_FindByID_Call struct {
 // FindByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockRepository_Expecter) FindByID(ctx interface{}, id interface{}) *MockRepository_FindByID_Call {
+func (_e *MockRepository_Expecter) FindByID(ctx any, id any) *MockRepository_FindByID_Call {
 	return &MockRepository_FindByID_Call{Call: _e.mock.On("FindByID", ctx, id)}
 }
 
@@ -153,8 +153,8 @@ func (_c *MockRepository_FindByID_Call) Run(run func(ctx context.Context, id str
 	return _c
 }
 
-func (_c *MockRepository_FindByID_Call) Return(product1 *Product, err error) *MockRepository_FindByID_Call {
-	_c.Call.Return(product1, err)
+func (_c *MockRepository_FindByID_Call) Return(product *Product, err error) *MockRepository_FindByID_Call {
+	_c.Call.Return(product, err)
 	return _c
 }
 
@@ -198,8 +198,8 @@ type MockRepository_FindList_Call struct {
 
 // FindList is a helper method to define mock.On call
 //   - ctx context.Context
-//   - query product.ListQuery
-func (_e *MockRepository_Expecter) FindList(ctx interface{}, query interface{}) *MockRepository_FindList_Call {
+//   - query ListQuery
+func (_e *MockRepository_Expecter) FindList(ctx any, query any) *MockRepository_FindList_Call {
 	return &MockRepository_FindList_Call{Call: _e.mock.On("FindList", ctx, query)}
 }
 
@@ -232,8 +232,8 @@ func (_c *MockRepository_FindList_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // Insert provides a mock function for the type MockRepository
-func (_mock *MockRepository) Insert(ctx context.Context, product1 *Product) error {
-	ret := _mock.Called(ctx, product1)
+func (_mock *MockRepository) Insert(ctx context.Context, product *Product) error {
+	ret := _mock.Called(ctx, product)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Insert")
@@ -241,7 +241,7 @@ func (_mock *MockRepository) Insert(ctx context.Context, product1 *Product) erro
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Product) error); ok {
-		r0 = returnFunc(ctx, product1)
+		r0 = returnFunc(ctx, product)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -255,12 +255,12 @@ type MockRepository_Insert_Call struct {
 
 // Insert is a helper method to define mock.On call
 //   - ctx context.Context
-//   - product1 *Product
-func (_e *MockRepository_Expecter) Insert(ctx interface{}, product1 interface{}) *MockRepository_Insert_Call {
-	return &MockRepository_Insert_Call{Call: _e.mock.On("Insert", ctx, product1)}
+//   - product *Product
+func (_e *MockRepository_Expecter) Insert(ctx any, product any) *MockRepository_Insert_Call {
+	return &MockRepository_Insert_Call{Call: _e.mock.On("Insert", ctx, product)}
 }
 
-func (_c *MockRepository_Insert_Call) Run(run func(ctx context.Context, product1 *Product)) *MockRepository_Insert_Call {
+func (_c *MockRepository_Insert_Call) Run(run func(ctx context.Context, product *Product)) *MockRepository_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -283,14 +283,14 @@ func (_c *MockRepository_Insert_Call) Return(err error) *MockRepository_Insert_C
 	return _c
 }
 
-func (_c *MockRepository_Insert_Call) RunAndReturn(run func(ctx context.Context, product1 *Product) error) *MockRepository_Insert_Call {
+func (_c *MockRepository_Insert_Call) RunAndReturn(run func(ctx context.Context, product *Product) error) *MockRepository_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockRepository
-func (_mock *MockRepository) Update(ctx context.Context, product1 *Product) (*Product, error) {
-	ret := _mock.Called(ctx, product1)
+func (_mock *MockRepository) Update(ctx context.Context, product *Product) (*Product, error) {
+	ret := _mock.Called(ctx, product)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -299,17 +299,17 @@ func (_mock *MockRepository) Update(ctx context.Context, product1 *Product) (*Pr
 	var r0 *Product
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Product) (*Product, error)); ok {
-		return returnFunc(ctx, product1)
+		return returnFunc(ctx, product)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Product) *Product); ok {
-		r0 = returnFunc(ctx, product1)
+		r0 = returnFunc(ctx, product)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Product)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *Product) error); ok {
-		r1 = returnFunc(ctx, product1)
+		r1 = returnFunc(ctx, product)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -323,12 +323,12 @@ type MockRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - product1 *Product
-func (_e *MockRepository_Expecter) Update(ctx interface{}, product1 interface{}) *MockRepository_Update_Call {
-	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, product1)}
+//   - product *Product
+func (_e *MockRepository_Expecter) Update(ctx any, product any) *MockRepository_Update_Call {
+	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, product)}
 }
 
-func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, product1 *Product)) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, product *Product)) *MockRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -346,12 +346,12 @@ func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, product1
 	return _c
 }
 
-func (_c *MockRepository_Update_Call) Return(product11 *Product, err error) *MockRepository_Update_Call {
-	_c.Call.Return(product11, err)
+func (_c *MockRepository_Update_Call) Return(product1 *Product, err error) *MockRepository_Update_Call {
+	_c.Call.Return(product1, err)
 	return _c
 }
 
-func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, product1 *Product) (*Product, error)) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, product *Product) (*Product, error)) *MockRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

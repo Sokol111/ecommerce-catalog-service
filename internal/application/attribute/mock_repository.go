@@ -72,7 +72,7 @@ type MockRepository_Exists_Call struct {
 // Exists is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockRepository_Expecter) Exists(ctx interface{}, id interface{}) *MockRepository_Exists_Call {
+func (_e *MockRepository_Expecter) Exists(ctx any, id any) *MockRepository_Exists_Call {
 	return &MockRepository_Exists_Call{Call: _e.mock.On("Exists", ctx, id)}
 }
 
@@ -140,7 +140,7 @@ type MockRepository_FindByID_Call struct {
 // FindByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockRepository_Expecter) FindByID(ctx interface{}, id interface{}) *MockRepository_FindByID_Call {
+func (_e *MockRepository_Expecter) FindByID(ctx any, id any) *MockRepository_FindByID_Call {
 	return &MockRepository_FindByID_Call{Call: _e.mock.On("FindByID", ctx, id)}
 }
 
@@ -162,8 +162,8 @@ func (_c *MockRepository_FindByID_Call) Run(run func(ctx context.Context, id str
 	return _c
 }
 
-func (_c *MockRepository_FindByID_Call) Return(attribute1 *Attribute, err error) *MockRepository_FindByID_Call {
-	_c.Call.Return(attribute1, err)
+func (_c *MockRepository_FindByID_Call) Return(attribute *Attribute, err error) *MockRepository_FindByID_Call {
+	_c.Call.Return(attribute, err)
 	return _c
 }
 
@@ -208,7 +208,7 @@ type MockRepository_FindByIDs_Call struct {
 // FindByIDs is a helper method to define mock.On call
 //   - ctx context.Context
 //   - ids []string
-func (_e *MockRepository_Expecter) FindByIDs(ctx interface{}, ids interface{}) *MockRepository_FindByIDs_Call {
+func (_e *MockRepository_Expecter) FindByIDs(ctx any, ids any) *MockRepository_FindByIDs_Call {
 	return &MockRepository_FindByIDs_Call{Call: _e.mock.On("FindByIDs", ctx, ids)}
 }
 
@@ -276,7 +276,7 @@ type MockRepository_FindByIDsOrFail_Call struct {
 // FindByIDsOrFail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - ids []string
-func (_e *MockRepository_Expecter) FindByIDsOrFail(ctx interface{}, ids interface{}) *MockRepository_FindByIDsOrFail_Call {
+func (_e *MockRepository_Expecter) FindByIDsOrFail(ctx any, ids any) *MockRepository_FindByIDsOrFail_Call {
 	return &MockRepository_FindByIDsOrFail_Call{Call: _e.mock.On("FindByIDsOrFail", ctx, ids)}
 }
 
@@ -344,7 +344,7 @@ type MockRepository_FindList_Call struct {
 // FindList is a helper method to define mock.On call
 //   - ctx context.Context
 //   - query ListQuery
-func (_e *MockRepository_Expecter) FindList(ctx interface{}, query interface{}) *MockRepository_FindList_Call {
+func (_e *MockRepository_Expecter) FindList(ctx any, query any) *MockRepository_FindList_Call {
 	return &MockRepository_FindList_Call{Call: _e.mock.On("FindList", ctx, query)}
 }
 
@@ -377,8 +377,8 @@ func (_c *MockRepository_FindList_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // Insert provides a mock function for the type MockRepository
-func (_mock *MockRepository) Insert(ctx context.Context, attribute1 *Attribute) error {
-	ret := _mock.Called(ctx, attribute1)
+func (_mock *MockRepository) Insert(ctx context.Context, attribute *Attribute) error {
+	ret := _mock.Called(ctx, attribute)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Insert")
@@ -386,7 +386,7 @@ func (_mock *MockRepository) Insert(ctx context.Context, attribute1 *Attribute) 
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) error); ok {
-		r0 = returnFunc(ctx, attribute1)
+		r0 = returnFunc(ctx, attribute)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -400,12 +400,12 @@ type MockRepository_Insert_Call struct {
 
 // Insert is a helper method to define mock.On call
 //   - ctx context.Context
-//   - attribute1 *Attribute
-func (_e *MockRepository_Expecter) Insert(ctx interface{}, attribute1 interface{}) *MockRepository_Insert_Call {
-	return &MockRepository_Insert_Call{Call: _e.mock.On("Insert", ctx, attribute1)}
+//   - attribute *Attribute
+func (_e *MockRepository_Expecter) Insert(ctx any, attribute any) *MockRepository_Insert_Call {
+	return &MockRepository_Insert_Call{Call: _e.mock.On("Insert", ctx, attribute)}
 }
 
-func (_c *MockRepository_Insert_Call) Run(run func(ctx context.Context, attribute1 *Attribute)) *MockRepository_Insert_Call {
+func (_c *MockRepository_Insert_Call) Run(run func(ctx context.Context, attribute *Attribute)) *MockRepository_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -428,14 +428,14 @@ func (_c *MockRepository_Insert_Call) Return(err error) *MockRepository_Insert_C
 	return _c
 }
 
-func (_c *MockRepository_Insert_Call) RunAndReturn(run func(ctx context.Context, attribute1 *Attribute) error) *MockRepository_Insert_Call {
+func (_c *MockRepository_Insert_Call) RunAndReturn(run func(ctx context.Context, attribute *Attribute) error) *MockRepository_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockRepository
-func (_mock *MockRepository) Update(ctx context.Context, attribute1 *Attribute) (*Attribute, error) {
-	ret := _mock.Called(ctx, attribute1)
+func (_mock *MockRepository) Update(ctx context.Context, attribute *Attribute) (*Attribute, error) {
+	ret := _mock.Called(ctx, attribute)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -444,17 +444,17 @@ func (_mock *MockRepository) Update(ctx context.Context, attribute1 *Attribute) 
 	var r0 *Attribute
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) (*Attribute, error)); ok {
-		return returnFunc(ctx, attribute1)
+		return returnFunc(ctx, attribute)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) *Attribute); ok {
-		r0 = returnFunc(ctx, attribute1)
+		r0 = returnFunc(ctx, attribute)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Attribute)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *Attribute) error); ok {
-		r1 = returnFunc(ctx, attribute1)
+		r1 = returnFunc(ctx, attribute)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -468,12 +468,12 @@ type MockRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - attribute1 *Attribute
-func (_e *MockRepository_Expecter) Update(ctx interface{}, attribute1 interface{}) *MockRepository_Update_Call {
-	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, attribute1)}
+//   - attribute *Attribute
+func (_e *MockRepository_Expecter) Update(ctx any, attribute any) *MockRepository_Update_Call {
+	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, attribute)}
 }
 
-func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, attribute1 *Attribute)) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, attribute *Attribute)) *MockRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -491,12 +491,12 @@ func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, attribut
 	return _c
 }
 
-func (_c *MockRepository_Update_Call) Return(attribute11 *Attribute, err error) *MockRepository_Update_Call {
-	_c.Call.Return(attribute11, err)
+func (_c *MockRepository_Update_Call) Return(attribute1 *Attribute, err error) *MockRepository_Update_Call {
+	_c.Call.Return(attribute1, err)
 	return _c
 }
 
-func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, attribute1 *Attribute) (*Attribute, error)) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, attribute *Attribute) (*Attribute, error)) *MockRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
