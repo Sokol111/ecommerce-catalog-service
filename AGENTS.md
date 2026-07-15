@@ -8,7 +8,7 @@ APIs, persists to MongoDB, and publishes domain events to Kafka via a **transact
 Downstream query services project those events into their own read models — this service never
 serves reads on their behalf.
 
-This repo is one module of a larger multi-repo workspace (see the workspace-root `CLAUDE.md` one
+This repo is one module of a larger multi-repo workspace (see the workspace-root `AGENTS.md` one
 directory up for cross-repo rules, `go.work`, and the local k3d/Tilt stack). Locally, dependencies
 on `ecommerce-commons` and the `*-api` repos resolve through the root `go.work`, so changes in
 those repos are visible here immediately with no release/bump.
@@ -103,4 +103,5 @@ repository query.
   `logger`, `observability` (OpenTelemetry).
 - **CI** (`.github/workflows/ci.yml`) delegates to the shared `go-ci.yml` in
   `ecommerce-infrastructure`; coverage excludes mocks, `module.go`, `main.go`, and infrastructure
-  glue. Editing `.go` files triggers auto-format hooks (see workspace-root `CLAUDE.md`).
+   glue. The workspace OpenCode plugin auto-formats edited `.go` files (see workspace-root
+   `AGENTS.md`).
