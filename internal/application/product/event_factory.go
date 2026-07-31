@@ -3,7 +3,7 @@ package product
 import (
 	"context"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
 )
 
 // ProductEventFactory creates product events

@@ -5,14 +5,14 @@ import (
 	"github.com/samber/lo"
 )
 
-type productMapper struct{}
+type ProductMapper struct{}
 
-func newProductMapper() *productMapper {
-	return &productMapper{}
+func NewProductMapper() *ProductMapper {
+	return &ProductMapper{}
 }
 
-func (m *productMapper) ToEntity(p *product.Product) *productEntity {
-	return &productEntity{
+func (m *ProductMapper) ToEntity(p *product.Product) *ProductEntity {
+	return &ProductEntity{
 		ID:          p.ID,
 		Version:     p.Version,
 		Name:        p.Name,
@@ -28,7 +28,7 @@ func (m *productMapper) ToEntity(p *product.Product) *productEntity {
 	}
 }
 
-func (m *productMapper) ToDomain(e *productEntity) *product.Product {
+func (m *ProductMapper) ToDomain(e *ProductEntity) *product.Product {
 	return product.Reconstruct(
 		e.ID,
 		e.Version,
@@ -45,19 +45,19 @@ func (m *productMapper) ToDomain(e *productEntity) *product.Product {
 	)
 }
 
-func (m *productMapper) GetID(e *productEntity) string {
+func (m *ProductMapper) GetID(e *ProductEntity) string {
 	return e.ID
 }
 
-func (m *productMapper) GetVersion(e *productEntity) int64 {
+func (m *ProductMapper) GetVersion(e *ProductEntity) int64 {
 	return e.Version
 }
 
-func (m *productMapper) SetVersion(e *productEntity, version int64) {
+func (m *ProductMapper) SetVersion(e *ProductEntity, version int64) {
 	e.Version = version
 }
 
-func (m *productMapper) attributesToEntities(attrs []product.AttributeValue) []productAttributeEntity {
+func (m *ProductMapper) attributesToEntities(attrs []product.AttributeValue) []ProductAttributeEntity {
 	if attrs == nil {
 		return nil
 	}
@@ -65,8 +65,8 @@ func (m *productMapper) attributesToEntities(attrs []product.AttributeValue) []p
 	return lo.Map(attrs, mapProductAttributeToEntity)
 }
 
-func mapProductAttributeToEntity(attr product.AttributeValue, _ int) productAttributeEntity {
-	return productAttributeEntity{
+func mapProductAttributeToEntity(attr product.AttributeValue, _ int) ProductAttributeEntity {
+	return ProductAttributeEntity{
 		AttributeID:      attr.AttributeID,
 		AttributeSlug:    attr.AttributeSlug,
 		OptionSlugValue:  attr.OptionSlugValue,
@@ -77,7 +77,7 @@ func mapProductAttributeToEntity(attr product.AttributeValue, _ int) productAttr
 	}
 }
 
-func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []product.AttributeValue {
+func (m *ProductMapper) attributesToDomain(entities []ProductAttributeEntity) []product.AttributeValue {
 	if entities == nil {
 		return nil
 	}
@@ -85,7 +85,7 @@ func (m *productMapper) attributesToDomain(entities []productAttributeEntity) []
 	return lo.Map(entities, mapProductAttributeToDomain)
 }
 
-func mapProductAttributeToDomain(e productAttributeEntity, _ int) product.AttributeValue {
+func mapProductAttributeToDomain(e ProductAttributeEntity, _ int) product.AttributeValue {
 	return product.AttributeValue{
 		AttributeID:      e.AttributeID,
 		AttributeSlug:    e.AttributeSlug,

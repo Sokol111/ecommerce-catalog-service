@@ -19,7 +19,7 @@ func ptrBool(v bool) *bool {
 }
 
 func TestProductMapper_ToEntity(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
@@ -141,11 +141,11 @@ func TestProductMapper_ToEntity(t *testing.T) {
 }
 
 func TestProductMapper_ToDomain(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &productEntity{
+		entity := &ProductEntity{
 			ID:          "prod-123",
 			Version:     5,
 			Name:        "MacBook Pro",
@@ -155,7 +155,7 @@ func TestProductMapper_ToDomain(t *testing.T) {
 			ImageID:     ptr("img-macbook"),
 			CategoryID:  ptr("cat-laptops"),
 			Enabled:     true,
-			Attributes: []productAttributeEntity{
+			Attributes: []ProductAttributeEntity{
 				{AttributeID: "attr-cpu", OptionSlugValue: ptr("m3-pro")},
 				{AttributeID: "attr-ram", OptionSlugValues: []string{"16gb", "32gb"}},
 				{AttributeID: "attr-screen", NumericValue: ptrFloat64(14.2)},
@@ -186,7 +186,7 @@ func TestProductMapper_ToDomain(t *testing.T) {
 
 	t.Run("maps entity without optional fields", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &productEntity{
+		entity := &ProductEntity{
 			ID:         "prod-456",
 			Version:    1,
 			Name:       "Basic Product",
@@ -211,7 +211,7 @@ func TestProductMapper_ToDomain(t *testing.T) {
 		loc, _ := time.LoadLocation("Asia/Tokyo")
 		localTime := time.Date(2024, 3, 20, 9, 0, 0, 0, loc)
 
-		entity := &productEntity{
+		entity := &ProductEntity{
 			ID:         "prod-789",
 			Version:    1,
 			Name:       "Test",
@@ -230,25 +230,25 @@ func TestProductMapper_ToDomain(t *testing.T) {
 }
 
 func TestProductMapper_GetID(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
-	entity := &productEntity{ID: "product-id-xyz"}
+	entity := &ProductEntity{ID: "product-id-xyz"}
 
 	assert.Equal(t, "product-id-xyz", mapper.GetID(entity))
 }
 
 func TestProductMapper_GetVersion(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
-	entity := &productEntity{Version: 12}
+	entity := &ProductEntity{Version: 12}
 
 	assert.Equal(t, int64(12), mapper.GetVersion(entity))
 }
 
 func TestProductMapper_SetVersion(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
-	entity := &productEntity{Version: 1}
+	entity := &ProductEntity{Version: 1}
 
 	mapper.SetVersion(entity, 20)
 
@@ -256,7 +256,7 @@ func TestProductMapper_SetVersion(t *testing.T) {
 }
 
 func TestProductMapper_RoundTrip(t *testing.T) {
-	mapper := newProductMapper()
+	mapper := NewProductMapper()
 
 	t.Run("domain -> entity -> domain preserves all data", func(t *testing.T) {
 		now := time.Now().UTC().Truncate(time.Millisecond)
@@ -357,7 +357,7 @@ func TestMapProductAttributeToEntity(t *testing.T) {
 
 func TestMapProductAttributeToDomain(t *testing.T) {
 	t.Run("maps single option value", func(t *testing.T) {
-		entity := productAttributeEntity{
+		entity := ProductAttributeEntity{
 			AttributeID:     "attr-1",
 			OptionSlugValue: ptr("blue"),
 		}
@@ -370,7 +370,7 @@ func TestMapProductAttributeToDomain(t *testing.T) {
 	})
 
 	t.Run("maps multiple option values", func(t *testing.T) {
-		entity := productAttributeEntity{
+		entity := ProductAttributeEntity{
 			AttributeID:      "attr-2",
 			OptionSlugValues: []string{"xs", "s", "m", "l", "xl"},
 		}
@@ -382,7 +382,7 @@ func TestMapProductAttributeToDomain(t *testing.T) {
 	})
 
 	t.Run("maps all value types", func(t *testing.T) {
-		entity := productAttributeEntity{
+		entity := ProductAttributeEntity{
 			AttributeID:      "attr-3",
 			OptionSlugValue:  ptr("value"),
 			OptionSlugValues: []string{"x", "y"},

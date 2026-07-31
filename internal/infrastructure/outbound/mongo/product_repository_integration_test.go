@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,15 +23,15 @@ func TestProductRepository_Insert(t *testing.T) {
 	imageID := uuid.New().String()
 	prod, err := product.NewProduct(
 		"Test Product",
-		ptrI("A test product description"),
+		new("A test product description"),
 		99.99,
 		10,
 		&imageID,
 		&categoryID,
 		true,
 		[]product.AttributeValue{
-			{AttributeID: uuid.New().String(), OptionSlugValue: ptrI("red")},
-			{AttributeID: uuid.New().String(), NumericValue: ptrI(float64(42))},
+			{AttributeID: uuid.New().String(), OptionSlugValue: new("red")},
+			{AttributeID: uuid.New().String(), NumericValue: new(float64(42))},
 		},
 	)
 	require.NoError(t, err)
@@ -73,7 +73,7 @@ func TestProductRepository_Update(t *testing.T) {
 	// Update using domain method (modifies in place) - enable product requires image and category
 	imageID := uuid.New().String()
 	categoryID := uuid.New().String()
-	err = prod.Update("Updated Name", ptrI("New description"), 20.00, 15, &imageID, &categoryID, true, nil)
+	err = prod.Update("Updated Name", new("New description"), 20.00, 15, &imageID, &categoryID, true, nil)
 	require.NoError(t, err)
 
 	result, err := testProductRepo.Update(ctx, prod)

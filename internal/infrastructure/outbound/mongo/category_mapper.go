@@ -5,14 +5,14 @@ import (
 	"github.com/samber/lo"
 )
 
-type categoryMapper struct{}
+type CategoryMapper struct{}
 
-func newCategoryMapper() *categoryMapper {
-	return &categoryMapper{}
+func NewCategoryMapper() *CategoryMapper {
+	return &CategoryMapper{}
 }
 
-func (m *categoryMapper) ToEntity(c *category.Category) *categoryEntity {
-	return &categoryEntity{
+func (m *CategoryMapper) ToEntity(c *category.Category) *CategoryEntity {
+	return &CategoryEntity{
 		ID:         c.ID,
 		Version:    c.Version,
 		Name:       c.Name,
@@ -23,7 +23,7 @@ func (m *categoryMapper) ToEntity(c *category.Category) *categoryEntity {
 	}
 }
 
-func (m *categoryMapper) ToDomain(e *categoryEntity) *category.Category {
+func (m *CategoryMapper) ToDomain(e *CategoryEntity) *category.Category {
 	return category.Reconstruct(
 		e.ID,
 		e.Version,
@@ -35,7 +35,7 @@ func (m *categoryMapper) ToDomain(e *categoryEntity) *category.Category {
 	)
 }
 
-func (m *categoryMapper) attributesToEntities(attrs []category.CategoryAttribute) []categoryAttributeEntity {
+func (m *CategoryMapper) attributesToEntities(attrs []category.CategoryAttribute) []CategoryAttributeEntity {
 	if attrs == nil {
 		return nil
 	}
@@ -43,8 +43,8 @@ func (m *categoryMapper) attributesToEntities(attrs []category.CategoryAttribute
 	return lo.Map(attrs, mapCategoryAttributeToEntity)
 }
 
-func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) categoryAttributeEntity {
-	return categoryAttributeEntity{
+func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) CategoryAttributeEntity {
+	return CategoryAttributeEntity{
 		AttributeID: attr.AttributeID,
 		Slug:        attr.Slug,
 		Role:        string(attr.Role),
@@ -54,7 +54,7 @@ func mapCategoryAttributeToEntity(attr category.CategoryAttribute, _ int) catego
 	}
 }
 
-func (m *categoryMapper) attributesToDomain(entities []categoryAttributeEntity) []category.CategoryAttribute {
+func (m *CategoryMapper) attributesToDomain(entities []CategoryAttributeEntity) []category.CategoryAttribute {
 	if entities == nil {
 		return nil
 	}
@@ -62,7 +62,7 @@ func (m *categoryMapper) attributesToDomain(entities []categoryAttributeEntity) 
 	return lo.Map(entities, mapCategoryAttributeToDomain)
 }
 
-func mapCategoryAttributeToDomain(attr categoryAttributeEntity, _ int) category.CategoryAttribute {
+func mapCategoryAttributeToDomain(attr CategoryAttributeEntity, _ int) category.CategoryAttribute {
 	return category.CategoryAttribute{
 		AttributeID: attr.AttributeID,
 		Slug:        attr.Slug,
@@ -73,14 +73,14 @@ func mapCategoryAttributeToDomain(attr categoryAttributeEntity, _ int) category.
 	}
 }
 
-func (m *categoryMapper) GetID(e *categoryEntity) string {
+func (m *CategoryMapper) GetID(e *CategoryEntity) string {
 	return e.ID
 }
 
-func (m *categoryMapper) GetVersion(e *categoryEntity) int64 {
+func (m *CategoryMapper) GetVersion(e *CategoryEntity) int64 {
 	return e.Version
 }
 
-func (m *categoryMapper) SetVersion(e *categoryEntity, version int64) {
+func (m *CategoryMapper) SetVersion(e *CategoryEntity, version int64) {
 	e.Version = version
 }

@@ -4,26 +4,17 @@ import (
 	"context"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
-	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type categoryRepository struct {
-	*commonsmongo.GenericRepository[category.Category, categoryEntity]
+	*commonsmongo.GenericRepository[category.Category, CategoryEntity]
 }
 
-func newCategoryRepository(admin commonsmongo.Admin, mapper *categoryMapper, resolver commonsmongo.DatabaseResolver) (category.Repository, error) {
-	genericRepo, err := commonsmongo.NewTenantRepository(
-		admin, "category",
-		mapper,
-		resolver,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+func NewCategoryRepository(genericRepository *commonsmongo.GenericRepository[category.Category, CategoryEntity]) (category.Repository, error) {
 	return &categoryRepository{
-		GenericRepository: genericRepo,
+		GenericRepository: genericRepository,
 	}, nil
 }
 

@@ -7,7 +7,7 @@ package product
 import (
 	"context"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	mock "github.com/stretchr/testify/mock"
 )
 

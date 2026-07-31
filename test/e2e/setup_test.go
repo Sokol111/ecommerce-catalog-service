@@ -6,187 +6,82 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
-	catalogv1connect "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1/catalogv1connect"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/application"
-	internalconnect "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/connect"
-	"github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo"
-	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
-	"github.com/Sokol111/ecommerce-commons/pkg/core/config"
+	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/health"
-	commons_http "github.com/Sokol111/ecommerce-commons/pkg/http"
-	"github.com/Sokol111/ecommerce-commons/pkg/security/validation"
+	fx_commons "github.com/Sokol111/ecommerce-commons/pkg/fxconfig"
+	"github.com/Sokol111/ecommerce-commons/pkg/http/grpc/client"
 	"github.com/Sokol111/ecommerce-commons/pkg/testutil/container"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/http/server"
-	commons_messaging "github.com/Sokol111/ecommerce-commons/pkg/messaging"
-	kafka_config "github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/config"
-	commons_observability "github.com/Sokol111/ecommerce-commons/pkg/observability"
-	commons_persistence "github.com/Sokol111/ecommerce-commons/pkg/persistence"
-	commons_mongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	fx_application "github.com/Sokol111/ecommerce-catalog-service/internal/application/fxconfig"
+	fx_infrastructure "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/fxconfig"
 )
 
 var (
-	testApp                     *fxtest.App
-	testServerURL               string
-	testAttributeClient         catalogv1connect.AttributeServiceClient
-	testMongoContainer          *container.MongoDBContainer
-	testSchemaRegistryContainer *container.SchemaRegistryContainer
-	testReadinessWaiter         health.ReadinessWaiter
+	testAttributeClient catalogv1.AttributeServiceClient
+	testProductClient   catalogv1.ProductServiceClient
+	testCategoryClient  catalogv1.CategoryServiceClient
 )
 
 const testServerPort = 18080
 
 func TestMain(m *testing.M) {
-	ctx := context.Background()
-
-	startContainers(ctx)
-	startApp(ctx)
-	createTestClient()
+	mongoContainer := container.StartDefaultMongoDBContainer()
+	defer mongoContainer.Terminate()
+	redpandaContainer := container.StartDefaultRedpandaContainer()
+	defer redpandaContainer.Terminate()
+	testApp := startApp(mongoContainer, redpandaContainer)
+	defer testApp.RequireStop()
 
 	code := m.Run()
-
-	stopApp()
-	stopContainers()
 
 	os.Exit(code)
 }
 
-func startContainers(ctx context.Context) {
-	var err error
+func startApp(mongoContainer *container.MongoDBContainer, redpandaContainer *container.RedpandaContainer) *fxtest.App {
+	os.Setenv("APP_SERVICE_NAME", "ecommerce-catalog-service")
+	os.Setenv("APP_ENV", "e2e")
+	os.Setenv("APP_SERVICE_VERSION", "1.0.0")
+	os.Setenv("MONGO__CONNECTION_STRING", mongoContainer.ConnectionString)
+	os.Setenv("MONGO__DATABASE_NAME", "e2e_test")
+	os.Setenv("MONGO__MIGRATIONS_PATH", "../../db/migrations")
+	os.Setenv("SERVER__PORT", fmt.Sprintf("%d", testServerPort))
+	os.Setenv("KAFKA__BROKER", redpandaContainer.KafkaBroker)
 
-	// Start MongoDB container
-	testMongoContainer, err = container.StartMongoDBContainer(ctx, container.WithReplicaSet("rs0"))
-	if err != nil {
-		log.Fatalf("failed to start mongodb container: %v", err)
-	}
+	var ready health.ReadinessWaiter
 
-	// Start Schema Registry container (Redpanda with embedded Kafka)
-	testSchemaRegistryContainer, err = container.StartSchemaRegistryContainer(ctx)
-	if err != nil {
-		log.Fatalf("failed to start schema registry container: %v", err)
-	}
-}
-
-func stopContainers() {
-	ctx := context.Background()
-	if err := testMongoContainer.Terminate(ctx); err != nil {
-		log.Printf("failed to terminate mongodb: %v", err)
-	}
-	if err := testSchemaRegistryContainer.Terminate(ctx); err != nil {
-		log.Printf("failed to terminate schema registry: %v", err)
-	}
-}
-
-func startApp(ctx context.Context) {
-	kafkaBroker, err := testSchemaRegistryContainer.KafkaBroker(ctx)
-	if err != nil {
-		log.Fatalf("failed to get kafka broker: %v", err)
-	}
-
-	testApp = fxtest.New(
+	app := fxtest.New(
 		&testing.T{},
 
-		// Extract ReadinessWaiter from DI
-		fx.Populate(&testReadinessWaiter),
+		fx.Populate(&ready),
 
-		// Commons modules with test configs
-		commons_core.NewCoreModule(
-			commons_core.WithAppConfig(
-				config.AppConfig{
-					ServiceName:    "ecommerce-catalog-service",
-					Environment:    "test",
-					ServiceVersion: "1.0.0",
-				},
-			),
-			commons_core.WithoutConfigFile(),
-			commons_core.WithoutEnvFile(),
-		),
-		commons_persistence.NewPersistenceModule(
-			commons_persistence.WithMongoConfig(
-				commons_mongo.Config{
-					ConnectionString: testMongoContainer.ConnectionString,
-					Database:         "catalog_e2e_test",
-					Migrations: commons_mongo.MigrationConfig{
-						Path: "../../db/migrations",
-					},
-				},
-			),
-		),
-		commons_http.NewHTTPModule(
-			commons_http.WithH2C(),
-			commons_http.WithServerConfig(
-				server.Config{
-					Port: testServerPort,
-				},
-			),
-		),
-		commons_observability.NewObservabilityModule(
-			commons_observability.WithoutMetrics(),
-			commons_observability.WithoutTracing(),
-		),
-		commons_messaging.NewMessagingModule(
-			commons_messaging.WithKafkaConfig(kafka_config.Config{
-				Brokers: kafkaBroker,
-			}),
-		),
-		validation.NewModule(validation.WithTestValidator()),
+		fx_commons.NewCommonsModule(),
+		fx_application.NewAppModule(),
+		fx_infrastructure.NewInfrastructureModule(),
+	).RequireStart()
 
-		// Application modules
-		mongo.Module(),
-		application.Module(),
-		internalconnect.Module(),
-	)
-
-	testApp.RequireStart()
-
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	// Wait for all components to be ready
-	readyCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	if err = testReadinessWaiter.WaitReady(readyCtx); err != nil {
+	if err := ready.WaitReady(ctx); err != nil {
 		log.Fatalf("app not ready: %v", err)
 	}
 
-	testServerURL = fmt.Sprintf("http://localhost:%d", testServerPort)
-}
-
-func createTestClient() {
-	token := validation.GenerateAdminTestToken()
-	httpClient := &http.Client{}
-	opts := []connect.ClientOption{
-		connect.WithGRPC(),
-		connect.WithInterceptors(newBearerTokenInterceptor(token)),
+	grpcConn, err := client.NewGrpcConn(client.Config{
+		Address: fmt.Sprintf("localhost:%d", testServerPort),
+		Timeout: 10 * time.Second,
+	})
+	if err != nil {
+		log.Fatalf("failed to create gRPC connection: %v", err)
 	}
-	testAttributeClient = catalogv1connect.NewAttributeServiceClient(httpClient, testServerURL, opts...)
-}
-
-// bearerTokenInterceptor injects an Authorization header on every outbound request.
-type bearerTokenInterceptor struct{ token string }
-
-func newBearerTokenInterceptor(token string) connect.UnaryInterceptorFunc {
-	i := &bearerTokenInterceptor{token: token}
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			req.Header().Set("Authorization", "Bearer "+i.token)
-			return next(ctx, req)
-		}
-	}
-}
-
-func stopApp() {
-	testApp.RequireStop()
-}
-
-func cleanupDatabase(t *testing.T) {
-	t.Helper()
-	// Implement database cleanup between tests if needed
-	// Can use testClient to delete all entities or direct DB access
+	testAttributeClient = catalogv1.NewAttributeServiceClient(grpcConn)
+	testProductClient = catalogv1.NewProductServiceClient(grpcConn)
+	testCategoryClient = catalogv1.NewCategoryServiceClient(grpcConn)
+	return app
 }

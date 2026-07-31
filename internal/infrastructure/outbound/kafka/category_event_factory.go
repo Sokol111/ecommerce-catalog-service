@@ -6,15 +6,15 @@ import (
 	eventsv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/events/v1"
 	apiEvents "github.com/Sokol111/ecommerce-catalog-service-api/pkg/events"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type categoryEventFactory struct{}
 
-// newCategoryEventFactory creates a new CategoryEventFactory
-func newCategoryEventFactory() category.CategoryEventFactory {
+// NewCategoryEventFactory creates a new CategoryEventFactory
+func NewCategoryEventFactory() category.CategoryEventFactory {
 	return &categoryEventFactory{}
 }
 

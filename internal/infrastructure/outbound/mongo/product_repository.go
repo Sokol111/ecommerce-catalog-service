@@ -4,26 +4,17 @@ import (
 	"context"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
-	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type productRepository struct {
-	*commonsmongo.GenericRepository[product.Product, productEntity]
+	*commonsmongo.GenericRepository[product.Product, ProductEntity]
 }
 
-func newProductRepository(admin commonsmongo.Admin, mapper *productMapper, resolver commonsmongo.DatabaseResolver) (product.Repository, error) {
-	genericRepo, err := commonsmongo.NewTenantRepository(
-		admin, "product",
-		mapper,
-		resolver,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+func NewProductRepository(genericRepository *commonsmongo.GenericRepository[product.Product, ProductEntity]) (product.Repository, error) {
 	return &productRepository{
-		GenericRepository: genericRepo,
+		GenericRepository: genericRepository,
 	}, nil
 }
 

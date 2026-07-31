@@ -6,15 +6,15 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
 )
 
-type attributeMapper struct{}
+type AttributeMapper struct{}
 
-func newAttributeMapper() *attributeMapper {
-	return &attributeMapper{}
+func NewAttributeMapper() *AttributeMapper {
+	return &AttributeMapper{}
 }
 
-func (m *attributeMapper) ToEntity(a *attribute.Attribute) *attributeEntity {
-	options := lo.Map(a.Options, func(opt attribute.Option, _ int) optionEntity {
-		return optionEntity{
+func (m *AttributeMapper) ToEntity(a *attribute.Attribute) *AttributeEntity {
+	options := lo.Map(a.Options, func(opt attribute.Option, _ int) OptionEntity {
+		return OptionEntity{
 			Name:      opt.Name,
 			Slug:      opt.Slug,
 			ColorCode: opt.ColorCode,
@@ -22,7 +22,7 @@ func (m *attributeMapper) ToEntity(a *attribute.Attribute) *attributeEntity {
 		}
 	})
 
-	return &attributeEntity{
+	return &AttributeEntity{
 		ID:         a.ID,
 		Version:    a.Version,
 		Name:       a.Name,
@@ -36,8 +36,8 @@ func (m *attributeMapper) ToEntity(a *attribute.Attribute) *attributeEntity {
 	}
 }
 
-func (m *attributeMapper) ToDomain(e *attributeEntity) *attribute.Attribute {
-	options := lo.Map(e.Options, func(opt optionEntity, _ int) attribute.Option {
+func (m *AttributeMapper) ToDomain(e *AttributeEntity) *attribute.Attribute {
+	options := lo.Map(e.Options, func(opt OptionEntity, _ int) attribute.Option {
 		return attribute.Option{
 			Name:      opt.Name,
 			Slug:      opt.Slug,
@@ -60,14 +60,14 @@ func (m *attributeMapper) ToDomain(e *attributeEntity) *attribute.Attribute {
 	)
 }
 
-func (m *attributeMapper) GetID(e *attributeEntity) string {
+func (m *AttributeMapper) GetID(e *AttributeEntity) string {
 	return e.ID
 }
 
-func (m *attributeMapper) GetVersion(e *attributeEntity) int64 {
+func (m *AttributeMapper) GetVersion(e *AttributeEntity) int64 {
 	return e.Version
 }
 
-func (m *attributeMapper) SetVersion(e *attributeEntity, version int64) {
+func (m *AttributeMapper) SetVersion(e *AttributeEntity, version int64) {
 	e.Version = version
 }

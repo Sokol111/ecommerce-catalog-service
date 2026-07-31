@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -102,7 +102,7 @@ func TestAttributeRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 
 	// Update using domain method (modifies in place)
-	err = attr.Update("Material Type", ptrI("kg"), true, nil)
+	err = attr.Update("Material Type", new("kg"), true, nil)
 	require.NoError(t, err)
 
 	result, err := testAttributeRepo.Update(ctx, attr)
@@ -126,7 +126,7 @@ func TestAttributeRepository_FindByID(t *testing.T) {
 		"Weight",
 		"weight",
 		attribute.AttributeTypeRange,
-		ptrI("kg"),
+		new("kg"),
 		true,
 		nil,
 	)

@@ -3,7 +3,7 @@ package attribute
 import (
 	"context"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
 )
 
 // AttributeEventFactory defines the port for creating attribute event outbox messages.

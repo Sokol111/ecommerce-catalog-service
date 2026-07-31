@@ -7,27 +7,18 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
-	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type attributeRepository struct {
-	*commonsmongo.GenericRepository[attribute.Attribute, attributeEntity]
+	*commonsmongo.GenericRepository[attribute.Attribute, AttributeEntity]
 }
 
-func newAttributeRepository(admin commonsmongo.Admin, mapper *attributeMapper, resolver commonsmongo.DatabaseResolver) (attribute.Repository, error) {
-	genericRepo, err := commonsmongo.NewTenantRepository(
-		admin, "attribute",
-		mapper,
-		resolver,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+func NewAttributeRepository(genericRepository *commonsmongo.GenericRepository[attribute.Attribute, AttributeEntity]) (attribute.Repository, error) {
 	return &attributeRepository{
-		GenericRepository: genericRepo,
+		GenericRepository: genericRepository,
 	}, nil
 }
 

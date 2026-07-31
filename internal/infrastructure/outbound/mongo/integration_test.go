@@ -15,14 +15,13 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
-	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"github.com/Sokol111/ecommerce-commons/pkg/testutil/container"
 )
 
 var (
 	testMongoContainer *container.MongoDBContainer
 	testDatabase       *mongo.Database
-	testMongo          commonsmongo.Admin
 
 	// Repositories for tests
 	testAttributeRepo attribute.Repository
@@ -33,32 +32,45 @@ var (
 const testDBName = "catalog_test"
 
 func TestMain(m *testing.M) {
-	ctx := context.Background()
-
-	// Start MongoDB container
-	var err error
-	testMongoContainer, err = container.StartMongoDBContainer(ctx)
-	if err != nil {
-		log.Fatalf("failed to start mongodb container: %v", err)
-	}
-
+	testMongoContainer = container.StartDefaultMongoDBContainer()
+	defer testMongoContainer.Terminate()
 	testDatabase = testMongoContainer.Database(testDBName)
-	testMongo = &testMongoWrapper{db: testDatabase, client: testMongoContainer.Client}
 
-	resolver := func(_ context.Context) string { return testDBName }
-
+	attributeGenericRepo, err := commonsmongo.NewGenericRepository(
+		commonsmongo.NewStaticCollectionProvider(testDatabase.Collection("attribute")),
+		NewAttributeMapper(),
+	)
+	if err != nil {
+		log.Fatalf("failed to create attribute generic repository: %v", err)
+	}
 	// Create repositories with mappers
-	testAttributeRepo, err = newAttributeRepository(testMongo, newAttributeMapper(), resolver)
+	testAttributeRepo, err = NewAttributeRepository(attributeGenericRepo)
 	if err != nil {
 		log.Fatalf("failed to create attribute repository: %v", err)
 	}
 
-	testCategoryRepo, err = newCategoryRepository(testMongo, newCategoryMapper(), resolver)
+	categoryGenericRepo, err := commonsmongo.NewGenericRepository(
+		commonsmongo.NewStaticCollectionProvider(testDatabase.Collection("category")),
+		NewCategoryMapper(),
+	)
+	if err != nil {
+		log.Fatalf("failed to create category generic repository: %v", err)
+	}
+
+	testCategoryRepo, err = NewCategoryRepository(categoryGenericRepo)
 	if err != nil {
 		log.Fatalf("failed to create category repository: %v", err)
 	}
 
-	testProductRepo, err = newProductRepository(testMongo, newProductMapper(), resolver)
+	productGenericRepo, err := commonsmongo.NewGenericRepository(
+		commonsmongo.NewStaticCollectionProvider(testDatabase.Collection("product")),
+		NewProductMapper(),
+	)
+	if err != nil {
+		log.Fatalf("failed to create product generic repository: %v", err)
+	}
+
+	testProductRepo, err = NewProductRepository(productGenericRepo)
 	if err != nil {
 		log.Fatalf("failed to create product repository: %v", err)
 	}
@@ -71,30 +83,7 @@ func TestMain(m *testing.M) {
 	// Run tests
 	code := m.Run()
 
-	// Cleanup
-	if err := testMongoContainer.Terminate(context.Background()); err != nil {
-		log.Printf("failed to terminate mongodb: %v", err)
-	}
-
 	os.Exit(code)
-}
-
-// testMongoWrapper implements commonsmongo.Admin interface
-type testMongoWrapper struct {
-	db     *mongo.Database
-	client *mongo.Client
-}
-
-func (m *testMongoWrapper) GetCollection(name string) *mongo.Collection {
-	return m.db.Collection(name)
-}
-
-func (m *testMongoWrapper) GetDatabase() *mongo.Database {
-	return m.db
-}
-
-func (m *testMongoWrapper) StartSession(ctx context.Context) (*mongo.Session, error) {
-	return m.client.StartSession()
 }
 
 func createIndexes(ctx context.Context) error {
@@ -119,8 +108,4 @@ func cleanupCollection(t *testing.T, collectionName string) {
 	if err != nil {
 		t.Fatalf("failed to cleanup collection %s: %v", collectionName, err)
 	}
-}
-
-func ptrI[T any](v T) *T {
-	return &v
 }

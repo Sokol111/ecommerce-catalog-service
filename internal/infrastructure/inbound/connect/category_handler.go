@@ -7,18 +7,32 @@ import (
 	"connectrpc.com/connect"
 	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type categoryHandler struct {
+type CategoryHandler struct {
 	createHandler  category.CreateCategoryCommandHandler
 	updateHandler  category.UpdateCategoryCommandHandler
 	getByIDHandler category.GetCategoryByIDQueryHandler
 	getListHandler category.GetListCategoriesQueryHandler
 }
 
-func (h *categoryHandler) CreateCategory(ctx context.Context, req *connect.Request[catalogv1.CreateCategoryRequest]) (*connect.Response[catalogv1.CreateCategoryResponse], error) {
+func NewCategoryHandler(
+	createHandler category.CreateCategoryCommandHandler,
+	updateHandler category.UpdateCategoryCommandHandler,
+	getByIDHandler category.GetCategoryByIDQueryHandler,
+	getListHandler category.GetListCategoriesQueryHandler,
+) *CategoryHandler {
+	return &CategoryHandler{
+		createHandler:  createHandler,
+		updateHandler:  updateHandler,
+		getByIDHandler: getByIDHandler,
+		getListHandler: getListHandler,
+	}
+}
+
+func (h *CategoryHandler) CreateCategory(ctx context.Context, req *connect.Request[catalogv1.CreateCategoryRequest]) (*connect.Response[catalogv1.CreateCategoryResponse], error) {
 	cmd := category.CreateCategoryCommand{
 		Name:       req.Msg.GetName(),
 		Enabled:    req.Msg.GetEnabled(),
@@ -38,7 +52,7 @@ func (h *categoryHandler) CreateCategory(ctx context.Context, req *connect.Reque
 	}), nil
 }
 
-func (h *categoryHandler) UpdateCategory(ctx context.Context, req *connect.Request[catalogv1.UpdateCategoryRequest]) (*connect.Response[catalogv1.UpdateCategoryResponse], error) {
+func (h *CategoryHandler) UpdateCategory(ctx context.Context, req *connect.Request[catalogv1.UpdateCategoryRequest]) (*connect.Response[catalogv1.UpdateCategoryResponse], error) {
 	cmd := category.UpdateCategoryCommand{
 		ID:         req.Msg.GetId(),
 		Version:    req.Msg.GetVersion(),
@@ -57,7 +71,7 @@ func (h *categoryHandler) UpdateCategory(ctx context.Context, req *connect.Reque
 	}), nil
 }
 
-func (h *categoryHandler) GetCategoryById(ctx context.Context, req *connect.Request[catalogv1.GetCategoryByIdRequest]) (*connect.Response[catalogv1.GetCategoryByIdResponse], error) { //nolint:revive
+func (h *CategoryHandler) GetCategoryById(ctx context.Context, req *connect.Request[catalogv1.GetCategoryByIdRequest]) (*connect.Response[catalogv1.GetCategoryByIdResponse], error) { //nolint:revive
 	q := category.GetCategoryByIDQuery{ID: req.Msg.GetId()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
@@ -70,7 +84,7 @@ func (h *categoryHandler) GetCategoryById(ctx context.Context, req *connect.Requ
 	}), nil
 }
 
-func (h *categoryHandler) GetCategoryList(ctx context.Context, req *connect.Request[catalogv1.GetCategoryListRequest]) (*connect.Response[catalogv1.GetCategoryListResponse], error) {
+func (h *CategoryHandler) GetCategoryList(ctx context.Context, req *connect.Request[catalogv1.GetCategoryListRequest]) (*connect.Response[catalogv1.GetCategoryListResponse], error) {
 	q := category.GetListCategoriesQuery{
 		Page:    int(req.Msg.GetPage()),
 		Size:    int(req.Msg.GetSize()),

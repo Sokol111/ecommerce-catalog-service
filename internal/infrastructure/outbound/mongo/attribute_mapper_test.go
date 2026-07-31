@@ -15,7 +15,7 @@ func ptr[T any](v T) *T {
 }
 
 func TestAttributeMapper_ToEntity(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
@@ -104,11 +104,11 @@ func TestAttributeMapper_ToEntity(t *testing.T) {
 }
 
 func TestAttributeMapper_ToDomain(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &attributeEntity{
+		entity := &AttributeEntity{
 			ID:      "attr-123",
 			Version: 3,
 			Name:    "Size",
@@ -116,7 +116,7 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 			Type:    "multiple",
 			Unit:    ptr("cm"),
 			Enabled: true,
-			Options: []optionEntity{
+			Options: []OptionEntity{
 				{Name: "Small", Slug: "small", ColorCode: nil, SortOrder: 1},
 				{Name: "Medium", Slug: "medium", ColorCode: nil, SortOrder: 2},
 				{Name: "Large", Slug: "large", ColorCode: nil, SortOrder: 3},
@@ -146,7 +146,7 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 
 	t.Run("maps entity without options", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &attributeEntity{
+		entity := &AttributeEntity{
 			ID:         "attr-456",
 			Version:    1,
 			Name:       "Description",
@@ -172,7 +172,7 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 		loc, _ := time.LoadLocation("America/New_York")
 		localTime := time.Date(2024, 1, 15, 10, 30, 0, 0, loc)
 
-		entity := &attributeEntity{
+		entity := &AttributeEntity{
 			ID:         "attr-789",
 			Version:    1,
 			Name:       "Test",
@@ -192,25 +192,25 @@ func TestAttributeMapper_ToDomain(t *testing.T) {
 }
 
 func TestAttributeMapper_GetID(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
-	entity := &attributeEntity{ID: "test-id-123"}
+	entity := &AttributeEntity{ID: "test-id-123"}
 
 	assert.Equal(t, "test-id-123", mapper.GetID(entity))
 }
 
 func TestAttributeMapper_GetVersion(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
-	entity := &attributeEntity{Version: 5}
+	entity := &AttributeEntity{Version: 5}
 
 	assert.Equal(t, int64(5), mapper.GetVersion(entity))
 }
 
 func TestAttributeMapper_SetVersion(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
-	entity := &attributeEntity{Version: 1}
+	entity := &AttributeEntity{Version: 1}
 
 	mapper.SetVersion(entity, 10)
 
@@ -218,7 +218,7 @@ func TestAttributeMapper_SetVersion(t *testing.T) {
 }
 
 func TestAttributeMapper_RoundTrip(t *testing.T) {
-	mapper := newAttributeMapper()
+	mapper := NewAttributeMapper()
 
 	t.Run("domain -> entity -> domain preserves all data", func(t *testing.T) {
 		now := time.Now().UTC().Truncate(time.Millisecond)

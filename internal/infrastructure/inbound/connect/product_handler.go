@@ -7,11 +7,11 @@ import (
 	"connectrpc.com/connect"
 	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/product"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type productHandler struct {
+type ProductHandler struct {
 	createHandler  product.CreateProductCommandHandler
 	updateHandler  product.UpdateProductCommandHandler
 	deleteHandler  product.DeleteProductCommandHandler
@@ -19,7 +19,23 @@ type productHandler struct {
 	getListHandler product.GetListProductsQueryHandler
 }
 
-func (h *productHandler) CreateProduct(ctx context.Context, req *connect.Request[catalogv1.CreateProductRequest]) (*connect.Response[catalogv1.CreateProductResponse], error) {
+func NewProductHandler(
+	createHandler product.CreateProductCommandHandler,
+	updateHandler product.UpdateProductCommandHandler,
+	deleteHandler product.DeleteProductCommandHandler,
+	getByIDHandler product.GetProductByIDQueryHandler,
+	getListHandler product.GetListProductsQueryHandler,
+) *ProductHandler {
+	return &ProductHandler{
+		createHandler:  createHandler,
+		updateHandler:  updateHandler,
+		deleteHandler:  deleteHandler,
+		getByIDHandler: getByIDHandler,
+		getListHandler: getListHandler,
+	}
+}
+
+func (h *ProductHandler) CreateProduct(ctx context.Context, req *connect.Request[catalogv1.CreateProductRequest]) (*connect.Response[catalogv1.CreateProductResponse], error) {
 	cmd := product.CreateProductCommand{
 		Name:        req.Msg.GetName(),
 		Description: req.Msg.Description,
@@ -44,7 +60,7 @@ func (h *productHandler) CreateProduct(ctx context.Context, req *connect.Request
 	}), nil
 }
 
-func (h *productHandler) UpdateProduct(ctx context.Context, req *connect.Request[catalogv1.UpdateProductRequest]) (*connect.Response[catalogv1.UpdateProductResponse], error) {
+func (h *ProductHandler) UpdateProduct(ctx context.Context, req *connect.Request[catalogv1.UpdateProductRequest]) (*connect.Response[catalogv1.UpdateProductResponse], error) {
 	cmd := product.UpdateProductCommand{
 		ID:          req.Msg.GetId(),
 		Version:     req.Msg.GetVersion(),
@@ -68,7 +84,7 @@ func (h *productHandler) UpdateProduct(ctx context.Context, req *connect.Request
 	}), nil
 }
 
-func (h *productHandler) GetProductById(ctx context.Context, req *connect.Request[catalogv1.GetProductByIdRequest]) (*connect.Response[catalogv1.GetProductByIdResponse], error) { //nolint:revive
+func (h *ProductHandler) GetProductById(ctx context.Context, req *connect.Request[catalogv1.GetProductByIdRequest]) (*connect.Response[catalogv1.GetProductByIdResponse], error) { //nolint:revive
 	q := product.GetProductByIDQuery{ID: req.Msg.GetId()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
@@ -81,7 +97,7 @@ func (h *productHandler) GetProductById(ctx context.Context, req *connect.Reques
 	}), nil
 }
 
-func (h *productHandler) DeleteProduct(ctx context.Context, req *connect.Request[catalogv1.DeleteProductRequest]) (*connect.Response[catalogv1.DeleteProductResponse], error) {
+func (h *ProductHandler) DeleteProduct(ctx context.Context, req *connect.Request[catalogv1.DeleteProductRequest]) (*connect.Response[catalogv1.DeleteProductResponse], error) {
 	cmd := product.DeleteProductCommand{ID: req.Msg.GetId()}
 
 	if err := h.deleteHandler.Handle(ctx, cmd); err != nil {
@@ -91,7 +107,7 @@ func (h *productHandler) DeleteProduct(ctx context.Context, req *connect.Request
 	return connect.NewResponse(&catalogv1.DeleteProductResponse{}), nil
 }
 
-func (h *productHandler) GetProductList(ctx context.Context, req *connect.Request[catalogv1.GetProductListRequest]) (*connect.Response[catalogv1.GetProductListResponse], error) {
+func (h *ProductHandler) GetProductList(ctx context.Context, req *connect.Request[catalogv1.GetProductListRequest]) (*connect.Response[catalogv1.GetProductListResponse], error) {
 	q := product.GetListProductsQuery{
 		Page:       int(req.Msg.GetPage()),
 		Size:       int(req.Msg.GetSize()),

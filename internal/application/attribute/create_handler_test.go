@@ -13,7 +13,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/testutil/mocks"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
 )
 
 // mockSendFunc is a no-op send function for tests

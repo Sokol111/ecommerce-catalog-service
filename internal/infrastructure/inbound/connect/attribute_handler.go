@@ -7,18 +7,32 @@ import (
 	"connectrpc.com/connect"
 	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type attributeHandler struct {
+type AttributeHandler struct {
 	createHandler  attribute.CreateAttributeCommandHandler
 	updateHandler  attribute.UpdateAttributeCommandHandler
 	getByIDHandler attribute.GetAttributeByIDQueryHandler
 	getListHandler attribute.GetAttributeListQueryHandler
 }
 
-func (h *attributeHandler) CreateAttribute(ctx context.Context, req *connect.Request[catalogv1.CreateAttributeRequest]) (*connect.Response[catalogv1.CreateAttributeResponse], error) {
+func NewAttributeHandler(
+	createHandler attribute.CreateAttributeCommandHandler,
+	updateHandler attribute.UpdateAttributeCommandHandler,
+	getByIDHandler attribute.GetAttributeByIDQueryHandler,
+	getListHandler attribute.GetAttributeListQueryHandler,
+) *AttributeHandler {
+	return &AttributeHandler{
+		createHandler:  createHandler,
+		updateHandler:  updateHandler,
+		getByIDHandler: getByIDHandler,
+		getListHandler: getListHandler,
+	}
+}
+
+func (h *AttributeHandler) CreateAttribute(ctx context.Context, req *connect.Request[catalogv1.CreateAttributeRequest]) (*connect.Response[catalogv1.CreateAttributeResponse], error) {
 	var id *string
 	if req.Msg.Id != nil {
 		id = req.Msg.Id
@@ -51,7 +65,7 @@ func (h *attributeHandler) CreateAttribute(ctx context.Context, req *connect.Req
 	}), nil
 }
 
-func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *connect.Request[catalogv1.UpdateAttributeRequest]) (*connect.Response[catalogv1.UpdateAttributeResponse], error) {
+func (h *AttributeHandler) UpdateAttribute(ctx context.Context, req *connect.Request[catalogv1.UpdateAttributeRequest]) (*connect.Response[catalogv1.UpdateAttributeResponse], error) {
 	var unit *string
 	if req.Msg.Unit != nil {
 		unit = req.Msg.Unit
@@ -76,7 +90,7 @@ func (h *attributeHandler) UpdateAttribute(ctx context.Context, req *connect.Req
 	}), nil
 }
 
-func (h *attributeHandler) GetAttributeById(ctx context.Context, req *connect.Request[catalogv1.GetAttributeByIdRequest]) (*connect.Response[catalogv1.GetAttributeByIdResponse], error) { //nolint:revive
+func (h *AttributeHandler) GetAttributeById(ctx context.Context, req *connect.Request[catalogv1.GetAttributeByIdRequest]) (*connect.Response[catalogv1.GetAttributeByIdResponse], error) { //nolint:revive
 	q := attribute.GetAttributeByIDQuery{ID: req.Msg.GetId()}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
@@ -89,7 +103,7 @@ func (h *attributeHandler) GetAttributeById(ctx context.Context, req *connect.Re
 	}), nil
 }
 
-func (h *attributeHandler) GetAttributeList(ctx context.Context, req *connect.Request[catalogv1.GetAttributeListRequest]) (*connect.Response[catalogv1.GetAttributeListResponse], error) {
+func (h *AttributeHandler) GetAttributeList(ctx context.Context, req *connect.Request[catalogv1.GetAttributeListRequest]) (*connect.Response[catalogv1.GetAttributeListResponse], error) {
 	var attrType *string
 	if req.Msg.Type != nil {
 		s := protoAttributeTypeToString(*req.Msg.Type)

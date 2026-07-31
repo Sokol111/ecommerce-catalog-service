@@ -3,7 +3,7 @@ package category
 import (
 	"context"
 
-	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/mongo"
 )
 
 type ListQuery struct {

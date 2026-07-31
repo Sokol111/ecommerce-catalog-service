@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/testutil/mocks"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 )
 
 // createTestAttribute creates a test attribute for update tests

@@ -7,8 +7,8 @@ import (
 	"go.uber.org/fx"
 )
 
-// Module provides application layer dependencies
-func Module() fx.Option {
+// NewAppModule provides application layer dependencies
+func NewAppModule() fx.Option {
 	return fx.Options(
 		// Command handlers
 		fx.Provide(

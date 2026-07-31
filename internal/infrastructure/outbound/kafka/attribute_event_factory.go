@@ -6,15 +6,15 @@ import (
 	eventsv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/events/v1"
 	apiEvents "github.com/Sokol111/ecommerce-catalog-service-api/pkg/events"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/attribute"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type attributeEventFactory struct{}
 
-// newAttributeEventFactory creates a new AttributeEventFactory
-func newAttributeEventFactory() attribute.AttributeEventFactory {
+// NewAttributeEventFactory creates a new AttributeEventFactory
+func NewAttributeEventFactory() attribute.AttributeEventFactory {
 	return &attributeEventFactory{}
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 func TestCategoryMapper_ToEntity(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
@@ -104,16 +104,16 @@ func TestCategoryMapper_ToEntity(t *testing.T) {
 }
 
 func TestCategoryMapper_ToDomain(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
 	t.Run("maps all fields correctly", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &categoryEntity{
+		entity := &CategoryEntity{
 			ID:      "cat-123",
 			Version: 3,
 			Name:    "Home & Garden",
 			Enabled: true,
-			Attributes: []categoryAttributeEntity{
+			Attributes: []CategoryAttributeEntity{
 				{
 					AttributeID: "attr-10",
 					Role:        "variant",
@@ -156,7 +156,7 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 
 	t.Run("maps entity without attributes", func(t *testing.T) {
 		now := time.Now().UTC()
-		entity := &categoryEntity{
+		entity := &CategoryEntity{
 			ID:         "cat-456",
 			Version:    1,
 			Name:       "Sports",
@@ -177,7 +177,7 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 		loc, _ := time.LoadLocation("Europe/Berlin")
 		localTime := time.Date(2024, 6, 15, 14, 30, 0, 0, loc)
 
-		entity := &categoryEntity{
+		entity := &CategoryEntity{
 			ID:         "cat-789",
 			Version:    1,
 			Name:       "Test",
@@ -195,25 +195,25 @@ func TestCategoryMapper_ToDomain(t *testing.T) {
 }
 
 func TestCategoryMapper_GetID(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
-	entity := &categoryEntity{ID: "category-id-123"}
+	entity := &CategoryEntity{ID: "category-id-123"}
 
 	assert.Equal(t, "category-id-123", mapper.GetID(entity))
 }
 
 func TestCategoryMapper_GetVersion(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
-	entity := &categoryEntity{Version: 8}
+	entity := &CategoryEntity{Version: 8}
 
 	assert.Equal(t, int64(8), mapper.GetVersion(entity))
 }
 
 func TestCategoryMapper_SetVersion(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
-	entity := &categoryEntity{Version: 1}
+	entity := &CategoryEntity{Version: 1}
 
 	mapper.SetVersion(entity, 15)
 
@@ -221,7 +221,7 @@ func TestCategoryMapper_SetVersion(t *testing.T) {
 }
 
 func TestCategoryMapper_RoundTrip(t *testing.T) {
-	mapper := newCategoryMapper()
+	mapper := NewCategoryMapper()
 
 	t.Run("domain -> entity -> domain preserves all data", func(t *testing.T) {
 		now := time.Now().UTC().Truncate(time.Millisecond)
@@ -293,7 +293,7 @@ func TestMapCategoryAttributeToEntity(t *testing.T) {
 }
 
 func TestMapCategoryAttributeToDomain(t *testing.T) {
-	entity := categoryAttributeEntity{
+	entity := CategoryAttributeEntity{
 		AttributeID: "attr-456",
 		Role:        "specification",
 		SortOrder:   10,

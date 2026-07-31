@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

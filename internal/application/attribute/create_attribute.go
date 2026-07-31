@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"go.uber.org/zap"
 )
 

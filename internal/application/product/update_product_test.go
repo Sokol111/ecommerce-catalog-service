@@ -14,8 +14,8 @@ import (
 	"github.com/Sokol111/ecommerce-catalog-service/internal/application/category"
 	"github.com/Sokol111/ecommerce-catalog-service/internal/testutil/mocks"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/patterns/outbox"
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/kafka/outbox"
+	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 )
 
 // testCtx creates a context with a no-op logger for testing
