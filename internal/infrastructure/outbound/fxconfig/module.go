@@ -6,7 +6,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewInfrastructureModule() fx.Option {
+func NewOutboundInfrastructureModule() fx.Option {
 	return fx.Options(
 		mongo.NewMongoModule(),
 		kafka.NewKafkaModule(),

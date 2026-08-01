@@ -1,0 +1,19 @@
+logger:
+  level: "debug"
+  development: true
+
+mongo:
+  host: "localhost"
+  database: "e2e_test"
+  direct-connection: true
+
+multi-tenancy:
+  enabled: true
+
+kafka:
+  consumers-config:
+    consumers:
+      - name: "tenant-events"
+        topic: "tenant.tenant.events"
+        group-id: "catalog-service-tenant-events"
+        auto-offset-reset: "earliest"
