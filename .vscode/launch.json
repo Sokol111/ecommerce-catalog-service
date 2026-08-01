@@ -23,7 +23,7 @@
             "request": "launch",
             "mode": "test",
             "program": "${workspaceFolder}/test/e2e",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/test/e2e",
             "buildFlags": "-tags=e2e",
             "env": {
                 "PATH": "/usr/local/go/bin:/home/ihsokolo/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
