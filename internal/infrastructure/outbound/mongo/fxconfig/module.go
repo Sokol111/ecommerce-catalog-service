@@ -20,22 +20,22 @@ func NewMongoModule() fx.Option {
 		mongo.NewCategoryRepository,
 		mongo.NewAttributeMapper,
 		mongo.NewAttributeRepository,
-		func(database *mongodriver.Database) (*commonsmongo.GenericRepository[product.Product, mongo.ProductEntity], error) {
+		func(database *mongodriver.Database, mapper *mongo.ProductMapper) (*commonsmongo.GenericRepository[product.Product, mongo.ProductEntity], error) {
 			return commonsmongo.NewGenericRepository(
 				tenant.NewMultiTenantCollectionProvider(database, "product"),
-				mongo.NewProductMapper(),
+				mapper,
 			)
 		},
-		func(database *mongodriver.Database) (*commonsmongo.GenericRepository[category.Category, mongo.CategoryEntity], error) {
+		func(database *mongodriver.Database, mapper *mongo.CategoryMapper) (*commonsmongo.GenericRepository[category.Category, mongo.CategoryEntity], error) {
 			return commonsmongo.NewGenericRepository(
 				tenant.NewMultiTenantCollectionProvider(database, "category"),
-				mongo.NewCategoryMapper(),
+				mapper,
 			)
 		},
-		func(database *mongodriver.Database) (*commonsmongo.GenericRepository[attribute.Attribute, mongo.AttributeEntity], error) {
+		func(database *mongodriver.Database, mapper *mongo.AttributeMapper) (*commonsmongo.GenericRepository[attribute.Attribute, mongo.AttributeEntity], error) {
 			return commonsmongo.NewGenericRepository(
 				tenant.NewMultiTenantCollectionProvider(database, "attribute"),
-				mongo.NewAttributeMapper(),
+				mapper,
 			)
 		},
 	)
