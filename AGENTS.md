@@ -43,9 +43,8 @@ Integration and e2e tests need Docker (testcontainers). Unit tests do not.
 ## Architecture
 
 **Hexagonal + CQRS-write + event-driven.** Read `cmd/main.go` first — it is the composition
-root and contains no business logic, only `fx.Options` module wiring. Everything is assembled
-through `go.uber.org/fx`; to add a component, provide it in the relevant package's `Module()`
-rather than constructing it in `main.go`.
+root and contains no business logic, only `fx.Options` module wiring. It composes the commons,
+application, and infrastructure `fxconfig` modules; do not construct components in `main.go`.
 
 Layers (each of the three aggregates — `product`, `category`, `attribute` — repeats this shape):
 
@@ -62,8 +61,8 @@ Layers (each of the three aggregates — `product`, `category`, `attribute` — 
 - **`internal/infrastructure/outbound/mongo/`** — repository implementations (driven adapters).
   Each aggregate has `*_entity.go` (BSON document), `*_mapper.go` (domain↔entity), and
   `*_repository.go`. Repos embed `commonsmongo.GenericRepository` and are built with
-  `NewTenantRepository` (see multi-tenancy below); custom queries like `FindList` build `bson`
-  filters on top.
+  `commonsmongo.NewGenericRepository` plus a tenant-aware collection provider; custom queries like
+  `FindList` build `bson` filters on top.
 - **`internal/infrastructure/outbound/kafka/`** — event factories that turn domain objects into
   protobuf outbox messages. Topic is resolved via `apiEvents.TopicFor(event)` from the `-api` repo.
 
@@ -79,11 +78,12 @@ relay). Preserve this ordering when adding new write use cases.
 
 ### Multi-tenancy (database-per-tenant)
 
-Tenant modules from `ecommerce-commons/pkg/tenant` and `tenant-service-api` are wired in
-`main.go`. Tenant-scoped collections (`product`, `category`, `attribute`) use
-`commonsmongo.NewTenantRepository`, which resolves a per-tenant database from request context.
-The transactional `outbox` collection is **not** tenant-scoped. Respect tenant context in any new
-repository query.
+`main.go` composes `fx_commons.NewCommonsModule()`, which includes the commons tenant module;
+the infrastructure module adds tenant-service API adapters. Tenant-scoped collections (`product`,
+`category`, `attribute`) use `commonsmongo.NewGenericRepository` with
+`commonstenant.NewMultiTenantCollectionProvider`, which resolves a per-tenant database from request
+context. The transactional `outbox` collection is **not** tenant-scoped. Respect tenant context in
+any new repository query.
 
 ## Conventions & gotchas
 
@@ -97,7 +97,9 @@ repository query.
   `catalogv1connect` handlers and `eventsv1` types this service imports. To change an RPC or
   event schema, edit `.proto` there and `make generate` — never hand-edit `gen/`.
 - **MongoDB indexes are declarative migrations** in `db/migrations/*.json` (golang-migrate
-  command format), applied at startup by the commons persistence module. Add indexes there.
+  command format). The default runner applies them when `mongo.migrations.enabled`; when
+  `multi-tenancy.enabled`, the commons tenant module decorates it to migrate every active tenant.
+  Add indexes there.
 - **Config** is `configs/config.standalone.yaml` selected by `APP_ENV` (set in `.env`),
   overridable by env vars. Covers `mongo`, `kafka`, `security.jwks` (JWT via JWKS, Logto locally),
   `logger`, `observability` (OpenTelemetry).
