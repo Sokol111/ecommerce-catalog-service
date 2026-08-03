@@ -12,8 +12,9 @@ import (
 
 	"go.uber.org/fx"
 
-	fx_inbound "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/fxconfig"
-	fx_outbound "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/fxconfig"
+	fx_connect "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/inbound/connect/fxconfig"
+	fx_kafka "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/kafka/fxconfig"
+	fx_mongo "github.com/Sokol111/ecommerce-catalog-service/internal/infrastructure/outbound/mongo/fxconfig"
 
 	catalogv1 "github.com/Sokol111/ecommerce-catalog-service-api/gen/go/catalog/v1"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/health"
@@ -75,8 +76,9 @@ func startApp(mongoContainer *container.MongoDBContainer, redpandaContainer *con
 		fx_commons.NewCommonsModule(),
 		fx_application.NewAppModule(),
 
-		fx_outbound.NewOutboundInfrastructureModule(),
-		fx_inbound.NewInboundInfrastructureModule(),
+		fx_mongo.NewMongoModule(),
+		fx_kafka.NewKafkaModule(),
+		fx_connect.NewConnectModule(),
 		fx.Provide(func() tenant.SlugsProvider { return defaultSlugsProvider{} }),
 		fx.Populate(&ready),
 	)
