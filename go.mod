@@ -4,7 +4,7 @@ go 1.26.5
 
 require (
 	connectrpc.com/connect v1.20.0
-	github.com/Sokol111/ecommerce-catalog-service-api v1.3.6
+	github.com/Sokol111/ecommerce-catalog-service-api v1.3.7
 	github.com/Sokol111/ecommerce-commons v0.8.16
 	github.com/Sokol111/ecommerce-tenant-service-api v0.2.11
 	github.com/google/uuid v1.6.0
